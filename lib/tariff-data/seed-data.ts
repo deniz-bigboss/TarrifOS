@@ -1098,6 +1098,45 @@ export const SEED_TARIFF_CODES: TariffCode[] = [
     ],
     riskLevel: "high",
   },
+
+  // --------------------------------------------------------- Sporting goods
+  {
+    code: "8712.00",
+    jurisdiction: "GLOBAL",
+    title: "Bicycles and other cycles, not motorized",
+    description:
+      "Two-wheeled and other non-motorized bicycles, including road, racing, gravel and city bicycles.",
+    keywords: [
+      "bicycle", "bike", "cycle", "road bike", "racing bike", "gravel bike",
+      "cycling", "tarmac", "specialized", "trek", "carbon fiber bicycle",
+      "road racing bicycle",
+    ],
+    chapter: "87",
+    section: "XVII",
+    dutyRatePlaceholder: "~14% (EU MFN, placeholder)",
+    requiredDocuments: ["commercial invoice", "packing list", "certificate of origin"],
+    restrictionNotes: [
+      "Anti-dumping/countervailing duties may apply depending on country of origin (e.g., historically for China-origin bicycles) — verify current trade remedy measures.",
+    ],
+    riskLevel: "medium",
+  },
+  {
+    code: "8714.91",
+    jurisdiction: "GLOBAL",
+    title: "Bicycle frames, forks, and parts thereof",
+    description:
+      "Frames and forks for bicycles and other cycles, and parts of frames/forks (e.g. carbon-fiber framesets sold separately from a complete bicycle).",
+    keywords: [
+      "bicycle frame", "frameset", "fork", "carbon frame", "bike frame",
+      "frame and fork",
+    ],
+    chapter: "87",
+    section: "XVII",
+    dutyRatePlaceholder: "~4.7% (EU MFN, placeholder)",
+    requiredDocuments: ["commercial invoice", "packing list"],
+    restrictionNotes: [],
+    riskLevel: "low",
+  },
 ];
 
 /** Quick lookup by code. */

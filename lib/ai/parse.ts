@@ -6,6 +6,8 @@ import type {
   ProductInput,
 } from "@/types";
 import { LEGAL_DISCLAIMER } from "@/types";
+import type { ProductLookupResult } from "./types";
+import { PRODUCT_CATEGORIES } from "@/lib/constants";
 
 /** Extract the first JSON object/array from a model response string. */
 export function extractJson(raw: string): unknown {
@@ -119,5 +121,56 @@ export function normalizeModelResult(
         ? obj.broker_ready_explanation
         : "",
     disclaimer: LEGAL_DISCLAIMER,
+  };
+}
+
+/**
+ * Normalize an arbitrary model JSON object into a safe ProductLookupResult.
+ * Treats anything malformed or unconfident as "not found" rather than
+ * surfacing fabricated data — mirrors normalizeModelResult's defensive style.
+ */
+export function normalizeLookupResult(
+  parsed: unknown,
+  query: string,
+): ProductLookupResult {
+  const obj = (parsed ?? {}) as Record<string, unknown>;
+  const description =
+    typeof obj.product_description === "string" ? obj.product_description.trim() : "";
+  const found = Boolean(obj.found) && description.length > 0;
+
+  if (!found) {
+    return {
+      found: false,
+      product_name: query,
+      product_description: "",
+      material_composition: null,
+      intended_use: null,
+      category: null,
+      brand: null,
+      model: null,
+      source: "ai",
+    };
+  }
+
+  const categoryRaw =
+    typeof obj.category === "string" ? obj.category.toLowerCase().trim() : "";
+  const category = (PRODUCT_CATEGORIES as readonly string[]).includes(categoryRaw)
+    ? categoryRaw
+    : null;
+
+  return {
+    found: true,
+    product_name:
+      typeof obj.product_name === "string" && obj.product_name.trim()
+        ? obj.product_name
+        : query,
+    product_description: description,
+    material_composition:
+      typeof obj.material_composition === "string" ? obj.material_composition : null,
+    intended_use: typeof obj.intended_use === "string" ? obj.intended_use : null,
+    category,
+    brand: typeof obj.brand === "string" ? obj.brand : null,
+    model: typeof obj.model === "string" ? obj.model : null,
+    source: "ai",
   };
 }

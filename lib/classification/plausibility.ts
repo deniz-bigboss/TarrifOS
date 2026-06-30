@@ -25,6 +25,7 @@ const CATEGORY_WEIGHT_CEILING_KG: Record<string, number> = {
   machinery: 2000,
   chemicals: 1000,
   medical: 50,
+  "sporting goods": 25,
 };
 
 const DEFAULT_WEIGHT_CEILING_KG = 500;
@@ -55,6 +56,7 @@ const CATEGORY_VALUE_PER_KG_CEILING: Record<string, number> = {
   machinery: 2000,
   chemicals: 500,
   medical: 50_000,
+  "sporting goods": 10_000,
 };
 
 const DEFAULT_VALUE_PER_KG_CEILING = 5000;

@@ -5,6 +5,24 @@ import type {
 } from "@/types";
 
 /**
+ * Result of a "quick find" product lookup (Quick Find toggle in the
+ * classification wizard). `found: false` means the provider did not
+ * recognize the product with reasonable confidence — callers must treat
+ * that as "no data," never fabricate plausible-looking specs.
+ */
+export interface ProductLookupResult {
+  found: boolean;
+  product_name: string;
+  product_description: string;
+  material_composition: string | null;
+  intended_use: string | null;
+  category: string | null;
+  brand: string | null;
+  model: string | null;
+  source: "curated" | "ai";
+}
+
+/**
  * AIProvider is the model-provider abstraction. Implementations:
  *  - MockAIProvider       (deterministic, no API key — default)
  *  - OpenAIProvider       (AI_PROVIDER=openai, OPENAI_API_KEY)
@@ -30,4 +48,11 @@ export interface AIProvider {
     input: ProductInput,
     result: ClassificationResult,
   ): Promise<string>;
+
+  /**
+   * Quick Find: identify a product from a short name/model (e.g. a brand +
+   * model string) and return fields to pre-fill the wizard. Must return
+   * `found: false` rather than guessing when the product isn't recognized.
+   */
+  lookupProduct(query: string): Promise<ProductLookupResult>;
 }

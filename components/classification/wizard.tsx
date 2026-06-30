@@ -1,34 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
+  CheckCircle2,
   FileUp,
   Loader2,
+  Search,
   Sparkles,
 } from "lucide-react";
 import { productInputSchema, type ProductInputSchema } from "@/lib/validation/schemas";
-import { createClassificationAction } from "@/app/dashboard/classifications/actions";
+import {
+  createClassificationAction,
+  lookupProductAction,
+} from "@/app/dashboard/classifications/actions";
+import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { COUNTRIES } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
+const QUICK_FIND_DEBOUNCE_MS = 700;
+
 const COUNTRY_OPTIONS = Object.entries(COUNTRIES);
 const CURRENCIES = ["EUR", "GBP", "USD", "TRY"];
-const CATEGORIES = [
-  "apparel", "textiles", "footwear", "leather goods", "electronics",
-  "batteries", "cosmetics", "food products", "plastic goods", "metal goods",
-  "furniture", "books/paper", "toys", "machinery", "chemicals", "medical",
-];
+const CATEGORIES = PRODUCT_CATEGORIES;
 
 const STEPS = ["Product", "Trade lane", "Documents", "Review"] as const;
 
@@ -61,12 +67,21 @@ const DEMO_BATTERY: Partial<ProductInputSchema> = {
   import_or_export: "import",
 };
 
+type QuickFindStatus = "idle" | "loading" | "found" | "not_found" | "error";
+
 export function ClassificationWizard() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [files, setFiles] = useState<{ name: string; type: string }[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Quick Find: when on, the user types a brand/model into one field and we
+  // auto-fill the rest from a lookup instead of manual entry.
+  const [quickFindOn, setQuickFindOn] = useState(false);
+  const [quickFindQuery, setQuickFindQuery] = useState("");
+  const [quickFindStatus, setQuickFindStatus] = useState<QuickFindStatus>("idle");
+  const [quickFindMessage, setQuickFindMessage] = useState<string | null>(null);
 
   const form = useForm<ProductInputSchema>({
     resolver: zodResolver(productInputSchema),
@@ -81,7 +96,68 @@ export function ClassificationWizard() {
 
   const { register, handleSubmit, trigger, formState, setValue, watch } = form;
 
+  // Debounced Quick Find lookup — fires QUICK_FIND_DEBOUNCE_MS after typing
+  // stops, fills the form fields on a confident match, and is honest (not a
+  // fabricated guess) when nothing is recognized.
+  const quickFindToken = useRef(0);
+  useEffect(() => {
+    if (!quickFindOn) return;
+    const query = quickFindQuery.trim();
+    if (query.length < 2) {
+      setQuickFindStatus("idle");
+      setQuickFindMessage(null);
+      return;
+    }
+
+    setQuickFindStatus("loading");
+    const token = ++quickFindToken.current;
+    const handle = setTimeout(async () => {
+      const result = await lookupProductAction(query);
+      if (token !== quickFindToken.current) return; // stale response
+
+      if (!result.ok) {
+        setQuickFindStatus("error");
+        setQuickFindMessage(result.error);
+        return;
+      }
+
+      const data = result.data;
+      if (!data.found) {
+        setQuickFindStatus("not_found");
+        setQuickFindMessage(
+          "No confident match. Try the full brand + model name, or turn off Quick Find to enter details manually.",
+        );
+        return;
+      }
+
+      setValue("product_name", data.product_name, { shouldValidate: true });
+      setValue("product_description", data.product_description, { shouldValidate: true });
+      if (data.material_composition) setValue("material_composition", data.material_composition);
+      if (data.intended_use) setValue("intended_use", data.intended_use);
+      if (data.category) setValue("category", data.category, { shouldValidate: true });
+      if (data.brand) setValue("brand", data.brand);
+      if (data.model) setValue("sku", data.model);
+
+      setQuickFindStatus("found");
+      setQuickFindMessage(
+        data.source === "ai"
+          ? `Matched: ${data.product_name} — AI-identified, verify before relying on it.`
+          : `Matched: ${data.product_name}`,
+      );
+    }, QUICK_FIND_DEBOUNCE_MS);
+
+    return () => clearTimeout(handle);
+  }, [quickFindQuery, quickFindOn, setValue]);
+
+  function toggleQuickFind(on: boolean) {
+    setQuickFindOn(on);
+    setQuickFindStatus("idle");
+    setQuickFindMessage(null);
+    if (!on) setQuickFindQuery("");
+  }
+
   function loadDemo(demo: Partial<ProductInputSchema>) {
+    if (quickFindOn) toggleQuickFind(false);
     Object.entries(demo).forEach(([k, v]) =>
       setValue(k as keyof ProductInputSchema, v as never, { shouldValidate: true }),
     );
@@ -154,62 +230,151 @@ export function ClassificationWizard() {
           {/* Step 0 — Product basics */}
           {step === 0 && (
             <>
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-muted-foreground">Prefill a demo:</span>
-                <button
-                  type="button"
-                  onClick={() => loadDemo(DEMO_TSHIRT)}
-                  className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80"
-                >
-                  <Sparkles className="h-3 w-3" /> Cotton t-shirt
-                </button>
-                <button
-                  type="button"
-                  onClick={() => loadDemo(DEMO_BATTERY)}
-                  className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80"
-                >
-                  <Sparkles className="h-3 w-3" /> E-bike battery
-                </button>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-sm text-muted-foreground">Prefill a demo:</span>
+                  <button
+                    type="button"
+                    onClick={() => loadDemo(DEMO_TSHIRT)}
+                    className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80"
+                  >
+                    <Sparkles className="h-3 w-3" /> Cotton t-shirt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadDemo(DEMO_BATTERY)}
+                    className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80"
+                  >
+                    <Sparkles className="h-3 w-3" /> E-bike battery
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <span className="text-sm font-medium" id="quick-find-label">
+                    Quick Find
+                  </span>
+                  <Switch
+                    aria-labelledby="quick-find-label"
+                    checked={quickFindOn}
+                    onChange={(e) => toggleQuickFind(e.target.checked)}
+                  />
+                </div>
               </div>
 
-              <Field label="Product name" error={formState.errors.product_name?.message} required>
-                <Input {...register("product_name")} placeholder="Men's cotton t-shirt" />
-              </Field>
-              <Field
-                label="Product description"
-                error={formState.errors.product_description?.message}
-                required
+              {quickFindOn ? (
+                <div className="space-y-1.5 rounded-lg border border-primary/30 bg-accent/30 p-4">
+                  <Label>
+                    Quick find <span className="text-destructive"> *</span>
+                  </Label>
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      autoFocus
+                      value={quickFindQuery}
+                      onChange={(e) => setQuickFindQuery(e.target.value)}
+                      placeholder="e.g. S-Works Tarmac SL9"
+                      className="pl-9 pr-9"
+                    />
+                    {quickFindStatus === "loading" && (
+                      <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    )}
+                    {quickFindStatus === "found" && (
+                      <CheckCircle2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-success" />
+                    )}
+                    {(quickFindStatus === "not_found" || quickFindStatus === "error") && (
+                      <AlertCircle className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-warning" />
+                    )}
+                  </div>
+                  {quickFindMessage && (
+                    <p
+                      className={cn(
+                        "text-xs",
+                        quickFindStatus === "found" && "text-success",
+                        (quickFindStatus === "not_found" || quickFindStatus === "error") &&
+                          "text-muted-foreground",
+                      )}
+                    >
+                      {quickFindMessage}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Type a brand + model and we'll fill in the description, material,
+                    use, category, brand and model below. Turn Quick Find off to edit
+                    them by hand.
+                  </p>
+                </div>
+              ) : null}
+
+              <fieldset
+                disabled={quickFindOn}
+                className={cn(
+                  "m-0 min-w-0 space-y-5 border-0 p-0",
+                  quickFindOn && "pointer-events-none",
+                )}
               >
-                <Textarea
-                  {...register("product_description")}
-                  placeholder="100% cotton knitted short-sleeve t-shirt"
-                  rows={3}
-                />
-              </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Material / composition">
-                  <Input {...register("material_composition")} placeholder="100% cotton" />
+                <Field label="Product name" error={formState.errors.product_name?.message} required>
+                  <Input
+                    {...register("product_name")}
+                    placeholder="Men's cotton t-shirt"
+                    className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                  />
                 </Field>
-                <Field label="Intended use">
-                  <Input {...register("intended_use")} placeholder="apparel" />
+                <Field
+                  label="Product description"
+                  error={formState.errors.product_description?.message}
+                  required
+                >
+                  <Textarea
+                    {...register("product_description")}
+                    placeholder="100% cotton knitted short-sleeve t-shirt"
+                    rows={3}
+                    className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                  />
                 </Field>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Category">
-                  <Select {...register("category")}>
-                    <option value="">Select…</option>
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field label="Brand">
-                  <Input {...register("brand")} placeholder="Acme" />
-                </Field>
-                <Field label="Model / SKU">
-                  <Input {...register("sku")} placeholder="TS-001" />
-                </Field>
-              </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Material / composition">
+                    <Input
+                      {...register("material_composition")}
+                      placeholder="100% cotton"
+                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    />
+                  </Field>
+                  <Field label="Intended use">
+                    <Input
+                      {...register("intended_use")}
+                      placeholder="apparel"
+                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    />
+                  </Field>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Field label="Category">
+                    <Select
+                      {...register("category")}
+                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    >
+                      <option value="">Select…</option>
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </Select>
+                  </Field>
+                  <Field label="Brand">
+                    <Input
+                      {...register("brand")}
+                      placeholder="Acme"
+                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    />
+                  </Field>
+                  <Field label="Model / SKU">
+                    <Input
+                      {...register("sku")}
+                      placeholder="TS-001"
+                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    />
+                  </Field>
+                </div>
+              </fieldset>
             </>
           )}
 

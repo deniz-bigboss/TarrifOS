@@ -15,6 +15,8 @@ import {
 import { recordUsageEvent } from "@/lib/db/usage";
 import { saveFeedback } from "@/lib/db/feedback";
 import { checkClassificationLimit } from "@/lib/billing/limits";
+import { getAIProvider } from "@/lib/ai";
+import type { ProductLookupResult } from "@/lib/ai/types";
 import type { ProductInput } from "@/types";
 
 export type ActionResult<T> =
@@ -83,6 +85,32 @@ export async function createClassificationAction(
       ok: false,
       error: err instanceof Error ? err.message : "Classification failed.",
     };
+  }
+}
+
+/**
+ * Quick Find: identify a product from a short name/model so the wizard can
+ * pre-fill description, material, use, category, brand and model. Does not
+ * count against the classification plan limit — it's a lookup, not a
+ * classification.
+ */
+export async function lookupProductAction(
+  query: string,
+): Promise<ActionResult<ProductLookupResult>> {
+  const session = await getSessionContext();
+  if (!session) return { ok: false, error: "Not authenticated." };
+
+  const trimmed = query.trim();
+  if (trimmed.length < 2) {
+    return { ok: false, error: "Type at least 2 characters." };
+  }
+
+  try {
+    const result = await getAIProvider().lookupProduct(trimmed);
+    return { ok: true, data: result };
+  } catch (err) {
+    console.error("[lookupProductAction] failed:", err);
+    return { ok: false, error: "Lookup failed. Try again or switch it off to type manually." };
   }
 }
 

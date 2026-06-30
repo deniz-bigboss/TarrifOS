@@ -6,9 +6,10 @@ import type {
   ProductInput,
 } from "@/types";
 import { LEGAL_DISCLAIMER } from "@/types";
-import type { AIProvider } from "./types";
+import type { AIProvider, ProductLookupResult } from "./types";
 import { countryName } from "@/lib/utils";
 import { deterministicMissingInfo } from "./missing-info";
+import { findCuratedProduct } from "./curated-products";
 
 /**
  * MockAIProvider — fully deterministic, no API key required.
@@ -84,6 +85,22 @@ export class MockAIProvider implements AIProvider {
 
   async generateMissingInfoQuestions(input: ProductInput): Promise<string[]> {
     return deterministicMissingInfo(input);
+  }
+
+  async lookupProduct(query: string): Promise<ProductLookupResult> {
+    return (
+      findCuratedProduct(query) ?? {
+        found: false,
+        product_name: query,
+        product_description: "",
+        material_composition: null,
+        intended_use: null,
+        category: null,
+        brand: null,
+        model: null,
+        source: "curated",
+      }
+    );
   }
 
   async generateBrokerReport(

@@ -4,15 +4,18 @@ import type {
   ClassificationResult,
   ProductInput,
 } from "@/types";
-import type { AIProvider } from "./types";
+import type { AIProvider, ProductLookupResult } from "./types";
 import {
   CLASSIFICATION_SYSTEM_PROMPT,
   MISSING_INFO_SYSTEM_PROMPT,
+  PRODUCT_LOOKUP_SYSTEM_PROMPT,
   buildClassificationUserPrompt,
   buildMissingInfoUserPrompt,
+  buildProductLookupUserPrompt,
 } from "./prompts";
-import { extractJson, normalizeModelResult } from "./parse";
+import { extractJson, normalizeModelResult, normalizeLookupResult } from "./parse";
 import { MockAIProvider } from "./mock-provider";
+import { findCuratedProduct } from "./curated-products";
 
 /**
  * OpenAIProvider — real classification via the OpenAI Chat Completions API.
@@ -80,5 +83,27 @@ export class OpenAIProvider implements AIProvider {
   ): Promise<string> {
     // Reuse the deterministic narrative builder for a consistent broker format.
     return this.fallback.generateBrokerReport(input, result);
+  }
+
+  async lookupProduct(query: string): Promise<ProductLookupResult> {
+    const curated = findCuratedProduct(query);
+    if (curated) return curated;
+
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.model,
+        temperature: 0.1,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: PRODUCT_LOOKUP_SYSTEM_PROMPT },
+          { role: "user", content: buildProductLookupUserPrompt(query) },
+        ],
+      });
+      const raw = completion.choices[0]?.message?.content ?? "";
+      return normalizeLookupResult(extractJson(raw), query);
+    } catch (err) {
+      console.error("[OpenAIProvider] lookupProduct failed, using mock:", err);
+      return this.fallback.lookupProduct(query);
+    }
   }
 }
