@@ -156,6 +156,16 @@ export function ClassificationWizard() {
     if (!on) setQuickFindQuery("");
   }
 
+  // Visually locked + unfocusable + uneditable, but NOT the native `disabled`
+  // attribute — see the comment above the Step 0 fields for why.
+  const lockedFieldProps = quickFindOn
+    ? {
+        readOnly: true,
+        tabIndex: -1,
+        className: "pointer-events-none bg-muted/70 text-muted-foreground",
+      }
+    : {};
+
   function loadDemo(demo: Partial<ProductInputSchema>) {
     if (quickFindOn) toggleQuickFind(false);
     Object.entries(demo).forEach(([k, v]) =>
@@ -305,18 +315,20 @@ export function ClassificationWizard() {
                 </div>
               ) : null}
 
-              <fieldset
-                disabled={quickFindOn}
-                className={cn(
-                  "m-0 min-w-0 space-y-5 border-0 p-0",
-                  quickFindOn && "pointer-events-none",
-                )}
-              >
+              {/*
+                Locked fields use readOnly + pointer-events-none + tabIndex=-1
+                instead of the native `disabled` attribute. React Hook Form
+                excludes disabled fields from validation/values entirely, which
+                would silently block submission even after Quick Find fills
+                them in — readOnly keeps the values valid while still blocking
+                user edits.
+              */}
+              <div className="space-y-5">
                 <Field label="Product name" error={formState.errors.product_name?.message} required>
                   <Input
                     {...register("product_name")}
                     placeholder="Men's cotton t-shirt"
-                    className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    {...lockedFieldProps}
                   />
                 </Field>
                 <Field
@@ -328,7 +340,7 @@ export function ClassificationWizard() {
                     {...register("product_description")}
                     placeholder="100% cotton knitted short-sleeve t-shirt"
                     rows={3}
-                    className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                    {...lockedFieldProps}
                   />
                 </Field>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -336,23 +348,20 @@ export function ClassificationWizard() {
                     <Input
                       {...register("material_composition")}
                       placeholder="100% cotton"
-                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                      {...lockedFieldProps}
                     />
                   </Field>
                   <Field label="Intended use">
                     <Input
                       {...register("intended_use")}
                       placeholder="apparel"
-                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                      {...lockedFieldProps}
                     />
                   </Field>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Field label="Category">
-                    <Select
-                      {...register("category")}
-                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
-                    >
+                    <Select {...register("category")} {...lockedFieldProps}>
                       <option value="">Select…</option>
                       {CATEGORIES.map((c) => (
                         <option key={c} value={c}>{c}</option>
@@ -363,18 +372,18 @@ export function ClassificationWizard() {
                     <Input
                       {...register("brand")}
                       placeholder="Acme"
-                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                      {...lockedFieldProps}
                     />
                   </Field>
                   <Field label="Model / SKU">
                     <Input
                       {...register("sku")}
                       placeholder="TS-001"
-                      className={quickFindOn ? "bg-muted/70 text-muted-foreground" : undefined}
+                      {...lockedFieldProps}
                     />
                   </Field>
                 </div>
-              </fieldset>
+              </div>
             </>
           )}
 
