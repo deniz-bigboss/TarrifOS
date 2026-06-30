@@ -23,11 +23,11 @@ export function DashboardSidebar() {
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex">
-      <div className="flex h-16 items-center gap-2 border-b px-5 font-semibold">
+      <div className="flex h-16 items-center gap-2 border-b px-5">
         <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Ship className="h-5 w-5" />
         </span>
-        TariffOS
+        <span className="font-display text-base font-semibold tracking-tight">TariffOS</span>
       </div>
 
       <div className="p-3">
@@ -50,7 +50,7 @@ export function DashboardSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-secondary text-foreground"
+                  ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
               )}
             >

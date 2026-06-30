@@ -10,7 +10,7 @@ export function SiteHeader() {
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Ship className="h-5 w-5" />
           </span>
-          <span className="text-lg tracking-tight">TariffOS</span>
+          <span className="font-display text-lg font-semibold tracking-tight">TariffOS</span>
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">

@@ -1,5 +1,23 @@
 import type { Metadata } from "next";
+import { Inter, Lexend } from "next/font/google";
+import { cn } from "@/lib/utils";
 import "./globals.css";
+
+// Inter for body copy — the de facto standard for clean B2B SaaS UI.
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+// Lexend for headings — slightly more geometric/confident than Inter at
+// large sizes, without tipping into "playful." Used sparingly via .font-display.
+const lexend = Lexend({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "TariffOS — AI customs classification & landed-cost",
@@ -16,7 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn(inter.variable, lexend.variable)}
+    >
       <body className="font-sans">{children}</body>
     </html>
   );

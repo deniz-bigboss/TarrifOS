@@ -28,10 +28,10 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/70 to-background" />
         <div className="container relative py-20 md:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <Badge variant="secondary" className="mb-6 gap-1">
+            <Badge className="mb-6 gap-1">
               <Sparkles className="h-3 w-3" /> AI-native customs classification
             </Badge>
-            <h1 className="text-balance text-4xl font-bold tracking-tight md:text-6xl">
+            <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-6xl">
               TariffOS helps importers classify products, estimate landed costs,
               and prepare customs-ready documentation.
             </h1>
