@@ -10,6 +10,8 @@ import { getAIProvider, type AIProvider } from "@/lib/ai";
 import { tokenize } from "@/lib/tariff-data/search";
 import { assessRisk } from "./risk";
 import { assessDataPlausibility } from "./plausibility";
+import { generateCostOptimization } from "./cost-optimizer";
+import { estimateDutyValue } from "./duty";
 import {
   HUMAN_REVIEW_CONFIDENCE_THRESHOLD,
   calculateConfidence,
@@ -233,6 +235,11 @@ export async function runClassification(
     };
   }
 
+  // Assistant layer: legitimate cost-reduction opportunities (duty
+  // comparison across candidates, preferential trade programs, de minimis).
+  // Never affects the recommended code or confidence.
+  result.cost_optimization = generateCostOptimization(input, candidates, result);
+
   // 6. broker report
   result.broker_ready_explanation = await generateBrokerReadyReport(
     input,
@@ -251,21 +258,4 @@ export async function runClassification(
 // --------------------------------------------------------------------------
 function dedupe(arr: string[]): string[] {
   return Array.from(new Set(arr.filter((x) => x && x.trim().length > 0)));
-}
-
-/**
- * Best-effort numeric duty estimate from a placeholder rate string like
- * "~12% (EU MFN, placeholder)". Returns null when no percentage is parseable.
- * This is explicitly a placeholder and always marked as such.
- */
-function estimateDutyValue(
-  ratePlaceholder: string,
-  declaredValue: number | null,
-): number | null {
-  if (declaredValue == null) return null;
-  const match = ratePlaceholder.match(/(\d+(?:\.\d+)?)\s*%/);
-  if (!match) return null;
-  const pct = parseFloat(match[1]);
-  if (Number.isNaN(pct)) return null;
-  return Math.round(((declaredValue * pct) / 100) * 100) / 100;
 }

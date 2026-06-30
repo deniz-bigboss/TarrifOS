@@ -112,6 +112,42 @@ export interface ClassificationResult {
   human_review_reason: string;
   broker_ready_explanation: string;
   duty_estimate?: DutyEstimate;
+  cost_optimization?: CostOptimization;
+  disclaimer: string;
+}
+
+// ---------------------------------------------------------------------------
+// Cost optimization — "what can legitimately be done to reduce landed cost"
+// ---------------------------------------------------------------------------
+
+export interface DutyComparisonEntry {
+  code: string;
+  title: string;
+  is_recommended: boolean;
+  duty_rate_placeholder: string;
+  estimated_duty_value: number | null;
+}
+
+export interface TradeProgramEligibility {
+  name: string;
+  /** True when origin/destination map to regions covered by this program. */
+  may_apply: boolean;
+  potential_duty_rate: string;
+  proof_required: string;
+  notes: string;
+}
+
+export interface DeMinimisNote {
+  country: string;
+  threshold_placeholder: string;
+  notes: string;
+}
+
+export interface CostOptimization {
+  duty_comparison: DutyComparisonEntry[];
+  trade_programs: TradeProgramEligibility[];
+  de_minimis: DeMinimisNote[];
+  recommendations: string[];
   disclaimer: string;
 }
 

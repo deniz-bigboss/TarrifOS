@@ -86,6 +86,33 @@ export function toMarkdown(ctx: ReportContext): string {
     lines.push("");
   }
 
+  if (result.cost_optimization) {
+    const opt = result.cost_optimization;
+    lines.push(`## Cost Optimization`);
+    if (opt.duty_comparison.length) {
+      lines.push(`**Duty by candidate code:**`);
+      for (const d of opt.duty_comparison) {
+        lines.push(
+          `- \`${d.code}\`${d.is_recommended ? " (recommended)" : ""} — ${d.title}: ${d.duty_rate_placeholder}${d.estimated_duty_value != null ? ` (~${d.estimated_duty_value} ${input.currency ?? ""})` : ""}`,
+        );
+      }
+    }
+    if (opt.trade_programs.length) {
+      lines.push(`**Preferential trade programs:**`);
+      for (const p of opt.trade_programs) {
+        lines.push(
+          `- ${p.name} (${p.may_apply ? "may apply" : "no program found"}): ${p.potential_duty_rate}. ${p.notes}`,
+        );
+      }
+    }
+    if (opt.recommendations.length) {
+      lines.push(`**Suggested actions:**`);
+      opt.recommendations.forEach((r) => lines.push(`- ${r}`));
+    }
+    lines.push(`> ${opt.disclaimer}`);
+    lines.push("");
+  }
+
   if (result.required_documents.length) {
     lines.push(`## Required Documents`);
     result.required_documents.forEach((d) => lines.push(`- ${d}`));

@@ -5,6 +5,7 @@ import {
   Layers,
   ListChecks,
   ShieldAlert,
+  TrendingDown,
 } from "lucide-react";
 import type { ClassificationResult, ProductInput } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -237,6 +238,109 @@ export function ResultView({
             <p className="text-xs text-muted-foreground">
               These figures are placeholders. Connect an official tariff source
               for binding duty/tax treatment.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Cost optimization */}
+      {result.cost_optimization && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingDown className="h-4 w-4 text-primary" /> Cost optimization
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {result.cost_optimization.duty_comparison.length > 0 && (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Duty by candidate code
+                </p>
+                <div className="overflow-hidden rounded-md border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40 text-xs text-muted-foreground">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium">Code</th>
+                        <th className="px-3 py-2 text-left font-medium">Title</th>
+                        <th className="px-3 py-2 text-left font-medium">Duty rate</th>
+                        <th className="px-3 py-2 text-right font-medium">Est. duty</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.cost_optimization.duty_comparison.map((d) => (
+                        <tr
+                          key={d.code}
+                          className={`border-t ${d.is_recommended ? "bg-accent/40" : ""}`}
+                        >
+                          <td className="px-3 py-2 font-mono text-xs">
+                            {d.code}
+                            {d.is_recommended && (
+                              <Badge variant="default" className="ml-2">
+                                recommended
+                              </Badge>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-muted-foreground">
+                            {d.title}
+                          </td>
+                          <td className="px-3 py-2 text-xs">{d.duty_rate_placeholder}</td>
+                          <td className="px-3 py-2 text-right text-xs">
+                            {d.estimated_duty_value != null
+                              ? formatCurrency(d.estimated_duty_value, input.currency ?? "USD")
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {result.cost_optimization.trade_programs.length > 0 && (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Preferential trade programs
+                </p>
+                <ul className="space-y-2 text-sm">
+                  {result.cost_optimization.trade_programs.map((p) => (
+                    <li key={p.name} className="rounded-md border bg-muted/30 p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium">{p.name}</span>
+                        <Badge variant={p.may_apply ? "success" : "outline"}>
+                          {p.may_apply ? "may apply" : "no program found"}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Potential rate: {p.potential_duty_rate}
+                        {p.may_apply && ` · Proof required: ${p.proof_required}`}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">{p.notes}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {result.cost_optimization.recommendations.length > 0 && (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Suggested actions
+                </p>
+                <ul className="space-y-1.5 text-sm">
+                  {result.cost_optimization.recommendations.map((r, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+              {result.cost_optimization.disclaimer}
             </p>
           </CardContent>
         </Card>

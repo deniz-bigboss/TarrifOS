@@ -96,6 +96,7 @@ export async function POST(request: Request) {
         required_documents: result.required_documents,
         restriction_warnings: result.restriction_warnings,
         duty_estimate: result.duty_estimate ?? null,
+        cost_optimization: result.cost_optimization ?? null,
         broker_ready_explanation: result.broker_ready_explanation,
         disclaimer: result.disclaimer,
       },
