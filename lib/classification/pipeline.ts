@@ -9,6 +9,7 @@ import { getTariffDataProvider, type TariffDataProvider } from "@/lib/tariff-dat
 import { getAIProvider, type AIProvider } from "@/lib/ai";
 import { tokenize } from "@/lib/tariff-data/search";
 import { assessRisk } from "./risk";
+import { assessDataPlausibility } from "./plausibility";
 import {
   HUMAN_REVIEW_CONFIDENCE_THRESHOLD,
   calculateConfidence,
@@ -128,6 +129,17 @@ export function validateClassification(
   if (matched?.riskLevel === "high") {
     reviewReasons.push(
       `Recommended code ${matched.code} is a high-risk category requiring expert confirmation.`,
+    );
+  }
+
+  // Rule: declared value/weight that look like data-entry errors require
+  // review. This never affects classification confidence — the HS/HTS code
+  // is determined by what the product is, not its price or weight.
+  const plausibilityWarnings = assessDataPlausibility(input);
+  if (plausibilityWarnings.length > 0) {
+    next.restriction_warnings.push(...plausibilityWarnings);
+    reviewReasons.push(
+      "Declared value/weight look inconsistent — verify before filing.",
     );
   }
 
