@@ -26,11 +26,16 @@ export class OpenAIProvider implements AIProvider {
   readonly name = "openai";
   private client: OpenAI;
   private model: string;
+  private searchModel: string;
   private fallback = new MockAIProvider();
 
   constructor(apiKey: string, model = process.env.OPENAI_MODEL || "gpt-4o-mini") {
     this.client = new OpenAI({ apiKey });
     this.model = model;
+    // Search-enabled model variant used only for lookupProduct, so Quick Find
+    // can identify real products (not just what's in the curated list) via
+    // live web search rather than the base model's training-data recall.
+    this.searchModel = process.env.OPENAI_SEARCH_MODEL || "gpt-4o-search-preview";
   }
 
   async classifyProduct(
@@ -89,6 +94,31 @@ export class OpenAIProvider implements AIProvider {
     const curated = findCuratedProduct(query);
     if (curated) return curated;
 
+    // Search-preview model variants reject `temperature` and don't need
+    // `response_format` — the system prompt already pins the output to a
+    // single JSON object and extractJson() tolerates any surrounding text.
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.searchModel,
+        web_search_options: {},
+        messages: [
+          { role: "system", content: PRODUCT_LOOKUP_SYSTEM_PROMPT },
+          { role: "user", content: buildProductLookupUserPrompt(query) },
+        ],
+      } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming);
+      const raw = completion.choices[0]?.message?.content ?? "";
+      return normalizeLookupResult(extractJson(raw), query);
+    } catch (err) {
+      console.error(
+        "[OpenAIProvider] search-enabled lookupProduct failed, retrying without web search:",
+        err,
+      );
+      return this.lookupProductWithoutSearch(query);
+    }
+  }
+
+  /** Fallback when the search-preview model/call isn't available: plain model recall. */
+  private async lookupProductWithoutSearch(query: string): Promise<ProductLookupResult> {
     try {
       const completion = await this.client.chat.completions.create({
         model: this.model,

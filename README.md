@@ -158,6 +158,16 @@ the engine automatically falls back to the mock so nothing hard-breaks. The
 compliance rules (human-review thresholds, placeholder duties) are enforced in
 code regardless of provider.
 
+**Quick Find** (the wizard's product-lookup toggle) only has real internet
+awareness under a real provider — `mock` can only ever match its small curated
+list (`lib/ai/curated-products.ts`), by design, since mock mode has zero
+external calls. Under `openai`, Quick Find uses a search-enabled model
+(`OPENAI_SEARCH_MODEL`, default `gpt-4o-search-preview`); under `anthropic`, it
+uses Claude's web search tool. Either way it explicitly returns "not found"
+rather than fabricate details for a product it can't confirm, and any match is
+shown as editable fields the user must confirm before continuing — never
+auto-submitted.
+
 Adding an official tariff source later is just as modular: implement the
 `TariffDataProvider` interface (`lib/tariff-data/types.ts`) for EU TARIC / UK
 Trade Tariff / US HTS / Turkey and return it from `getTariffDataProvider()`.

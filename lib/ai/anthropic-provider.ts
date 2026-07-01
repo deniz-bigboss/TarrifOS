@@ -90,6 +90,35 @@ export class AnthropicProvider implements AIProvider {
     const curated = findCuratedProduct(query);
     if (curated) return curated;
 
+    // Web search tool lets Claude look up real, current product details
+    // instead of relying only on training-data recall. Falls back to a
+    // plain (non-search) call if the tool/model combination isn't available
+    // on this account, then to mock, so a rejected tool never breaks Quick Find.
+    try {
+      const message = await this.client.messages.create({
+        model: this.model,
+        max_tokens: 800,
+        temperature: 0.1,
+        system: PRODUCT_LOOKUP_SYSTEM_PROMPT,
+        tools: [
+          { type: "web_search_20250305", name: "web_search", max_uses: 3 } as unknown as Anthropic.Messages.Tool,
+        ],
+        messages: [
+          { role: "user", content: buildProductLookupUserPrompt(query) },
+        ],
+      });
+      return normalizeLookupResult(extractJson(textOf(message)), query);
+    } catch (err) {
+      console.error(
+        "[AnthropicProvider] search-enabled lookupProduct failed, retrying without web search:",
+        err,
+      );
+      return this.lookupProductWithoutSearch(query);
+    }
+  }
+
+  /** Fallback when the web search tool isn't available on this account/model. */
+  private async lookupProductWithoutSearch(query: string): Promise<ProductLookupResult> {
     try {
       const message = await this.client.messages.create({
         model: this.model,

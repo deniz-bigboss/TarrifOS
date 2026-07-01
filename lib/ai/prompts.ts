@@ -88,10 +88,11 @@ List the missing-information questions as a JSON array of strings.`;
 export const PRODUCT_LOOKUP_SYSTEM_PROMPT = `You identify commercial products from a brand/model name for a customs classification tool, to help pre-fill a form. Respond with ONLY a single valid JSON object, no markdown, no commentary.
 
 Rules:
-- Only fill in details if you recognize this specific product with reasonable confidence. If you do not recognize it, are unsure, or it is too generic to identify, return {"found": false} and leave the other fields null — never invent plausible-sounding but fabricated specifications.
+- If web search is available to you, use it — especially for specific model numbers, storage/capacity variants, recent releases, or anything you are not certain of from memory alone. Prefer manufacturer spec pages and major retailers as sources.
+- Only fill in details if you recognize this specific product with reasonable confidence (via search or memory). If you cannot confirm it, are unsure, or it is too generic to identify, return {"found": false} and leave the other fields null — never invent plausible-sounding but fabricated specifications.
 - "category" MUST be exactly one of: ${PRODUCT_CATEGORIES.join(", ")}. If none fit well, use null.
 - Do not include duty rates, prices, or legal/compliance claims — this tool handles that separately.
-- product_description must be factual and specific (material, construction, primary function) in 1-2 sentences, written as it would appear on a commercial invoice or spec sheet.
+- product_description must be factual and specific (material, construction, primary function) in 1-2 sentences, written as it would appear on a commercial invoice or spec sheet. Include capacity/variant details (e.g. storage size, connectivity) when the query specifies them.
 
 Output JSON schema:
 {

@@ -77,11 +77,15 @@ export function ClassificationWizard() {
   const [submitting, setSubmitting] = useState(false);
 
   // Quick Find: when on, the user types a brand/model into one field and we
-  // auto-fill the rest from a lookup instead of manual entry.
+  // auto-fill the rest from a lookup instead of manual entry. Fields stay
+  // locked only until a lookup resolves; once matched, they unlock so the
+  // user can edit, and an explicit confirmation is required before Continue.
   const [quickFindOn, setQuickFindOn] = useState(false);
   const [quickFindQuery, setQuickFindQuery] = useState("");
   const [quickFindStatus, setQuickFindStatus] = useState<QuickFindStatus>("idle");
   const [quickFindMessage, setQuickFindMessage] = useState<string | null>(null);
+  const [quickFindConfirmed, setQuickFindConfirmed] = useState(false);
+  const [showConfirmNudge, setShowConfirmNudge] = useState(false);
 
   const form = useForm<ProductInputSchema>({
     resolver: zodResolver(productInputSchema),
@@ -106,10 +110,14 @@ export function ClassificationWizard() {
     if (query.length < 2) {
       setQuickFindStatus("idle");
       setQuickFindMessage(null);
+      setQuickFindConfirmed(false);
+      setShowConfirmNudge(false);
       return;
     }
 
     setQuickFindStatus("loading");
+    setQuickFindConfirmed(false);
+    setShowConfirmNudge(false);
     const token = ++quickFindToken.current;
     const handle = setTimeout(async () => {
       const result = await lookupProductAction(query);
@@ -153,12 +161,17 @@ export function ClassificationWizard() {
     setQuickFindOn(on);
     setQuickFindStatus("idle");
     setQuickFindMessage(null);
+    setQuickFindConfirmed(false);
+    setShowConfirmNudge(false);
     if (!on) setQuickFindQuery("");
   }
 
-  // Visually locked + unfocusable + uneditable, but NOT the native `disabled`
-  // attribute — see the comment above the Step 0 fields for why.
-  const lockedFieldProps = quickFindOn
+  // Fields lock only while we don't yet have a resolved lookup — once a
+  // search finishes (found, not found, or errored) they unlock so the user
+  // can freely edit or type manually. NOT the native `disabled` attribute —
+  // React Hook Form excludes disabled fields from validation entirely.
+  const fieldsLocked = quickFindOn && (quickFindStatus === "idle" || quickFindStatus === "loading");
+  const lockedFieldProps = fieldsLocked
     ? {
         readOnly: true,
         tabIndex: -1,
@@ -174,6 +187,11 @@ export function ClassificationWizard() {
   }
 
   async function next() {
+    if (step === 0 && quickFindOn && quickFindStatus === "found" && !quickFindConfirmed) {
+      setShowConfirmNudge(true);
+      return;
+    }
+
     const fieldsByStep: (keyof ProductInputSchema)[][] = [
       ["product_name", "product_description", "material_composition", "intended_use", "category"],
       ["origin_country", "destination_country", "import_or_export", "declared_value", "currency"],
@@ -307,11 +325,37 @@ export function ClassificationWizard() {
                       {quickFindMessage}
                     </p>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Type a brand + model and we'll fill in the description, material,
-                    use, category, brand and model below. Turn Quick Find off to edit
-                    them by hand.
-                  </p>
+
+                  {quickFindStatus === "found" ? (
+                    <div className="space-y-1.5 pt-1">
+                      <label className="flex items-start gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={quickFindConfirmed}
+                          onChange={(e) => {
+                            setQuickFindConfirmed(e.target.checked);
+                            if (e.target.checked) setShowConfirmNudge(false);
+                          }}
+                          className="mt-0.5 h-4 w-4 rounded border-input"
+                        />
+                        <span>
+                          The fields below are now editable — review them, fix
+                          anything wrong, then confirm before continuing.
+                        </span>
+                      </label>
+                      {showConfirmNudge && !quickFindConfirmed && (
+                        <p className="flex items-center gap-1.5 text-xs text-destructive">
+                          <AlertCircle className="h-3.5 w-3.5" /> Please confirm the
+                          details are correct before continuing.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Type a brand + model and we'll fill in the description, material,
+                      use, category, brand and model below.
+                    </p>
+                  )}
                 </div>
               ) : null}
 

@@ -41,6 +41,20 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
     },
   },
   {
+    match: (q) => q.includes("galaxy s25 ultra") || q.includes("s25 ultra"),
+    result: {
+      product_name: "Samsung Galaxy S25 Ultra 5G",
+      product_description:
+        "5G smartphone with integrated cellular and Wi-Fi/Bluetooth radio modules, a lithium-ion battery, multi-lens camera system, and titanium frame.",
+      material_composition:
+        "Titanium frame, glass front/back, lithium-ion battery, electronic components",
+      intended_use: "personal mobile communication device",
+      category: "electronics",
+      brand: "Samsung",
+      model: "Galaxy S25 Ultra 5G 256GB",
+    },
+  },
+  {
     match: (q) => q.includes("aeron"),
     result: {
       product_name: "Herman Miller Aeron Chair",
