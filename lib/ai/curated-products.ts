@@ -24,6 +24,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "sporting goods",
       brand: "Specialized",
       model: "S-Works Tarmac SL9",
+      unit_weight_kg: 7,
     },
   },
   {
@@ -38,6 +39,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "electronics",
       brand: "Apple",
       model: "iPhone 15 Pro",
+      unit_weight_kg: 0.187,
     },
   },
   {
@@ -52,6 +54,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "electronics",
       brand: "Samsung",
       model: "Galaxy S25 Ultra 5G 256GB",
+      unit_weight_kg: 0.218,
     },
   },
   {
@@ -65,6 +68,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "furniture",
       brand: "Herman Miller",
       model: "Aeron",
+      unit_weight_kg: 19,
     },
   },
   {
@@ -78,6 +82,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "batteries",
       brand: "Anker",
       model: "PowerCore 10000",
+      unit_weight_kg: 0.18,
     },
   },
   {
@@ -91,6 +96,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "metal goods",
       brand: "YETI",
       model: "Rambler 20 oz",
+      unit_weight_kg: 0.4,
     },
   },
   {
@@ -104,6 +110,7 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       category: "apparel",
       brand: "Patagonia",
       model: "Better Sweater 1/4-Zip",
+      unit_weight_kg: 0.5,
     },
   },
 ];

@@ -148,6 +148,7 @@ export function normalizeLookupResult(
       category: null,
       brand: null,
       model: null,
+      unit_weight_kg: null,
       source: "ai",
     };
   }
@@ -171,6 +172,23 @@ export function normalizeLookupResult(
     category,
     brand: typeof obj.brand === "string" ? obj.brand : null,
     model: typeof obj.model === "string" ? obj.model : null,
+    unit_weight_kg: parsePositiveNumber(obj.unit_weight_kg),
     source: "ai",
   };
+}
+
+/**
+ * Coerce a model-provided weight to a sane positive number, or null. Accepts
+ * numbers or numeric strings (models sometimes emit "0.22" or "0.22 kg");
+ * rejects zero, negatives, NaN, and absurd values.
+ */
+function parsePositiveNumber(value: unknown): number | null {
+  let n: number | null = null;
+  if (typeof value === "number") n = value;
+  else if (typeof value === "string") {
+    const match = value.match(/-?\d+(\.\d+)?/);
+    if (match) n = parseFloat(match[0]);
+  }
+  if (n == null || !Number.isFinite(n) || n <= 0 || n > 100_000) return null;
+  return Math.round(n * 1000) / 1000;
 }

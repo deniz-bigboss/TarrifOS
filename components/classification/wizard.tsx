@@ -145,6 +145,9 @@ export function ClassificationWizard() {
       if (data.category) setValue("category", data.category, { shouldValidate: true });
       if (data.brand) setValue("brand", data.brand);
       if (data.model) setValue("sku", data.model);
+      // Unit weight lives on the Trade lane step; pre-fill it too (estimate —
+      // the user reviews it there before submitting).
+      if (data.unit_weight_kg != null) setValue("unit_weight", data.unit_weight_kg);
 
       setQuickFindStatus("found");
       setQuickFindMessage(
@@ -339,7 +342,8 @@ export function ClassificationWizard() {
                           className="mt-0.5 h-4 w-4 rounded border-input"
                         />
                         <span>
-                          The fields below are now editable — review them, fix
+                          The fields below are now editable (unit weight, on the
+                          next step, is pre-filled too) — review them, fix
                           anything wrong, then confirm before continuing.
                         </span>
                       </label>
@@ -353,7 +357,7 @@ export function ClassificationWizard() {
                   ) : (
                     <p className="text-xs text-muted-foreground">
                       Type a brand + model and we'll fill in the description, material,
-                      use, category, brand and model below.
+                      use, category, brand, model and unit weight.
                     </p>
                   )}
                 </div>

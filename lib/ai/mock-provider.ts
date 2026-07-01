@@ -98,6 +98,7 @@ export class MockAIProvider implements AIProvider {
         category: null,
         brand: null,
         model: null,
+        unit_weight_kg: null,
         source: "curated",
       }
     );

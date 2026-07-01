@@ -19,6 +19,9 @@ export interface ProductLookupResult {
   category: string | null;
   brand: string | null;
   model: string | null;
+  /** Approximate net weight of a single unit, in kilograms. Estimate — the
+   *  user reviews/edits it before submitting. null when not confidently known. */
+  unit_weight_kg: number | null;
   source: "curated" | "ai";
 }
 

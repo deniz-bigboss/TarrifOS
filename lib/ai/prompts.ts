@@ -91,6 +91,7 @@ Rules:
 - If web search is available to you, use it — especially for specific model numbers, storage/capacity variants, recent releases, or anything you are not certain of from memory alone. Prefer manufacturer spec pages and major retailers as sources.
 - Only fill in details if you recognize this specific product with reasonable confidence (via search or memory). If you cannot confirm it, are unsure, or it is too generic to identify, return {"found": false} and leave the other fields null — never invent plausible-sounding but fabricated specifications.
 - "category" MUST be exactly one of: ${PRODUCT_CATEGORIES.join(", ")}. If none fit well, use null.
+- "unit_weight_kg" is the approximate NET weight of ONE unit of the product in kilograms (a number, not a string). Use the product's own weight, not shipping/packaged weight, when both are known. If you cannot estimate it with reasonable confidence, use null — do not guess wildly.
 - Do not include duty rates, prices, or legal/compliance claims — this tool handles that separately.
 - product_description must be factual and specific (material, construction, primary function) in 1-2 sentences, written as it would appear on a commercial invoice or spec sheet. Include capacity/variant details (e.g. storage size, connectivity) when the query specifies them.
 
@@ -103,7 +104,8 @@ Output JSON schema:
   "intended_use": string | null,
   "category": string | null,
   "brand": string | null,
-  "model": string | null
+  "model": string | null,
+  "unit_weight_kg": number | null
 }`;
 
 export function buildProductLookupUserPrompt(query: string): string {
