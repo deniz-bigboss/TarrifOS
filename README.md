@@ -24,7 +24,7 @@ score, and an automatic human-review flag for high-risk or low-confidence cases.
   `SeedTariffDataProvider` (62 HS-style seed codes across all required
   categories). No live government API dependency at launch.
 - **AI provider abstraction** (`AIProvider`): `MockAIProvider` (default, no key),
-  `OpenAIProvider`, `AnthropicProvider`.
+  `GeminiProvider` (free tier), `OpenAIProvider`, `AnthropicProvider`.
 - **Compliance rules enforced in code**: confidence < 0.75 or any high-risk
   category (food, batteries, chemicals, medical, weapons, alcohol, …) forces
   human review. Duty figures are always placeholders.
@@ -142,7 +142,12 @@ The engine works fully offline with the deterministic `MockAIProvider`. To use a
 real model, set in `.env.local`:
 
 ```bash
-# OpenAI
+# Gemini (free tier — no billing card; get a key at https://aistudio.google.com)
+AI_PROVIDER=gemini
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash   # optional
+
+# or OpenAI
 AI_PROVIDER=openai
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-4o-mini        # optional
@@ -161,12 +166,15 @@ code regardless of provider.
 **Quick Find** (the wizard's product-lookup toggle) only has real internet
 awareness under a real provider — `mock` can only ever match its small curated
 list (`lib/ai/curated-products.ts`), by design, since mock mode has zero
-external calls. Under `openai`, Quick Find uses a search-enabled model
-(`OPENAI_SEARCH_MODEL`, default `gpt-4o-search-preview`); under `anthropic`, it
-uses Claude's web search tool. Either way it explicitly returns "not found"
-rather than fabricate details for a product it can't confirm, and any match is
-shown as editable fields the user must confirm before continuing — never
-auto-submitted.
+external calls. Real web search per provider:
+
+- `gemini` — Google Search grounding (`googleSearch` tool). **Free tier.**
+- `openai` — a search-enabled model (`OPENAI_SEARCH_MODEL`, default `gpt-4o-search-preview`).
+- `anthropic` — Claude's `web_search` tool.
+
+Either way it explicitly returns "not found" rather than fabricate details for a
+product it can't confirm, and any match is shown as editable fields the user
+must confirm before continuing — never auto-submitted.
 
 Adding an official tariff source later is just as modular: implement the
 `TariffDataProvider` interface (`lib/tariff-data/types.ts`) for EU TARIC / UK
