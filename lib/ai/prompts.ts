@@ -15,7 +15,7 @@ Hard rules:
 - You MUST choose recommended_code from the supplied candidate codes. Do not invent codes.
 - Cite the candidate descriptions in your reasoning_summary and broker_ready_explanation.
 - NEVER invent or assert specific duty rates. Treat all duty/tax figures as placeholders.
-- If the product description is vague or missing key attributes (material, function, use, composition), populate missing_information with specific questions.
+- Before adding anything to missing_information, re-read the full product name, description, material composition, and intended use given below — if that question is already answered anywhere in them, do NOT ask it again. Only populate missing_information with questions whose answer is genuinely absent from the input (e.g. don't ask "does it contain a battery?" if the description already says "lithium-ion battery"; don't ask for the wireless technology if it already says "Wi-Fi/Bluetooth"). Compliance paperwork that a product description would never state (UN38.3 test report, SDS, declaration of conformity, CAS numbers) is always fine to ask for.
 - Set human_review_required = true if confidence < 0.75, OR if the product involves food, cosmetics, chemicals, batteries, electronics with radio modules, medical devices, pharmaceuticals, dual-use goods, weapons, alcohol, tobacco, animal products, or plant products.
 - Never say "guaranteed" or "guaranteed correct". Use "recommended", "likely", "candidate", "confidence", "requires review".
 - confidence is a number from 0 to 1. confidence_label is "low" (<0.5), "medium" (0.5–0.75), or "high" (>0.75).
@@ -68,7 +68,7 @@ ${candidateBlock}
 Return the structured JSON classification now.`;
 }
 
-export const MISSING_INFO_SYSTEM_PROMPT = `You are a customs classification assistant. Given a product, list the most important missing details a customs broker would need to classify it accurately (e.g. exact material composition, function, intended use, whether it contains electronics or batteries, technical specifications). Respond with ONLY a JSON array of short question strings.`;
+export const MISSING_INFO_SYSTEM_PROMPT = `You are a customs classification assistant. Given a product, list the most important missing details a customs broker would need to classify it accurately (e.g. exact material composition, function, intended use, whether it contains electronics or batteries, technical specifications). Before listing a question, check whether it's already answered in the product name/description/material/use given below — if so, skip it. Respond with ONLY a JSON array of short question strings.`;
 
 export function buildMissingInfoUserPrompt(input: ProductInput): string {
   return `Product name: ${input.product_name}

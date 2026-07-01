@@ -12,6 +12,7 @@ import { assessRisk } from "./risk";
 import { assessDataPlausibility } from "./plausibility";
 import { generateCostOptimization } from "./cost-optimizer";
 import { estimateDutyValue } from "./duty";
+import { filterRedundantMissingInfo } from "@/lib/ai/missing-info";
 import {
   HUMAN_REVIEW_CONFIDENCE_THRESHOLD,
   calculateConfidence,
@@ -167,7 +168,14 @@ export function validateClassification(
   // De-duplicate list fields.
   next.required_documents = dedupe(next.required_documents);
   next.restriction_warnings = dedupe(next.restriction_warnings);
-  next.missing_information = dedupe(next.missing_information);
+  // Drop any missing-info question whose answer is already stated in the
+  // product input — applies to every provider's output, not just mock, since
+  // a model can still ask boilerplate questions despite the prompt telling
+  // it not to (see lib/ai/missing-info.ts).
+  next.missing_information = filterRedundantMissingInfo(
+    dedupe(next.missing_information),
+    input,
+  );
   next.key_factors = dedupe(next.key_factors);
 
   return next;
