@@ -41,6 +41,36 @@ export class GeminiProvider implements AIProvider {
     input: ProductInput,
     candidates: CandidateCode[],
   ): Promise<ClassificationResult> {
+    // Search-grounded first: lets Gemini verify HS codes against official
+    // sources, which matters most when no local candidate fits the product.
+    // Search and forced-JSON mode are mutually exclusive, so this path relies
+    // on the system prompt + extractJson; it falls back to the plain JSON
+    // call, then to mock, so a rejected tool never breaks classification.
+    try {
+      const response = await this.client.models.generateContent({
+        model: this.model,
+        contents: buildClassificationUserPrompt(input, candidates),
+        config: {
+          systemInstruction: CLASSIFICATION_SYSTEM_PROMPT,
+          temperature: 0.1,
+          tools: [{ googleSearch: {} }],
+        },
+      });
+      return normalizeModelResult(extractJson(response.text ?? ""), input, candidates);
+    } catch (err) {
+      console.error(
+        "[GeminiProvider] search-grounded classifyProduct failed, retrying without search:",
+        err,
+      );
+      return this.classifyProductWithoutSearch(input, candidates);
+    }
+  }
+
+  /** Fallback when the googleSearch tool isn't available on this key/model. */
+  private async classifyProductWithoutSearch(
+    input: ProductInput,
+    candidates: CandidateCode[],
+  ): Promise<ClassificationResult> {
     try {
       const response = await this.client.models.generateContent({
         model: this.model,

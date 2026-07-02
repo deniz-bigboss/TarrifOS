@@ -8,6 +8,7 @@ import type {
 import { LEGAL_DISCLAIMER } from "@/types";
 import type { ProductLookupResult } from "./types";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
+import { normalizeHsCode } from "@/lib/tariff-data/hs-chapters";
 
 /** Extract the first JSON object/array from a model response string. */
 export function extractJson(raw: string): unknown {
@@ -64,9 +65,18 @@ export function normalizeModelResult(
       ? obj.recommended_code
       : (top?.code ?? "");
 
-  // Anchor title/documents/restrictions to the matched candidate when possible.
-  const matched =
-    candidates.find((c) => c.code === recommendedCode) ?? top;
+  // Anchor title/documents/restrictions to the matched candidate — but ONLY
+  // when the code actually matches one. For a code the model proposed from
+  // outside the candidate list, anchoring to the top candidate would attach
+  // the WRONG code's documents/warnings; fall back to safe generics instead.
+  const normalizedRec = normalizeHsCode(recommendedCode);
+  const matched = candidates.find(
+    (c) => c.code === recommendedCode || (normalizedRec && c.code === normalizedRec),
+  );
+  const fallbackDocuments = matched
+    ? [...matched.requiredDocuments]
+    : ["commercial invoice", "packing list"];
+  const fallbackRestrictions = matched ? [...matched.restrictionNotes] : [];
 
   const confidenceRaw =
     typeof obj.confidence === "number" ? obj.confidence : 0.5;
@@ -109,10 +119,10 @@ export function normalizeModelResult(
     missing_information: asStringArray(obj.missing_information),
     required_documents: requiredDocuments.length
       ? requiredDocuments
-      : [...(matched?.requiredDocuments ?? [])],
+      : fallbackDocuments,
     restriction_warnings: restrictionWarnings.length
       ? restrictionWarnings
-      : [...(matched?.restrictionNotes ?? [])],
+      : fallbackRestrictions,
     human_review_required: Boolean(obj.human_review_required),
     human_review_reason:
       typeof obj.human_review_reason === "string" ? obj.human_review_reason : "",

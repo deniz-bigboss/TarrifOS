@@ -21,8 +21,13 @@ score, and an automatic human-review flag for high-risk or low-confidence cases.
 - **Classification engine** with a 7-stage pipeline:
   `normalize → retrieve → reason → validate → confidence → broker report → save`.
 - **Modular tariff-data adapter** (`TariffDataProvider`) with a local
-  `SeedTariffDataProvider` (62 HS-style seed codes across all required
-  categories). No live government API dependency at launch.
+  `SeedTariffDataProvider` (99 HS-style seed codes across all required
+  categories) plus the full HS chapter map (`lib/tariff-data/hs-chapters.ts`)
+  injected into the classification prompt. When no local candidate fits, a
+  real AI provider may propose the correct HS code from its knowledge/web
+  search — such codes are format- and chapter-validated in code, always
+  flagged for human review, and clearly marked as outside the local dataset.
+  No live government API dependency at launch.
 - **AI provider abstraction** (`AIProvider`): `MockAIProvider` (default, no key),
   `GeminiProvider` (free tier), `OpenAIProvider`, `AnthropicProvider`.
 - **Compliance rules enforced in code**: confidence < 0.75 or any high-risk

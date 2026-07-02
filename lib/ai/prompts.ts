@@ -1,6 +1,7 @@
 import type { CandidateCode, ProductInput } from "@/types";
 import { countryName } from "@/lib/utils";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
+import { HS_CHAPTER_PROMPT_BLOCK } from "@/lib/tariff-data/hs-chapters";
 
 /**
  * System prompt that pins the model to safe, evidence-based, structured output.
@@ -9,11 +10,15 @@ import { PRODUCT_CATEGORIES } from "@/lib/constants";
  */
 export const CLASSIFICATION_SYSTEM_PROMPT = `You are TariffOS, an expert customs classification assistant for HS/HTS/TARIC commodity codes.
 
-Your job: recommend the most likely tariff classification for a product, using ONLY the candidate codes provided as evidence.
+Your job: recommend the most likely tariff classification for a product.
+
+How to choose recommended_code:
+1. FIRST check the supplied candidate codes. If one genuinely describes this product, choose it — candidates are backed by local reference data and produce the most verifiable results.
+2. ONLY if none of the candidates fits the product type at all (e.g. they are all for a different kind of good), you may recommend the correct 6-digit HS code from your own knowledge. If web search is available to you, verify the code before answering. When you go outside the candidate list: the code MUST be real HS nomenclature (use the chapter reference provided), you MUST set human_review_required = true, keep confidence at or below 0.7, and explain in reasoning_summary why no candidate fit.
+3. NEVER fabricate a code that is not part of the official HS nomenclature, and never force-fit a candidate that describes a different product type just because it is in the list.
 
 Hard rules:
-- You MUST choose recommended_code from the supplied candidate codes. Do not invent codes.
-- Cite the candidate descriptions in your reasoning_summary and broker_ready_explanation.
+- Cite the candidate descriptions in your reasoning_summary and broker_ready_explanation when you use them.
 - NEVER invent or assert specific duty rates. Treat all duty/tax figures as placeholders.
 - Before adding anything to missing_information, re-read the full product name, description, material composition, and intended use given below — if that question is already answered anywhere in them, do NOT ask it again. Only populate missing_information with questions whose answer is genuinely absent from the input (e.g. don't ask "does it contain a battery?" if the description already says "lithium-ion battery"; don't ask for the wireless technology if it already says "Wi-Fi/Bluetooth"). Compliance paperwork that a product description would never state (UN38.3 test report, SDS, declaration of conformity, CAS numbers) is always fine to ask for. Do NOT ask whether a battery is "shipped alone or installed in equipment" for a finished consumer device (phone, watch, tracker, laptop, headphones, etc.) — its battery is obviously already installed; only ask that when the product itself might plausibly BE a standalone battery or power bank.
 - Set human_review_required = true if confidence < 0.75, OR if the product involves food, cosmetics, chemicals, batteries, electronics with radio modules, medical devices, pharmaceuticals, dual-use goods, weapons, alcohol, tobacco, animal products, or plant products.
@@ -61,9 +66,12 @@ export function buildClassificationUserPrompt(
 - Direction: ${input.import_or_export ?? "import"}
 - Declared value: ${input.declared_value ?? "not provided"} ${input.currency ?? ""}
 
-CANDIDATE TARIFF CODES (choose the recommended_code from these):
+CANDIDATE TARIFF CODES (prefer these — they are backed by local reference data):
 
-${candidateBlock}
+${candidateBlock || "(no candidates retrieved — recommend the correct HS code per the rules, with human_review_required = true)"}
+
+HS CHAPTER REFERENCE (the full nomenclature at 2-digit level, for orientation when no candidate fits):
+${HS_CHAPTER_PROMPT_BLOCK}
 
 Return the structured JSON classification now.`;
 }

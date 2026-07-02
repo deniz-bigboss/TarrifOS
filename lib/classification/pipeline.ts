@@ -13,6 +13,7 @@ import { assessDataPlausibility } from "./plausibility";
 import { generateCostOptimization } from "./cost-optimizer";
 import { estimateDutyValue } from "./duty";
 import { filterRedundantMissingInfo } from "@/lib/ai/missing-info";
+import { isPlausibleHsCode, normalizeHsCode } from "@/lib/tariff-data/hs-chapters";
 import {
   HUMAN_REVIEW_CONFIDENCE_THRESHOLD,
   calculateConfidence,
@@ -110,14 +111,43 @@ export function validateClassification(
     disclaimer: LEGAL_DISCLAIMER,
   };
 
-  // Guard: recommended_code must be one of the retrieved candidates.
-  const matched = candidates.find((c) => c.code === next.recommended_code);
-  if (!matched && candidates[0]) {
-    next.recommended_code = candidates[0].code;
-    next.recommended_title = candidates[0].title;
+  // Guard: the recommended code should normally be one of the retrieved
+  // candidates. But when the model proposes a code from OUTSIDE the local
+  // dataset (its knowledge / web search often knows the correct HS code for
+  // products our seed data doesn't cover), force-replacing it with the
+  // nearest seed code actively made results WRONG. So: keep a structurally
+  // plausible HS code (valid 4/6/8-digit shape + real chapter prefix) and
+  // force human review instead; only fall back to the top candidate when the
+  // model's code isn't plausible HS nomenclature at all.
+  const normalizedRec = next.recommended_code
+    ? normalizeHsCode(next.recommended_code)
+    : null;
+  const matched = candidates.find(
+    (c) =>
+      c.code === next.recommended_code ||
+      (normalizedRec && c.code === normalizedRec),
+  );
+  if (matched) {
+    // Canonicalize formatting to the candidate's dotted form.
+    next.recommended_code = matched.code;
   }
-
   const reviewReasons: string[] = [];
+
+  if (!matched) {
+    const normalized = normalizedRec;
+    if (normalized && isPlausibleHsCode(normalized)) {
+      next.recommended_code = normalized;
+      reviewReasons.push(
+        `Code ${normalized} was proposed by the AI beyond the local reference dataset and must be verified against an official tariff source.`,
+      );
+      next.restriction_warnings.push(
+        `AI-proposed code: ${normalized} is not in TariffOS's local reference dataset — confirm it against the destination country's official tariff before filing.`,
+      );
+    } else if (candidates[0]) {
+      next.recommended_code = candidates[0].code;
+      next.recommended_title = candidates[0].title;
+    }
+  }
 
   // Rule: high-risk categories always require human review.
   const risk = assessRisk(input);
