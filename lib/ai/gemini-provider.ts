@@ -158,7 +158,12 @@ export class GeminiProvider implements AIProvider {
       return normalizeLookupResult(extractJson(response.text ?? ""), query);
     } catch (err) {
       console.error("[GeminiProvider] lookupProduct failed, using mock:", err);
-      return this.fallback.lookupProduct(query);
+      const offline = await this.fallback.lookupProduct(query);
+      return {
+        ...offline,
+        degraded_reason:
+          "The live Gemini lookup failed (often a free-tier rate limit or daily quota — it resets automatically). Only the built-in product list was checked.",
+      };
     }
   }
 }

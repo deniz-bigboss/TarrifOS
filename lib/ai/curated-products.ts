@@ -7,9 +7,23 @@ import type { ProductLookupResult } from "./types";
  * AIProvider, regardless of which model is configured. Real providers fall
  * back to a model call for anything not in this list.
  */
+type CuratedResult = Omit<ProductLookupResult, "found" | "source">;
+
 interface CuratedProduct {
   match: (queryLower: string) => boolean;
-  result: Omit<ProductLookupResult, "found" | "source">;
+  /** Static result, or a template built from the query (for product FAMILIES
+   *  like pet food where the name/weight vary but the customs-relevant
+   *  description is the same honest generic). */
+  result: CuratedResult | ((query: string) => CuratedResult);
+}
+
+/** Pull "1.5 kg" / "400g" style weights out of a product name, in kg. */
+export function weightFromQuery(query: string): number | null {
+  const kg = query.match(/(\d+(?:[.,]\d+)?)\s*kg\b/i);
+  if (kg) return Math.round(parseFloat(kg[1].replace(",", ".")) * 1000) / 1000;
+  const g = query.match(/(\d+(?:[.,]\d+)?)\s*g(?:r|ram)?s?\b/i);
+  if (g) return Math.round(parseFloat(g[1].replace(",", ".")) ) / 1000;
+  return null;
 }
 
 const CURATED_PRODUCTS: CuratedProduct[] = [
@@ -117,6 +131,37 @@ const CURATED_PRODUCTS: CuratedProduct[] = [
       unit_weight_kg: 0.5,
     },
   },
+  {
+    // Product FAMILY: retail cat/dog food ("Purina Pro Plan Sterilised
+    // Chicken Cat Food 1.5 Kg", "Royal Canin dog food 12kg", …). The
+    // customs-relevant facts are the same across brands, so this echoes the
+    // user's product name and fills an honest generic description — no
+    // brand-specific specs are invented. Classifies to 2309.10 (high-risk,
+    // SPS-controlled), which is exactly right for pet food.
+    match: (q) =>
+      /(cat|dog|pet)\s?food\b/.test(q) &&
+      // "…cat food bowl/dispenser" is an accessory, not food — let the AI handle it.
+      !/(bowl|dispenser|container|storage|mat|scoop|holder|feeder)/.test(q),
+    result: (query) => {
+      const q = query.toLowerCase();
+      const animal = q.includes("cat") ? "cat" : q.includes("dog") ? "dog" : "pet";
+      const form = /\bwet\b|pouch|can(?:ned)?\b/.test(q)
+        ? "Wet"
+        : /\bdry\b|kibble/.test(q)
+          ? "Dry"
+          : "Prepared";
+      return {
+        product_name: query.trim(),
+        product_description: `${form} ${animal} food put up for retail sale.`,
+        material_composition: null,
+        intended_use: `${animal} food / animal feeding`,
+        category: "food products",
+        brand: null,
+        model: null,
+        unit_weight_kg: weightFromQuery(query),
+      };
+    },
+  },
 ];
 
 /** Look up a product against the curated list. Returns null if no match. */
@@ -125,5 +170,7 @@ export function findCuratedProduct(query: string): ProductLookupResult | null {
   if (!q) return null;
   const match = CURATED_PRODUCTS.find((p) => p.match(q));
   if (!match) return null;
-  return { found: true, source: "curated", ...match.result };
+  const result =
+    typeof match.result === "function" ? match.result(query) : match.result;
+  return { found: true, source: "curated", ...result };
 }

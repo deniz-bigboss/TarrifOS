@@ -133,7 +133,12 @@ export class OpenAIProvider implements AIProvider {
       return normalizeLookupResult(extractJson(raw), query);
     } catch (err) {
       console.error("[OpenAIProvider] lookupProduct failed, using mock:", err);
-      return this.fallback.lookupProduct(query);
+      const offline = await this.fallback.lookupProduct(query);
+      return {
+        ...offline,
+        degraded_reason:
+          "The live OpenAI lookup failed (rate limit, quota, or network). Only the built-in product list was checked.",
+      };
     }
   }
 }

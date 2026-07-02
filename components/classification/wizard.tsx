@@ -158,8 +158,13 @@ export function ClassificationWizard() {
       const data = result.data;
       if (!data.found) {
         setQuickFindStatus("not_found");
+        // Distinguish "the AI couldn't identify this product" from "the AI
+        // was unreachable (quota/rate limit) and only the offline list ran" —
+        // without this, quota exhaustion looks like the product not existing.
         setQuickFindMessage(
-          "No confident match. Try the full brand + model name, or turn off Quick Find to enter details manually.",
+          data.degraded_reason
+            ? `${data.degraded_reason} Try again in a minute, or turn off Quick Find to enter details manually.`
+            : "No confident match. Try the full brand + model name, or turn off Quick Find to enter details manually.",
         );
         return;
       }

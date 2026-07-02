@@ -23,6 +23,12 @@ export interface ProductLookupResult {
    *  user reviews/edits it before submitting. null when not confidently known. */
   unit_weight_kg: number | null;
   source: "curated" | "ai";
+  /**
+   * Set when the live AI lookup failed (rate limit, quota, network) and the
+   * result came from the offline fallback instead. Surfaced in the UI so a
+   * quota problem isn't mistaken for "this product doesn't exist".
+   */
+  degraded_reason?: string;
 }
 
 /**

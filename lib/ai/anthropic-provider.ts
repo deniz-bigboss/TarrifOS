@@ -132,7 +132,12 @@ export class AnthropicProvider implements AIProvider {
       return normalizeLookupResult(extractJson(textOf(message)), query);
     } catch (err) {
       console.error("[AnthropicProvider] lookupProduct failed, using mock:", err);
-      return this.fallback.lookupProduct(query);
+      const offline = await this.fallback.lookupProduct(query);
+      return {
+        ...offline,
+        degraded_reason:
+          "The live Anthropic lookup failed (rate limit, quota, or network). Only the built-in product list was checked.",
+      };
     }
   }
 }
