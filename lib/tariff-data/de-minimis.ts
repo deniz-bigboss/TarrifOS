@@ -17,6 +17,31 @@ const DE_MINIMIS: Record<string, Omit<DeMinimisNote, "country">> = {
     notes:
       "Below this value, VAT is typically collected at the point of sale rather than at the border. Duty relief rules differ by goods type — verify current HMRC guidance.",
   },
+  CA: {
+    threshold_placeholder: "CAD 150 duty / CAD 40 tax via courier from US or MX; CAD 20 postal (placeholder)",
+    notes:
+      "Thresholds differ by channel and origin under CUSMA — verify current CBSA guidance for your shipment route.",
+  },
+  AU: {
+    threshold_placeholder: "AUD 1,000 (placeholder)",
+    notes:
+      "No duty/border GST below this value, but GST is collected at the point of sale by registered overseas sellers.",
+  },
+  NZ: {
+    threshold_placeholder: "NZD 1,000 (placeholder)",
+    notes:
+      "No duty below this value; GST is collected at the point of sale by registered overseas suppliers.",
+  },
+  JP: {
+    threshold_placeholder: "JPY 10,000 (CIF, placeholder)",
+    notes:
+      "Shipments at or below this customs value are generally exempt from duty and consumption tax; exclusions apply (e.g. leather goods, rice).",
+  },
+  SG: {
+    threshold_placeholder: "SGD 400 (placeholder)",
+    notes:
+      "GST relief applies below this value for imports, though GST on low-value goods is collected at sale by registered sellers.",
+  },
 };
 
 const EU_DEFAULT: Omit<DeMinimisNote, "country"> = {

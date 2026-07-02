@@ -29,12 +29,38 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { COUNTRIES } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { ALL_COUNTRY_OPTIONS, FREQUENT_LANES } from "@/lib/countries";
+import { CURRENCIES } from "@/lib/currencies";
 
 const QUICK_FIND_DEBOUNCE_MS = 700;
 
-const COUNTRY_OPTIONS = Object.entries(COUNTRIES);
-const CURRENCIES = ["EUR", "GBP", "USD", "TRY"];
+const FREQUENT_OPTIONS = Object.entries(COUNTRIES);
+const OTHER_COUNTRY_OPTIONS = ALL_COUNTRY_OPTIONS.filter(
+  ([code]) => !FREQUENT_LANES.includes(code),
+);
 const CATEGORIES = PRODUCT_CATEGORIES;
+
+/** Grouped country <option>s: frequent lanes first, then everything else. */
+function CountryOptions() {
+  return (
+    <>
+      <optgroup label="Frequent lanes">
+        {FREQUENT_OPTIONS.map(([code, name]) => (
+          <option key={code} value={code}>
+            {name} ({code})
+          </option>
+        ))}
+      </optgroup>
+      <optgroup label="All countries">
+        {OTHER_COUNTRY_OPTIONS.map(([code, name]) => (
+          <option key={code} value={code}>
+            {name} ({code})
+          </option>
+        ))}
+      </optgroup>
+    </>
+  );
+}
 
 const STEPS = ["Product", "Trade lane", "Documents", "Review"] as const;
 
@@ -441,16 +467,12 @@ export function ClassificationWizard() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Origin country" error={formState.errors.origin_country?.message} required>
                   <Select {...register("origin_country")}>
-                    {COUNTRY_OPTIONS.map(([code, name]) => (
-                      <option key={code} value={code}>{name} ({code})</option>
-                    ))}
+                    <CountryOptions />
                   </Select>
                 </Field>
                 <Field label="Destination country" error={formState.errors.destination_country?.message} required>
                   <Select {...register("destination_country")}>
-                    {COUNTRY_OPTIONS.map(([code, name]) => (
-                      <option key={code} value={code}>{name} ({code})</option>
-                    ))}
+                    <CountryOptions />
                   </Select>
                 </Field>
               </div>
@@ -464,9 +486,7 @@ export function ClassificationWizard() {
                 <Field label="Supplier country">
                   <Select {...register("supplier_country")}>
                     <option value="">Select…</option>
-                    {COUNTRY_OPTIONS.map(([code, name]) => (
-                      <option key={code} value={code}>{name} ({code})</option>
-                    ))}
+                    <CountryOptions />
                   </Select>
                 </Field>
                 <Field label="Shipping method">

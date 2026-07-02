@@ -50,7 +50,7 @@ export default function LandingPage() {
               </Button>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              Built for EU · UK · Turkey · US trade lanes. No credit card required.
+              Works for any origin → destination lane worldwide. No credit card required.
             </p>
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold tracking-tight">Who it's for</h2>
           <p className="mt-4 text-muted-foreground">
             Built first for small importers and e-commerce brands shipping repeat
-            SKUs between the EU, UK, Turkey, and US.
+            SKUs worldwide — with the deepest reference data on EU, UK, Turkey, and US lanes.
           </p>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

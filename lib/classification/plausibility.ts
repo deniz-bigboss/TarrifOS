@@ -1,4 +1,5 @@
 import type { ProductInput } from "@/types";
+import { approxUsd } from "@/lib/currencies";
 
 /**
  * Conservative, currency-agnostic per-unit weight ceilings (kg) by product
@@ -31,13 +32,13 @@ const CATEGORY_WEIGHT_CEILING_KG: Record<string, number> = {
 const DEFAULT_WEIGHT_CEILING_KG = 500;
 
 /**
- * Generous per-category ceilings on declared-value-per-kg, expressed in
- * whatever currency the user entered (intentionally currency-naive — EUR,
- * GBP, USD and TRY are all "close enough" at these wide multiples that a
- * fixed ceiling per category avoids both false positives across currencies
- * and false negatives within one). Light, high-value categories
- * (electronics, cosmetics, medical) get a much higher ceiling than bulky,
- * low-value ones (apparel, food, furniture).
+ * Generous per-category ceilings on declared-value-per-kg, calibrated in
+ * USD-magnitude terms. Declared values are normalized with the rough static
+ * factors in lib/currencies.ts before comparison — without that, a perfectly
+ * normal price in JPY or IDR would read as a 100–15,000x outlier and every
+ * shipment in those currencies would be false-flagged. Light, high-value
+ * categories (electronics, cosmetics, medical) get a much higher ceiling
+ * than bulky, low-value ones (apparel, food, furniture).
  */
 const CATEGORY_VALUE_PER_KG_CEILING: Record<string, number> = {
   apparel: 500,
@@ -99,17 +100,19 @@ export function assessDataPlausibility(input: ProductInput): string[] {
     }
   }
 
-  // --- Value-to-weight ratio plausibility (category-aware) ---
+  // --- Value-to-weight ratio plausibility (category- and currency-aware) ---
   if (declaredValue != null && declaredValue > 0 && unitWeight != null && unitWeight > 0) {
     const perUnitValue = quantity ? declaredValue / quantity : declaredValue;
-    const ratio = perUnitValue / unitWeight;
+    // Normalize to rough USD magnitude so JPY/IDR/KRW prices compare fairly
+    // against the USD-calibrated ceilings; messages keep the user's currency.
+    const ratio = approxUsd(perUnitValue, input.currency) / unitWeight;
     const currency = input.currency ? ` ${input.currency}` : "";
     const ceiling =
       CATEGORY_VALUE_PER_KG_CEILING[(input.category || "").toLowerCase().trim()] ??
       DEFAULT_VALUE_PER_KG_CEILING;
     if (ratio > ceiling) {
       warnings.push(
-        `Data quality: declared value relative to weight (~${perUnitValue.toFixed(2)}${currency} per unit / ${unitWeight}kg) looks unusually high for category "${input.category || "this product"}" (expected under ~${ceiling}${currency}/kg). Check for an extra digit, wrong currency, or a unit mismatch before declaring.`,
+        `Data quality: declared value relative to weight (~${perUnitValue.toFixed(2)}${currency} per unit / ${unitWeight}kg) looks unusually high for category "${input.category || "this product"}". Check for an extra digit, wrong currency, or a unit mismatch before declaring.`,
       );
     } else if (ratio < VALUE_PER_KG_FLOOR) {
       warnings.push(

@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import { ALL_COUNTRIES, FREQUENT_LANES } from "@/lib/countries";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -40,25 +41,14 @@ export function formatDateTime(value: string | Date | null | undefined): string 
   }).format(date);
 }
 
-/** Country code -> display label for the lanes we support at launch. */
-export const COUNTRIES: Record<string, string> = {
-  US: "United States",
-  DE: "Germany",
-  GB: "United Kingdom",
-  TR: "Turkey",
-  FR: "France",
-  NL: "Netherlands",
-  IT: "Italy",
-  ES: "Spain",
-  CN: "China",
-  IN: "India",
-  PL: "Poland",
-  BE: "Belgium",
-};
+/** Launch-focus country map, kept for the wizard's "Frequent lanes" group. */
+export const COUNTRIES: Record<string, string> = Object.fromEntries(
+  FREQUENT_LANES.map((code) => [code, ALL_COUNTRIES[code]]),
+);
 
 export function countryName(code: string | null | undefined): string {
   if (!code) return "—";
-  return COUNTRIES[code.toUpperCase()] ?? code.toUpperCase();
+  return ALL_COUNTRIES[code.toUpperCase()] ?? code.toUpperCase();
 }
 
 export function titleCase(value: string): string {
