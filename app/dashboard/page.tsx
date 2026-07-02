@@ -65,7 +65,7 @@ export default async function DashboardPage() {
         </div>
         <Button asChild>
           <Link href="/dashboard/classifications/new">
-            <Plus className="h-4 w-4" /> New classification
+            <Plus className="h-4 w-4" /> New shipment plan
           </Link>
         </Button>
       </div>
@@ -120,7 +120,7 @@ export default async function DashboardPage() {
       {/* Recent classifications */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Recent classifications</CardTitle>
+          <CardTitle>Recent shipment plans</CardTitle>
           <Button asChild variant="ghost" size="sm">
             <Link href="/dashboard/classifications">View all</Link>
           </Button>
@@ -204,7 +204,7 @@ function EmptyState() {
       </div>
       <Button asChild>
         <Link href="/dashboard/classifications/new">
-          <Plus className="h-4 w-4" /> New classification
+          <Plus className="h-4 w-4" /> New shipment plan
         </Link>
       </Button>
     </div>

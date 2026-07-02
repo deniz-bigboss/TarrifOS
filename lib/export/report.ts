@@ -86,6 +86,43 @@ export function toMarkdown(ctx: ReportContext): string {
     lines.push("");
   }
 
+  if (result.shipment_plan) {
+    const plan = result.shipment_plan;
+    lines.push(`## Shipment Execution Plan`);
+    lines.push(plan.summary);
+    lines.push(
+      `**Readiness:** ${plan.readiness_score}% (${plan.readiness_label})`,
+    );
+    if (plan.actions.length) {
+      lines.push(`**Agent next actions:**`);
+      for (const a of plan.actions) {
+        lines.push(
+          `- [${a.priority.toUpperCase()}] ${a.title} — Owner: ${a.owner}; Timing: ${a.timing}. ${a.context} ${a.impact}`,
+        );
+      }
+    }
+    if (plan.documents.length) {
+      lines.push(`**Document checklist:**`);
+      for (const d of plan.documents) {
+        lines.push(`- ${d.name} — Owner: ${d.owner} (${d.status}). ${d.reason}`);
+      }
+    }
+    if (plan.checkpoints.length) {
+      lines.push(`**Compliance checkpoints:**`);
+      for (const c of plan.checkpoints) {
+        lines.push(`- [${c.severity.toUpperCase()}] ${c.title}: ${c.status_note} ${c.instruction}`);
+      }
+    }
+    if (plan.timeline.length) {
+      lines.push(`**Timeline:**`);
+      for (const s of plan.timeline) {
+        lines.push(`- ${s.stage}: ${s.tasks.join(" ")}`);
+      }
+    }
+    lines.push(`> ${plan.disclaimer}`);
+    lines.push("");
+  }
+
   if (result.cost_optimization) {
     const opt = result.cost_optimization;
     lines.push(`## Cost Optimization`);

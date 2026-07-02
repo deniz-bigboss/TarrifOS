@@ -13,33 +13,34 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Blue accent — serious, trustworthy B2B */
-    --primary: 221 83% 53%;
+    /* Slate neutrals + blue primary, emerald/amber/red severity accents —
+       matches the operations-console design language of the result page. */
+    --primary: 221 83% 53%; /* blue-600 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 32% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 210 40% 96%; /* slate-100 */
+    --secondary-foreground: 229 84% 5%;
 
-    --muted: 214 32% 96%;
-    --muted-foreground: 215 16% 45%;
+    --muted: 210 40% 98%; /* slate-50 */
+    --muted-foreground: 215 19% 35%; /* slate-600 */
 
-    --accent: 214 95% 96%;
-    --accent-foreground: 221 83% 40%;
+    --accent: 152 76% 96%; /* emerald-50 — agent/positive accent */
+    --accent-foreground: 161 94% 24%; /* emerald-700 */
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 74% 50%; /* red-600 */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 36%;
+    --success: 160 84% 32%; /* emerald-700 */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 45%;
+    --warning: 26 90% 37%; /* amber-700 */
     --warning-foreground: 0 0% 100%;
 
-    --border: 214 20% 90%;
-    --input: 214 20% 90%;
+    --border: 213 27% 90%; /* slate-200 */
+    --input: 213 27% 90%;
     --ring: 221 83% 53%;
 
-    --radius: 0.6rem;
+    --radius: 0.5rem;
   }
 }
 
@@ -59,6 +60,10 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  /* The signature soft card shadow of the operations-console design. */
+  .card-shadow {
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
   }
   .bg-grid {
     background-image: linear-gradient(

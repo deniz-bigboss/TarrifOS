@@ -11,6 +11,7 @@ import { tokenize } from "@/lib/tariff-data/search";
 import { assessRisk } from "./risk";
 import { assessDataPlausibility } from "./plausibility";
 import { generateCostOptimization } from "./cost-optimizer";
+import { generateShipmentPlan } from "./shipment-plan";
 import { estimateDutyValue } from "./duty";
 import { filterRedundantMissingInfo } from "@/lib/ai/missing-info";
 import { isPlausibleHsCode, normalizeHsCode } from "@/lib/tariff-data/hs-chapters";
@@ -283,6 +284,11 @@ export async function runClassification(
   // comparison across candidates, preferential trade programs, de minimis).
   // Never affects the recommended code or confidence.
   result.cost_optimization = generateCostOptimization(input, candidates, result);
+
+  // Assistant layer: the shipment execution plan (agent actions, document
+  // checklist, checkpoints, timeline, readiness). Derived deterministically
+  // from the final result — must run after validation & cost optimization.
+  result.shipment_plan = generateShipmentPlan(input, result);
 
   // 6. broker report
   result.broker_ready_explanation = await generateBrokerReadyReport(

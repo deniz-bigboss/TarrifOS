@@ -284,6 +284,7 @@ export function resultRowToClassificationResult(
     broker_ready_explanation: row.broker_ready_explanation ?? "",
     duty_estimate: (raw?.duty_estimate as any) ?? undefined,
     cost_optimization: (raw?.cost_optimization as any) ?? undefined,
+    shipment_plan: (raw?.shipment_plan as any) ?? undefined,
     disclaimer:
       raw?.disclaimer ??
       "This output is a recommendation generated from available product information and tariff data. It is not legal advice. Final classification, duty treatment, and customs declarations should be confirmed by a qualified customs broker or customs authority.",

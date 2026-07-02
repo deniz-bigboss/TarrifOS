@@ -52,7 +52,7 @@ export default async function ClassificationDetailPage({
       <div className="flex items-center justify-between">
         <Button asChild variant="ghost" size="sm">
           <Link href="/dashboard/classifications">
-            <ArrowLeft className="h-4 w-4" /> All classifications
+            <ArrowLeft className="h-4 w-4" /> All shipment plans
           </Link>
         </Button>
         <span className="text-xs text-muted-foreground">

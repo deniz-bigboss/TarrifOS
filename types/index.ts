@@ -113,6 +113,58 @@ export interface ClassificationResult {
   broker_ready_explanation: string;
   duty_estimate?: DutyEstimate;
   cost_optimization?: CostOptimization;
+  shipment_plan?: ShipmentPlan;
+  disclaimer: string;
+}
+
+// ---------------------------------------------------------------------------
+// Shipment execution plan — the "shipping operations agent" layer that turns
+// a classification into prioritized operating steps for the shipment team.
+// ---------------------------------------------------------------------------
+
+export type PlanPriority = "critical" | "high" | "medium" | "low";
+
+export interface PlanAction {
+  title: string;
+  priority: PlanPriority;
+  owner: string;
+  timing: string;
+  /** What triggered this action (review reason, missing docs, warning, …). */
+  context: string;
+  /** Why doing it matters — the payoff line. */
+  impact: string;
+}
+
+export interface PlanDocument {
+  name: string;
+  owner: string;
+  status: "missing" | "attached";
+  reason: string;
+}
+
+export interface PlanCheckpoint {
+  title: string;
+  severity: PlanPriority;
+  status_note: string;
+  instruction: string;
+}
+
+export interface PlanTimelineStage {
+  stage: string;
+  tasks: string[];
+}
+
+export interface ShipmentPlan {
+  /** Narrative summary of the working plan (lane, code, top priority, basis). */
+  summary: string;
+  /** 0–100 heuristic readiness for broker handoff. */
+  readiness_score: number;
+  readiness_label: "blocked" | "in progress" | "ready for broker review";
+  actions: PlanAction[];
+  documents: PlanDocument[];
+  checkpoints: PlanCheckpoint[];
+  timeline: PlanTimelineStage[];
+  cost_levers: PlanAction[];
   disclaimer: string;
 }
 

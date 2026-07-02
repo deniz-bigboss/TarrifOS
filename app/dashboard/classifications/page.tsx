@@ -35,14 +35,14 @@ export default async function ClassificationsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Classifications</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Shipment plans</h1>
           <p className="text-sm text-muted-foreground">
             Every classification your workspace has run.
           </p>
         </div>
         <Button asChild>
           <Link href="/dashboard/classifications/new">
-            <Plus className="h-4 w-4" /> New classification
+            <Plus className="h-4 w-4" /> New shipment plan
           </Link>
         </Button>
       </div>
