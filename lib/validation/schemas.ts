@@ -6,6 +6,18 @@ const optionalString = z
   .optional()
   .transform((v) => (v && v.length > 0 ? v : undefined));
 
+/**
+ * Optional numeric field that treats blank form inputs ("" from the wizard)
+ * and JSON null (from the API) as "not provided" instead of coercing them to
+ * 0 — `z.coerce.number()` alone turns both into 0, which made a blank
+ * unit-weight field trip the "zero or negative weight" plausibility warning
+ * and produced bogus 0.00 duty estimates for blank declared values.
+ */
+const optionalNumber = z.preprocess(
+  (v) => (v === "" || v == null ? undefined : v),
+  z.coerce.number().nonnegative().optional(),
+);
+
 const countryCode = z
   .string()
   .trim()
@@ -30,10 +42,10 @@ export const productInputSchema = z.object({
   origin_country: countryCode,
   destination_country: countryCode,
   import_or_export: z.enum(["import", "export"]).default("import"),
-  declared_value: z.coerce.number().nonnegative().optional(),
+  declared_value: optionalNumber,
   currency: optionalString,
-  quantity: z.coerce.number().nonnegative().optional(),
-  unit_weight: z.coerce.number().nonnegative().optional(),
+  quantity: optionalNumber,
+  unit_weight: optionalNumber,
   shipping_method: optionalString,
 });
 
@@ -51,9 +63,9 @@ export const apiClassifySchema = z.object({
   category: optionalString,
   origin_country: countryCode,
   destination_country: countryCode,
-  declared_value: z.coerce.number().nonnegative().optional(),
+  declared_value: optionalNumber,
   currency: optionalString,
-  quantity: z.coerce.number().nonnegative().optional(),
+  quantity: optionalNumber,
 });
 
 export const feedbackSchema = z.object({

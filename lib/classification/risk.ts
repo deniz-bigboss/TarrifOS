@@ -56,7 +56,9 @@ export const HIGH_RISK_CATEGORIES: RiskCategory[] = [
   {
     id: "pharma",
     label: "Pharmaceuticals",
-    keywords: ["pharmaceutical", "medicine", "medicament", "drug", "tablet", "capsule", "vaccine", "antibiotic", "pharma"],
+    // "tablet"/"capsule" removed: they overwhelmingly mean tablet computers
+    // and coffee capsules in trade descriptions, not medicine forms.
+    keywords: ["pharmaceutical", "medicine", "medicament", "drug", "vaccine", "antibiotic", "pharma"],
     reason: "Pharmaceuticals require marketing authorisation and import licensing.",
   },
   {
@@ -68,7 +70,7 @@ export const HIGH_RISK_CATEGORIES: RiskCategory[] = [
   {
     id: "weapons",
     label: "Weapons",
-    keywords: ["weapon", "firearm", "gun", "ammunition", "rifle", "pistol", "knife", "blade", "explosive", "arms"],
+    keywords: ["weapon", "firearm", "gun", "handgun", "shotgun", "ammunition", "rifle", "pistol", "knife", "knives", "dagger", "sword", "explosive", "small arms"],
     reason: "Weapons and parts are controlled goods requiring licensing and may be prohibited.",
   },
   {
@@ -86,13 +88,13 @@ export const HIGH_RISK_CATEGORIES: RiskCategory[] = [
   {
     id: "animal",
     label: "Animal products",
-    keywords: ["animal", "meat", "poultry", "dairy", "leather", "fur", "hide", "seafood", "fish", "shellfish", "honey", "egg"],
+    keywords: ["animal", "meat", "poultry", "dairy", "leather", "fur", "rawhide", "animal hide", "cowhide", "seafood", "fish", "shellfish", "honey", "egg"],
     reason: "Animal products are subject to veterinary/SPS controls and border inspection.",
   },
   {
     id: "plant",
     label: "Plant products",
-    keywords: ["plant", "seed", "flower", "wood", "timber", "fruit", "vegetable", "grain", "live plant", "bulb"],
+    keywords: ["live plant", "houseplant", "seedling", "seed", "flower", "wood", "wooden", "plywood", "timber", "fruit", "vegetable", "wheat", "rice", "cereal", "flower bulb"],
     reason: "Plant products require phytosanitary certification and import checks.",
   },
 ];
@@ -101,6 +103,27 @@ export interface RiskAssessment {
   isHighRisk: boolean;
   categories: RiskCategory[];
   reason: string;
+}
+
+/**
+ * Whole-word keyword match. Plain substring matching produced false
+ * high-risk flags: "fur" matched "furniture", "bulb" matched "LED bulb",
+ * "arms" matched "alarms", "rifle" matched "trifle", "tea" matched "steak".
+ * Every false hit forces an unnecessary human review, so keywords only
+ * match at word boundaries (multi-word keywords like "power bank" work too).
+ */
+const KEYWORD_REGEX_CACHE = new Map<string, RegExp>();
+
+function keywordMatches(haystack: string, keyword: string): boolean {
+  let re = KEYWORD_REGEX_CACHE.get(keyword);
+  if (!re) {
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // "(s|es)?" keeps singular keywords matching their plurals ("cigarettes",
+    // "weapons") which plain \b boundaries would otherwise stop matching.
+    re = new RegExp(`\\b${escaped}(s|es)?\\b`);
+    KEYWORD_REGEX_CACHE.set(keyword, re);
+  }
+  return re.test(haystack);
 }
 
 /** Detect high-risk categories from the combined product text. */
@@ -117,7 +140,7 @@ export function assessRisk(input: ProductInput): RiskAssessment {
     .toLowerCase();
 
   const matched = HIGH_RISK_CATEGORIES.filter((cat) =>
-    cat.keywords.some((kw) => haystack.includes(kw)),
+    cat.keywords.some((kw) => keywordMatches(haystack, kw)),
   );
 
   return {

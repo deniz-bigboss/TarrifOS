@@ -14,7 +14,11 @@ interface CuratedProduct {
 
 const CURATED_PRODUCTS: CuratedProduct[] = [
   {
-    match: (q) => q.includes("tarmac"),
+    // "tarmac" alone is UK English for asphalt — require bike-model context
+    // (S-Works/Specialized branding or an SL-generation suffix) so someone
+    // looking up road surfacing doesn't get a bicycle autofilled.
+    match: (q) =>
+      /(?:s-?works|specialized).*tarmac|tarmac.*(?:s-?works|specialized)|tarmac\s*sl\s*\d/.test(q),
     result: {
       product_name: "Specialized S-Works Tarmac SL9",
       product_description:

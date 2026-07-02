@@ -232,11 +232,15 @@ export async function getClassificationDetail(
       .eq("result_id", result.id);
     candidates = (cands as ClassificationCandidateRow[]) ?? [];
 
+    // limit(1) is required: every feedback submit inserts a new row (history
+    // is the data moat), and maybeSingle() errors on >1 row — without the
+    // limit, the page silently showed no feedback after a second submission.
     const { data: fb } = await supabase
       .from("feedback_labels")
       .select("*")
       .eq("classification_result_id", result.id)
       .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
     feedback = (fb as FeedbackLabelRow) ?? null;
   }

@@ -109,9 +109,10 @@ editor or the CLI:
 ```bash
 supabase db push
 # or paste each file in order:
-#   0001_init.sql       tables + indexes
-#   0002_rls.sql        row-level security
-#   0003_bootstrap.sql  auto-create workspace on signup
+#   0001_init.sql           tables + indexes
+#   0002_rls.sql            row-level security
+#   0003_bootstrap.sql      auto-create workspace on signup
+#   0004_rls_hardening.sql  pins profiles.organization_id on update (security fix)
 ```
 
 ### 4. Seed tariff codes (optional)

@@ -189,9 +189,11 @@ export async function generateBrokerReadyReport(
   result: ClassificationResult,
   ai: AIProvider = getAIProvider(),
 ): Promise<string> {
-  if (result.broker_ready_explanation?.trim()) {
-    return result.broker_ready_explanation;
-  }
+  // Always regenerate from the FINAL result — any broker text produced during
+  // stage 3 (by the mock or a real model) predates confidence reconciliation
+  // and the validation stage's added warnings/review reasons, so honoring it
+  // produced reports whose confidence didn't match the meter. The model's
+  // voice still comes through via reasoning_summary, which the report embeds.
   return ai.generateBrokerReport(input, result);
 }
 

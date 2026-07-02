@@ -75,11 +75,15 @@ export class MockAIProvider implements AIProvider {
       restriction_warnings: [...top.restrictionNotes],
       human_review_required: false, // pipeline enforces the real rule
       human_review_reason: "",
-      broker_ready_explanation: "", // filled by generateBrokerReport
+      // Left empty on purpose: the pipeline generates the broker report as
+      // its LAST stage, after confidence is reconciled and validation has
+      // added warnings/review reasons. Pre-filling it here baked in a stale
+      // confidence number (e.g. "84%" in the report vs 83% on the meter) and
+      // omitted every pipeline-added warning.
+      broker_ready_explanation: "",
       disclaimer: LEGAL_DISCLAIMER,
     };
 
-    result.broker_ready_explanation = await this.generateBrokerReport(input, result);
     return result;
   }
 
