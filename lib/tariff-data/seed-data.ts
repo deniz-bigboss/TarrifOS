@@ -212,7 +212,7 @@ export const SEED_TARIFF_CODES: TariffCode[] = [
     jurisdiction: "GLOBAL",
     title: "Smartphones",
     description: "Telephones for cellular networks (smartphones) and other wireless networks.",
-    keywords: ["smartphone", "mobile phone", "cell phone", "iphone", "android phone", "handset"],
+    keywords: ["smartphone", "mobile phone", "cell phone", "iphone", "android phone", "handset", "galaxy"],
     chapter: "85",
     section: "XVI",
     dutyRatePlaceholder: "0% (ITA, placeholder)",
@@ -220,6 +220,26 @@ export const SEED_TARIFF_CODES: TariffCode[] = [
     restrictionNotes: [
       "Contains radio modules — RED/FCC/CE conformity applies.",
       "Typically contains a lithium-ion battery — transport rules apply.",
+    ],
+    riskLevel: "medium",
+  },
+  {
+    code: "8517.62",
+    jurisdiction: "GLOBAL",
+    title: "Smartwatches, fitness trackers and other wearable radio devices",
+    description:
+      "Wearable devices for the reception/transmission of data (smartwatches, fitness trackers, activity bands) with Bluetooth/Wi-Fi radio modules.",
+    keywords: [
+      "smartwatch", "smart watch", "fitness tracker", "fitness band", "activity tracker",
+      "wearable", "tracker band", "heart rate monitor", "sleep tracking",
+    ],
+    chapter: "85",
+    section: "XVI",
+    dutyRatePlaceholder: "0% (ITA, placeholder)",
+    requiredDocuments: ["commercial invoice", "packing list", "declaration of conformity"],
+    restrictionNotes: [
+      "Contains radio modules — RED/FCC/CE conformity applies.",
+      "Contains a lithium battery — transport rules apply.",
     ],
     riskLevel: "medium",
   },

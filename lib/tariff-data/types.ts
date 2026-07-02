@@ -16,8 +16,16 @@ import type {
 export interface TariffDataProvider {
   readonly name: string;
 
-  /** Lexical/semantic search for candidate codes for a destination jurisdiction. */
-  searchCodes(query: string, destinationCountry: string): Promise<CandidateCode[]>;
+  /**
+   * Lexical/semantic search for candidate codes for a destination
+   * jurisdiction. `opts.emphasize` carries the product name so adapters can
+   * weight what the product IS above component mentions in its description.
+   */
+  searchCodes(
+    query: string,
+    destinationCountry: string,
+    opts?: { emphasize?: string },
+  ): Promise<CandidateCode[]>;
 
   /** Full detail for a single code. */
   getCodeDetails(

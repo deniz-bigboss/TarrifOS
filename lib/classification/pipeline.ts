@@ -77,6 +77,10 @@ export async function retrieveCandidateCodes(
   const candidates = await provider.searchCodes(
     query,
     normalized.destination_country,
+    // The name says what the product IS; descriptions mention components.
+    // Emphasizing name tokens stops e.g. a smartphone's "lithium-ion
+    // battery" description line from out-scoring the smartphone code.
+    { emphasize: normalized.product_name },
   );
   // Return 5–10 candidates.
   return candidates.slice(0, 10);

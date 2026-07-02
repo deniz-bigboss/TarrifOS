@@ -28,10 +28,11 @@ export class SeedTariffDataProvider implements TariffDataProvider {
   async searchCodes(
     query: string,
     _destinationCountry: string,
+    opts?: { emphasize?: string },
   ): Promise<CandidateCode[]> {
     // The seed dataset uses harmonized HS6 codes valid across our launch lanes,
     // so destination is accepted but not used to filter for the MVP.
-    return searchSeedCodes(this.codes, query, 8);
+    return searchSeedCodes(this.codes, query, 8, opts?.emphasize);
   }
 
   async getCodeDetails(

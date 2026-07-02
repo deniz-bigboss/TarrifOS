@@ -27,8 +27,12 @@ export function calculateConfidence(
   const retrievalScore = matched?.score ?? candidates[0]?.score ?? 0;
 
   // Weighted blend; cap model confidence by retrieval strength + a margin.
+  // The retrieval score is an absolute, saturating match-strength signal
+  // (see lib/tariff-data/search.ts) — strong keyword evidence lifts the
+  // ceiling to ~0.97, weak/no evidence pins it low so a model can't claim
+  // high confidence on a code the data doesn't support.
   const modelConfidence = clamp(result.confidence, 0, 1);
-  const ceiling = clamp(retrievalScore + 0.35, 0.3, 0.97);
+  const ceiling = clamp(retrievalScore + 0.4, 0.35, 0.97);
   const blended = clamp(modelConfidence * 0.7 + retrievalScore * 0.3, 0, ceiling);
   const confidence = Math.round(blended * 100) / 100;
 
