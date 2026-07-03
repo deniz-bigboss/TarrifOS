@@ -59,8 +59,8 @@ export function DashboardSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-emerald-50 text-emerald-800"
-                  : "text-muted-foreground hover:bg-emerald-50/70 hover:text-emerald-700",
+                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
+                  : "text-muted-foreground hover:bg-emerald-50/70 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300",
               )}
             >
               <item.icon className="h-4 w-4" />

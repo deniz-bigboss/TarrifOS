@@ -30,7 +30,17 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(inter.variable)}
     >
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {/* Applies the stored (or OS-preferred) theme before first paint so
+            dark-mode users never see a white flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})()',
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

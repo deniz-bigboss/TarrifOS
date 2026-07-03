@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Transparent header that floats over a dark hero band — shared by every
@@ -17,6 +18,7 @@ export function OverlayHeader() {
           <Link href="/pricing" className="hover:text-white">Pricing</Link>
         </nav>
         <div className="flex items-center gap-4">
+          <ThemeToggle className="border-white/25 bg-white/10 text-white hover:bg-white/20" />
           <Link
             href="/login"
             className="text-sm font-medium text-white/85 hover:text-white"

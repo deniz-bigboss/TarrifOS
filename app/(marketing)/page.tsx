@@ -49,7 +49,7 @@ const PLAN_PREVIEW = ["free", "starter", "growth"] as const;
 
 export default function LandingPage() {
   return (
-    <main className="bg-white">
+    <main className="bg-white dark:bg-slate-950">
       <OverlayHeader />
 
       {/* -------------------------------------------------------- Hero */}
@@ -94,11 +94,11 @@ export default function LandingPage() {
       </section>
 
       {/* ----------------------------------------------------- Problem */}
-      <section className="border-b border-border bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
+      <section className="border-b border-border bg-slate-50 px-4 py-16 dark:bg-slate-900/50 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <SectionBadge>Problem</SectionBadge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950">
+            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
               Product-level customs work is still trapped in email,
               spreadsheets, and brittle lookups.
             </h2>
@@ -107,13 +107,13 @@ export default function LandingPage() {
             {PROBLEM_CARDS.map((card) => (
               <div
                 key={card.title}
-                className="rounded-lg border border-border bg-white p-5 shadow-sm"
+                className="rounded-lg border border-border bg-white p-5 shadow-sm dark:bg-slate-900"
               >
                 <ShieldCheck className="h-5 w-5 text-blue-700" />
-                <p className="mt-4 text-sm font-medium text-slate-900">
+                <p className="mt-4 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {card.title}
                 </p>
-                <p className="mt-2 text-sm text-slate-600">{card.body}</p>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{card.body}</p>
               </div>
             ))}
           </div>
@@ -128,12 +128,12 @@ export default function LandingPage() {
             {WORKFLOW_STEPS.map((step, i) => (
               <div
                 key={step}
-                className="rounded-lg border border-border bg-white p-5 shadow-sm"
+                className="rounded-lg border border-border bg-white p-5 shadow-sm dark:bg-slate-900"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-50 text-sm font-semibold text-blue-700">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-50 text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
                   {i + 1}
                 </div>
-                <p className="mt-4 text-sm font-semibold text-slate-950">
+                <p className="mt-4 text-sm font-semibold text-slate-950 dark:text-white">
                   {step}
                 </p>
               </div>
@@ -145,12 +145,12 @@ export default function LandingPage() {
       {/* --------------------------------------------------- Customers */}
       <section
         id="customers"
-        className="border-y border-border bg-slate-50 px-4 py-16 sm:px-6 lg:px-8"
+        className="border-y border-border bg-slate-50 px-4 py-16 dark:bg-slate-900/50 sm:px-6 lg:px-8"
       >
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
           <div>
             <SectionBadge>Who it is for</SectionBadge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950">
+            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
               Built for repeat-SKU trade on any lane, anywhere in the world.
             </h2>
           </div>
@@ -158,10 +158,10 @@ export default function LandingPage() {
             {CUSTOMER_ROWS.map((row) => (
               <div
                 key={row}
-                className="flex items-center gap-3 rounded-md border border-border bg-white p-4"
+                className="flex items-center gap-3 rounded-md border border-border bg-white p-4 dark:bg-slate-900"
               >
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <span className="text-sm font-medium text-slate-800">
+                <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
                   {row}
                 </span>
               </div>
@@ -175,10 +175,10 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <SectionBadge>Example output</SectionBadge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950">
+            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
               Shipment execution plans, not chatbot transcripts.
             </h2>
-            <p className="mt-4 text-slate-600">
+            <p className="mt-4 text-slate-600 dark:text-slate-300">
               Every result includes candidate codes, confidence, missing
               information, required documents, warnings, next actions,
               compliance gates, and cost-reduction levers.
@@ -220,24 +220,24 @@ export default function LandingPage() {
       </section>
 
       {/* ----------------------------------------------- Pricing preview */}
-      <section className="border-t border-border bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
+      <section className="border-t border-border bg-slate-50 px-4 py-16 dark:bg-slate-900/50 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
           <div>
             <SectionBadge>Pricing preview</SectionBadge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950">
+            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
               Start narrow, scale to API volume.
             </h2>
           </div>
           {PLAN_PREVIEW.map((id) => (
             <div
               key={id}
-              className="rounded-lg border border-border bg-white p-5 shadow-sm"
+              className="rounded-lg border border-border bg-white p-5 shadow-sm dark:bg-slate-900"
             >
               <Sparkles className="h-5 w-5 text-blue-700" />
-              <p className="mt-4 text-lg font-semibold text-slate-950">
+              <p className="mt-4 text-lg font-semibold text-slate-950 dark:text-white">
                 {PLANS[id].name}
               </p>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 {PLANS[id].description}
               </p>
             </div>
@@ -246,8 +246,8 @@ export default function LandingPage() {
       </section>
 
       {/* ----------------------------------------- Compliance disclaimer */}
-      <section className="bg-white px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
+      <section className="bg-white px-4 py-10 dark:bg-slate-950 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           Compliance disclaimer: {LEGAL_DISCLAIMER}
         </div>
       </section>

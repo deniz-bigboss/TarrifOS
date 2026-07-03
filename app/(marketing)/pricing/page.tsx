@@ -18,7 +18,7 @@ const METERING_TILES = [
 
 export default function PricingPage() {
   return (
-    <main className="bg-white">
+    <main className="bg-white dark:bg-slate-950">
       <OverlayHeader />
 
       {/* ------------------------------------------------ Dark hero band */}
@@ -53,14 +53,14 @@ export default function PricingPage() {
       </section>
 
       {/* ----------------------------------------------- API metering band */}
-      <section className="border-t border-border bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
+      <section className="border-t border-border bg-slate-50 px-4 py-16 dark:bg-slate-900/50 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <SectionBadge>API metering</SectionBadge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950">
+            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
               Usage-based API pricing.
             </h2>
-            <p className="mt-4 text-slate-600">
+            <p className="mt-4 text-slate-600 dark:text-slate-300">
               {API_USAGE_PRICING} Volume and enrichment-level discounts are
               available on Forwarder and Enterprise plans.
             </p>
@@ -93,8 +93,8 @@ export default function PricingPage() {
       </section>
 
       {/* ----------------------------------------- Compliance disclaimer */}
-      <section className="bg-white px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
+      <section className="bg-white px-4 py-10 dark:bg-slate-950 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           Compliance disclaimer: {LEGAL_DISCLAIMER}
         </div>
       </section>

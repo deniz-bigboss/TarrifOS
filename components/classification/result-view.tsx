@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   CalendarClock,
   ClipboardList,
+  ExternalLink,
   FileText,
   Files,
   HelpCircle,
@@ -24,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { ConfidenceMeter } from "@/components/confidence-meter";
 import { DisclaimerBanner } from "@/components/disclaimer";
 import { ExportButtons } from "./export-buttons";
+import { LaneMap } from "./lane-map";
+import { findDocLink } from "@/lib/documents/doc-links";
 import { countryName, formatCurrency } from "@/lib/utils";
 
 interface ResultViewProps {
@@ -58,7 +61,7 @@ export function ResultView({
   return (
     <div className="space-y-6">
       {result.service_notice && (
-        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
           <p className="leading-6">{result.service_notice}</p>
         </div>
@@ -144,8 +147,8 @@ export function ResultView({
         <Card
           className={
             result.human_review_required
-              ? "border-amber-300 bg-amber-50"
-              : "border-emerald-200 bg-emerald-50/60"
+              ? "border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30"
+              : "border-emerald-200 bg-emerald-50/60 dark:border-emerald-900 dark:bg-emerald-950/30"
           }
         >
           <CardHeader className="border-b border-border p-5">
@@ -225,13 +228,21 @@ export function ResultView({
                 </div>
               ))}
             </div>
+
+            {/* Origin → destination lane map with air vs road lanes */}
+            <div className="border-t border-white/10 p-6">
+              <LaneMap
+                origin={input.origin_country}
+                destination={input.destination_country}
+              />
+            </div>
           </div>
 
           {/* Actions + documents */}
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <Card>
               <CardHeader className="flex flex-row items-center gap-3 border-b border-border p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                   <ClipboardList className="h-4 w-4" />
                 </span>
                 <div>
@@ -250,7 +261,7 @@ export function ResultView({
 
             <Card>
               <CardHeader className="flex flex-row items-center gap-3 border-b border-border p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                   <Files className="h-4 w-4" />
                 </span>
                 <div>
@@ -267,7 +278,7 @@ export function ResultView({
                   </p>
                 ) : (
                   plan.documents.map((d) => (
-                    <div key={d.name} className="rounded-md border bg-white p-4">
+                    <div key={d.name} className="rounded-md border bg-card p-4">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold capitalize text-foreground">
                           {d.name}
@@ -282,6 +293,7 @@ export function ResultView({
                       <p className="mt-2 text-sm leading-6 text-muted-foreground">
                         {d.reason}
                       </p>
+                      <DocReferenceLink name={d.name} />
                     </div>
                   ))
                 )}
@@ -293,7 +305,7 @@ export function ResultView({
           <div className="grid gap-5 xl:grid-cols-2">
             <Card>
               <CardHeader className="flex flex-row items-center gap-3 border-b border-border p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                   <TrendingDown className="h-4 w-4" />
                 </span>
                 <div>
@@ -312,7 +324,7 @@ export function ResultView({
 
             <Card>
               <CardHeader className="flex flex-row items-center gap-3 border-b border-border p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                   <ListChecks className="h-4 w-4" />
                 </span>
                 <div>
@@ -324,7 +336,7 @@ export function ResultView({
               </CardHeader>
               <CardContent className="space-y-3 p-5">
                 {plan.checkpoints.map((c) => (
-                  <div key={c.title} className="rounded-md border bg-white p-4">
+                  <div key={c.title} className="rounded-md border bg-card p-4">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-semibold text-foreground">{c.title}</p>
                       <PriorityChip priority={c.severity} />
@@ -332,7 +344,7 @@ export function ResultView({
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       {c.status_note}
                     </p>
-                    <p className="mt-1 text-sm font-medium leading-6 text-emerald-800">
+                    <p className="mt-1 text-sm font-medium leading-6 text-emerald-800 dark:text-emerald-300">
                       {c.instruction}
                     </p>
                   </div>
@@ -344,7 +356,7 @@ export function ResultView({
           {/* Timeline */}
           <Card>
             <CardHeader className="flex flex-row items-center gap-3 border-b border-border p-5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                 <CalendarClock className="h-4 w-4" />
               </span>
               <div>
@@ -466,7 +478,7 @@ export function ResultView({
                     {result.cost_optimization.duty_comparison.map((d) => (
                       <tr
                         key={d.code}
-                        className={`border-t ${d.is_recommended ? "bg-emerald-50/60" : ""}`}
+                        className={`border-t ${d.is_recommended ? "bg-emerald-50/60 dark:bg-emerald-950/30" : ""}`}
                       >
                         <td className="px-3 py-2 font-mono text-xs">
                           {d.code}
@@ -512,10 +524,10 @@ export function ResultView({
               {result.restriction_warnings.map((w, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-2.5"
+                  className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-2.5 dark:border-amber-900 dark:bg-amber-950/40"
                 >
                   <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700" />
-                  <span className="text-amber-900">{w}</span>
+                  <span className="text-amber-900 dark:text-amber-200">{w}</span>
                 </li>
               ))}
             </ul>
@@ -534,9 +546,10 @@ export function ResultView({
           <CardContent className="p-5">
             <ul className="space-y-1.5 text-sm">
               {result.required_documents.map((doc) => (
-                <li key={doc} className="flex items-center gap-2">
+                <li key={doc} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                   <span className="capitalize">{doc}</span>
+                  <DocReferenceLink name={doc} inline />
                 </li>
               ))}
             </ul>
@@ -561,9 +574,33 @@ export function ResultView({
   );
 }
 
+/**
+ * Clickable reference for a recommended document — jumps straight to the
+ * official/industry guide for that document type when we recognize it.
+ */
+function DocReferenceLink({ name, inline = false }: { name: string; inline?: boolean }) {
+  const link = findDocLink(name);
+  if (!link) return null;
+  return (
+    <a
+      href={link.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={
+        "inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline" +
+        (inline ? "" : " mt-2")
+      }
+      title={`Opens the ${link.source} page in a new tab`}
+    >
+      {link.source}
+      <ExternalLink className="h-3 w-3" />
+    </a>
+  );
+}
+
 function ActionItem({ action }: { action: PlanAction }) {
   return (
-    <div className="rounded-md border bg-white p-4">
+    <div className="rounded-md border bg-card p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <h3 className="text-sm font-semibold text-foreground">{action.title}</h3>
         <span className="shrink-0">
@@ -579,7 +616,7 @@ function ActionItem({ action }: { action: PlanAction }) {
         </p>
       </div>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">{action.context}</p>
-      <p className="mt-2 text-sm font-medium leading-6 text-emerald-800">
+      <p className="mt-2 text-sm font-medium leading-6 text-emerald-800 dark:text-emerald-300">
         {action.impact}
       </p>
     </div>

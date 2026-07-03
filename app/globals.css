@@ -42,6 +42,45 @@
 
     --radius: 0.5rem;
   }
+
+  /* Dark theme — same slate/blue/emerald language, inverted. Toggled by
+     adding .dark to <html> (see ThemeToggle + the inline script in the
+     root layout that applies the stored preference before first paint). */
+  .dark {
+    --background: 222 47% 7%; /* near slate-950 */
+    --foreground: 210 40% 96%;
+
+    --card: 222 44% 10%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 44% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 217 91% 60%; /* blue-500 pops better on dark */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 16%; /* slate-800 */
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 218 35% 13%;
+    --muted-foreground: 215 20% 68%; /* slate-400 */
+
+    --accent: 160 60% 10%; /* deep emerald */
+    --accent-foreground: 156 72% 67%; /* emerald-300 */
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%; /* emerald-500 */
+    --success-foreground: 222 47% 7%;
+
+    --warning: 32 95% 44%; /* amber-600 */
+    --warning-foreground: 0 0% 100%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 217 91% 60%;
+  }
 }
 
 @layer base {

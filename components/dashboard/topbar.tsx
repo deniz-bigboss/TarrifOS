@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getPlan } from "@/lib/billing/plans";
 import { activeProviderName } from "@/lib/ai";
 
@@ -36,6 +37,7 @@ export function DashboardTopbar({ orgName, plan, email }: TopbarProps) {
         <span className="hidden text-sm text-muted-foreground sm:inline">
           {email}
         </span>
+        <ThemeToggle />
         <form action="/auth/signout" method="post">
           <Button type="submit" size="sm" variant="ghost">
             Sign out
