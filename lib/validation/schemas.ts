@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { roadFeasible, roadInfeasibleReason } from "@/lib/geo/transport-feasibility";
 
 const optionalString = z
   .string()
@@ -47,6 +48,20 @@ export const productInputSchema = z.object({
   quantity: optionalNumber,
   unit_weight: optionalNumber,
   shipping_method: optionalString,
+}).superRefine((val, ctx) => {
+  // A truck can't cross an ocean: reject road freight between countries that
+  // aren't on the same landmass. Runs after field parsing so origin/
+  // destination are already uppercased.
+  if (
+    val.shipping_method === "road" &&
+    !roadFeasible(val.origin_country, val.destination_country)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["shipping_method"],
+      message: roadInfeasibleReason(val.origin_country, val.destination_country),
+    });
+  }
 });
 
 export type ProductInputSchema = z.infer<typeof productInputSchema>;

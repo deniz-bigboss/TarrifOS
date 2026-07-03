@@ -125,12 +125,14 @@ export function ResultView({
                   {countryName(input.destination_country)}
                 </span>
               </span>
-              <span>
-                Direction:{" "}
-                <span className="font-medium text-foreground">
-                  {input.import_or_export ?? "import"}
+              {input.shipping_method && (
+                <span>
+                  Shipping:{" "}
+                  <span className="font-medium capitalize text-foreground">
+                    {input.shipping_method}
+                  </span>
                 </span>
-              </span>
+              )}
               {input.declared_value != null && (
                 <span>
                   Declared value:{" "}
@@ -234,6 +236,7 @@ export function ResultView({
               <LaneMap
                 origin={input.origin_country}
                 destination={input.destination_country}
+                method={input.shipping_method}
               />
             </div>
           </div>

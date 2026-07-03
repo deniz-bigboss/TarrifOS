@@ -31,6 +31,7 @@ import { COUNTRIES } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ALL_COUNTRY_OPTIONS, FREQUENT_LANES } from "@/lib/countries";
 import { CURRENCIES } from "@/lib/currencies";
+import { roadFeasible } from "@/lib/geo/transport-feasibility";
 
 const QUICK_FIND_DEBOUNCE_MS = 700;
 
@@ -125,6 +126,20 @@ export function ClassificationWizard() {
   });
 
   const { register, handleSubmit, trigger, formState, setValue, watch } = form;
+
+  // A truck can't cross an ocean: watch the lane so the Road option can be
+  // disabled (and auto-cleared) when origin and destination aren't on the
+  // same landmass.
+  const originCountry = watch("origin_country");
+  const destinationCountry = watch("destination_country");
+  const shippingMethod = watch("shipping_method");
+  const roadOk = roadFeasible(originCountry, destinationCountry);
+
+  useEffect(() => {
+    if (!roadOk && shippingMethod === "road") {
+      setValue("shipping_method", "", { shouldValidate: true });
+    }
+  }, [roadOk, shippingMethod, setValue]);
 
   // Debounced Quick Find lookup — fires QUICK_FIND_DEBOUNCE_MS after typing
   // stops, fills the form fields on a confident match, and is honest (not a
@@ -228,7 +243,7 @@ export function ClassificationWizard() {
 
     const fieldsByStep: (keyof ProductInputSchema)[][] = [
       ["product_name", "product_description", "material_composition", "intended_use", "category"],
-      ["origin_country", "destination_country", "import_or_export", "declared_value", "currency"],
+      ["origin_country", "destination_country", "shipping_method", "declared_value", "currency"],
       [],
       [],
     ];
@@ -481,13 +496,7 @@ export function ClassificationWizard() {
                   </Select>
                 </Field>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Direction">
-                  <Select {...register("import_or_export")}>
-                    <option value="import">Import</option>
-                    <option value="export">Export</option>
-                  </Select>
-                </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field
                   label="Supplier country"
                   hint="Where you buy or ship from — set it only if different from the origin (manufacturing) country. A mismatch adds an origin-evidence checkpoint to your plan."
@@ -497,12 +506,22 @@ export function ClassificationWizard() {
                     <CountryOptions />
                   </Select>
                 </Field>
-                <Field label="Shipping method">
+                <Field
+                  label="Shipping method"
+                  error={formState.errors.shipping_method?.message}
+                  hint={
+                    !roadOk
+                      ? "Road is unavailable for this lane — there is no land route between these countries."
+                      : undefined
+                  }
+                >
                   <Select {...register("shipping_method")}>
                     <option value="">Select…</option>
                     <option value="sea">Sea freight</option>
                     <option value="air">Air freight</option>
-                    <option value="road">Road</option>
+                    <option value="road" disabled={!roadOk}>
+                      Road{!roadOk ? " (no land route)" : ""}
+                    </option>
                     <option value="courier">Courier / parcel</option>
                   </Select>
                 </Field>
@@ -578,7 +597,11 @@ export function ClassificationWizard() {
                 <Review label="Intended use" value={watch("intended_use")} />
                 <Review
                   label="Trade lane"
-                  value={`${watch("origin_country")} → ${watch("destination_country")} (${watch("import_or_export")})`}
+                  value={`${watch("origin_country")} → ${watch("destination_country")}`}
+                />
+                <Review
+                  label="Shipping method"
+                  value={watch("shipping_method") || "—"}
                 />
                 <Review
                   label="Declared value"
