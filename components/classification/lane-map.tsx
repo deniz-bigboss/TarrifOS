@@ -2,14 +2,22 @@ import { MapPin, Package, Plane, Ship, Truck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { COUNTRY_CENTROIDS, projectToSvg } from "@/lib/geo/country-centroids";
 import { LAND_PATHS, MAP_H, MAP_W, SEA_PATCHES } from "@/lib/geo/world-map";
+import { seaRoute } from "@/lib/geo/sea-route";
+import { buildRoutePath, toPoints, type Pt } from "@/lib/geo/route-path";
+import type { LatLng } from "@/lib/geo/great-circle";
 import { countryName } from "@/lib/utils";
 
 /**
  * LaneMap — origin → destination trade-lane map for the shipment execution
  * plan. Pure server-rendered SVG (no client JS, no external tiles) over
- * simplified real-geography coastlines. Shows ONLY the transport mode the
- * user selected; when no method is chosen it falls back to the two common
- * international options (air + sea) so the map is never empty.
+ * simplified real-geography coastlines.
+ *
+ * Routing is realistic, not decorative: sea freight follows a maritime
+ * waypoint network through the real chokepoints (Suez, Panama, Malacca,
+ * Gibraltar, the Capes…), while air/courier follow the great circle. Both
+ * wrap the antimeridian correctly, so a trans-Pacific lane crosses the
+ * Pacific rather than streaking across Eurasia. Only the selected mode is
+ * drawn; with no method chosen it shows the common air + sea options.
  */
 
 interface ModeStyle {
@@ -20,8 +28,8 @@ interface ModeStyle {
   icon: LucideIcon;
   iconClass: string;
   borderClass: string;
-  /** Vertical bias of the curve: negative arcs up (air), positive bows down. */
-  bend: number;
+  /** How this mode routes across the map. */
+  routing: "sea" | "great-circle";
 }
 
 const MODES: Record<string, ModeStyle> = {
@@ -33,7 +41,7 @@ const MODES: Record<string, ModeStyle> = {
     icon: Plane,
     iconClass: "text-sky-300",
     borderClass: "border-sky-400/50",
-    bend: -1,
+    routing: "great-circle",
   },
   sea: {
     key: "sea",
@@ -42,7 +50,7 @@ const MODES: Record<string, ModeStyle> = {
     icon: Ship,
     iconClass: "text-cyan-300",
     borderClass: "border-cyan-400/50",
-    bend: 0.55,
+    routing: "sea",
   },
   road: {
     key: "road",
@@ -51,7 +59,7 @@ const MODES: Record<string, ModeStyle> = {
     icon: Truck,
     iconClass: "text-amber-300",
     borderClass: "border-amber-400/50",
-    bend: 0.35,
+    routing: "great-circle",
   },
   courier: {
     key: "courier",
@@ -61,7 +69,7 @@ const MODES: Record<string, ModeStyle> = {
     icon: Package,
     iconClass: "text-violet-300",
     borderClass: "border-violet-400/50",
-    bend: -1,
+    routing: "great-circle",
   },
 };
 
@@ -77,6 +85,8 @@ export function LaneMap({ origin, destination, method }: LaneMapProps) {
   const d = COUNTRY_CENTROIDS[(destination || "").toUpperCase()];
   if (!o || !d) return null;
 
+  const originLL: LatLng = [o[0], o[1]];
+  const destLL: LatLng = [d[0], d[1]];
   const from = projectToSvg(o[0], o[1], MAP_W, MAP_H);
   const to = projectToSvg(d[0], d[1], MAP_W, MAP_H);
   const domestic = origin.toUpperCase() === destination.toUpperCase();
@@ -85,21 +95,13 @@ export function LaneMap({ origin, destination, method }: LaneMapProps) {
   // No method chosen → show the two common international defaults.
   const lanes = selected ? [selected] : [MODES.air, MODES.sea];
 
-  const midX = (from.x + to.x) / 2;
-  const midY = (from.y + to.y) / 2;
-  const span = Math.hypot(to.x - from.x, to.y - from.y);
-  const lift = Math.min(Math.max(span * 0.28, 36), 110);
-
   const laneGeometry = lanes.map((mode) => {
-    const ctrlY = Math.min(
-      Math.max(midY + mode.bend * lift, 14),
-      MAP_H - 14,
-    );
-    return {
-      mode,
-      path: `M${from.x},${from.y} Q${midX},${ctrlY} ${to.x},${to.y}`,
-      apex: { x: midX, y: 0.25 * from.y + 0.5 * ctrlY + 0.25 * to.y },
-    };
+    const waypoints: LatLng[] =
+      mode.routing === "sea"
+        ? seaRoute(originLL, destLL) ?? [originLL, destLL]
+        : [originLL, destLL];
+    const { polylines, midpoint } = buildRoutePath(waypoints, MAP_W, MAP_H);
+    return { mode, polylines, midpoint };
   });
 
   const labelAnchor = (x: number) =>
@@ -146,20 +148,23 @@ export function LaneMap({ origin, destination, method }: LaneMapProps) {
             ))}
           </g>
 
-          {/* selected transport lane(s) */}
+          {/* selected transport lane(s) — one polyline per antimeridian span */}
           {!domestic &&
-            laneGeometry.map(({ mode, path }) => (
-              <path
-                key={mode.key}
-                d={path}
-                fill="none"
-                stroke={mode.color}
-                strokeWidth="2.5"
-                strokeDasharray={mode.dash}
-                strokeLinecap="round"
-                opacity="0.95"
-              />
-            ))}
+            laneGeometry.map(({ mode, polylines }) =>
+              polylines.map((pl, i) => (
+                <polyline
+                  key={`${mode.key}-${i}`}
+                  points={toPoints(pl)}
+                  fill="none"
+                  stroke={mode.color}
+                  strokeWidth="2.5"
+                  strokeDasharray={mode.dash}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity="0.95"
+                />
+              )),
+            )}
 
           {/* origin marker (emerald) */}
           <g>
@@ -196,15 +201,15 @@ export function LaneMap({ origin, destination, method }: LaneMapProps) {
           )}
         </svg>
 
-        {/* transport-mode badges pinned to each curve's apex */}
+        {/* transport-mode badges pinned to each route's midpoint */}
         {!domestic &&
-          laneGeometry.map(({ mode, apex }) => (
+          laneGeometry.map(({ mode, midpoint }: { mode: ModeStyle; midpoint: Pt }) => (
             <span
               key={mode.key}
               className={`absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-slate-950 ${mode.borderClass} ${mode.iconClass}`}
               style={{
-                left: `${(apex.x / MAP_W) * 100}%`,
-                top: `${(apex.y / MAP_H) * 100}%`,
+                left: `${(midpoint.x / MAP_W) * 100}%`,
+                top: `${(midpoint.y / MAP_H) * 100}%`,
               }}
             >
               <mode.icon className="h-3.5 w-3.5" />
