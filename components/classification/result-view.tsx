@@ -98,9 +98,26 @@ export function ResultView({
               {result.reasoning_summary}
             </p>
             <div className="rounded-md border bg-muted/60 p-4 text-sm">
-              <p className="font-semibold text-foreground">
-                Duty / tax estimate placeholder
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-semibold text-foreground">
+                  {result.duty_estimate && !result.duty_estimate.is_placeholder
+                    ? "Duty / tax estimate"
+                    : "Duty / tax estimate placeholder"}
+                </p>
+                {result.duty_estimate?.source && (
+                  <span
+                    className={
+                      "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium " +
+                      (result.duty_estimate.is_placeholder
+                        ? "bg-muted text-muted-foreground"
+                        : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300")
+                    }
+                  >
+                    {result.duty_estimate.source}
+                    {result.duty_estimate.as_of ? ` · ${result.duty_estimate.as_of}` : ""}
+                  </span>
+                )}
+              </div>
               <p className="mt-2 text-muted-foreground">
                 {result.duty_estimate
                   ? [

@@ -48,7 +48,12 @@ export interface DutyMeasure {
   dutyRatePlaceholder: string;
   vatRatePlaceholder: string | null;
   notes: string[];
-  isPlaceholder: true;
+  /** True for seed/reference data, false when fetched from a live tariff API. */
+  isPlaceholder: boolean;
+  /** Human label for where this measure came from (e.g. "UK Trade Tariff API"). */
+  source?: string;
+  /** ISO date the figure was retrieved/verified. */
+  asOf?: string;
 }
 
 /** Restriction record for a code on a given trade lane. */
@@ -212,10 +217,15 @@ export interface CostOptimization {
 export interface DutyEstimate {
   duty_rate_placeholder: string;
   vat_rate_placeholder: string | null;
-  /** Base (MFN placeholder) duty value. */
+  /** Base (MFN) duty value. */
   estimated_duty_value: number | null;
   currency: string | null;
-  is_placeholder: true;
+  /** True for seed/reference data, false when the base rate is live. */
+  is_placeholder: boolean;
+  /** Where the base duty rate came from (e.g. "UK Trade Tariff API (live)"). */
+  source?: string;
+  /** ISO date the base rate was retrieved/verified. */
+  as_of?: string;
   notes: string[];
   /**
    * Country-specific additional tariffs (Section 301, Section 232, 2025

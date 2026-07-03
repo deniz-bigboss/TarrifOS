@@ -156,9 +156,15 @@ const TRADE_REMEDIES: TradeRemedy[] = [
   },
 ];
 
+/**
+ * When this reference dataset was last reviewed. Update alongside any change
+ * to TRADE_REMEDIES; surfaced in the UI so users can see how current it is.
+ */
+export const TRADE_REMEDY_AS_OF = "2025-06";
+
 /** Top-of-list caveat shown whenever any remedy is surfaced. */
 export const TRADE_REMEDY_NOTICE =
-  "Additional-tariff figures are dated reference points, not official rates. Trade-war tariffs change frequently and several are under legal challenge — always confirm the current measure against the official tariff schedule (e.g. USITC HTS, EUR-Lex/TARIC) or your customs broker before filing.";
+  `Additional-tariff figures are dated reference points (reviewed ${TRADE_REMEDY_AS_OF}), not official rates. Trade-war tariffs change frequently and several are under legal challenge — always confirm the current measure against the official tariff schedule (e.g. USITC HTS, EUR-Lex/TARIC) or your customs broker before filing.`;
 
 function chapterOf(hsCode: string | null | undefined): string | null {
   if (!hsCode) return null;

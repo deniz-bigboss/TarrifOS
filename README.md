@@ -203,9 +203,39 @@ Either way it explicitly returns "not found" rather than fabricate details for a
 product it can't confirm, and any match is shown as editable fields the user
 must confirm before continuing — never auto-submitted.
 
-Adding an official tariff source later is just as modular: implement the
-`TariffDataProvider` interface (`lib/tariff-data/types.ts`) for EU TARIC / UK
-Trade Tariff / US HTS / Turkey and return it from `getTariffDataProvider()`.
+### Live tariff data
+
+Set `TARIFF_DATA_SOURCE=live` to fetch **real MFN duty rates** from free,
+official government APIs instead of the offline seed placeholders:
+
+- **GB destinations** → the [UK Trade Tariff API](https://www.trade-tariff.service.gov.uk/)
+  (HMRC) — base third-country duty, VAT, **and live anti-dumping / safeguard
+  measures**, which are the UK's trade-remedy duties. No key required.
+- **US destinations** → the [USITC HTS](https://hts.usitc.gov/) export — the
+  current column-1 (MFN) duty. No key required.
+
+Live results are cached per instance (12h TTL) and **fall back to seed data on
+any failure**, so a slow or down API never breaks a classification. When a rate
+is live, the duty card shows a green source badge with the retrieval date.
+
+**Staying current automatically:** a daily [Vercel Cron](https://vercel.com/docs/cron-jobs)
+(`vercel.json` → `/api/cron/refresh-tariffs`) flushes the cache so the next
+classifications re-fetch fresh rates. Protect it by setting `CRON_SECRET`. You
+can also hit the route manually (with the `Authorization: Bearer <CRON_SECRET>`
+header) to force a refresh.
+
+**Trade-war tariffs — an honest note.** The 2025 US measures (Section 301/232,
+the IEEPA "reciprocal" tariffs) live in HTS Chapter 99 with product/country/
+exclusion logic that no free API resolves into a single rate. So those remain a
+**dated reference layer** (`lib/tariff-data/trade-remedies.ts`, with a visible
+"reviewed" date) that the UI always tells you to verify — while UK anti-dumping
+measures *do* update live via the API above. For fully-automatic, authoritative
+US trade-war rates, drop a paid specialist feed (Avalara, Zonos, CustomsInfo)
+into the same `TariffDataProvider` seam.
+
+Adding another official source is just as modular: implement the
+`TariffDataProvider` interface (`lib/tariff-data/types.ts`) for EU TARIC /
+Turkey / a paid API and wire it into `LiveTariffDataProvider`.
 
 ---
 
