@@ -30,7 +30,7 @@ export function DashboardSidebar() {
           <Ship className="h-5 w-5" />
         </span>
         <span className="min-w-0">
-          <span className="block font-display text-base font-semibold leading-tight tracking-tight">
+          <span className="block text-base font-semibold leading-tight tracking-tight">
             TariffOS
           </span>
           <span className="block truncate text-xs text-muted-foreground">

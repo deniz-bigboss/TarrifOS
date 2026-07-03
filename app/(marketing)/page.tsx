@@ -55,7 +55,7 @@ export default function LandingPage() {
       {/* -------------------------------------------------------- Hero */}
       <section className="relative min-h-[92vh] overflow-hidden bg-slate-950">
         <img
-          src="/tariffos-hero.svg"
+          src="/tariffos-hero.webp"
           alt=""
           aria-hidden
           className="absolute inset-0 h-full w-full object-cover opacity-[0.78]"

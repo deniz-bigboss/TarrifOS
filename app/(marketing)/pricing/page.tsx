@@ -24,7 +24,7 @@ export default function PricingPage() {
       {/* ------------------------------------------------ Dark hero band */}
       <section className="relative overflow-hidden bg-slate-950">
         <img
-          src="/tariffos-hero.svg"
+          src="/tariffos-hero.webp"
           alt=""
           aria-hidden
           className="absolute inset-0 h-full w-full object-cover opacity-40"
