@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <!-- Night container-port scene used as the landing hero backdrop.
+       Interest is weighted to the right: the page overlays a left-to-dark
+       gradient so the left third sits under the headline. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset="0.55" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.72" cy="0.62" r="0.55">
+      <stop offset="0" stop-color="#10b981" stop-opacity="0.16"/>
+      <stop offset="0.5" stop-color="#0ea5e9" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1526"/>
+      <stop offset="1" stop-color="#060b16"/>
+    </linearGradient>
+    <linearGradient id="fadeBottom" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#020617" stop-opacity="0"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+
+  <!-- faint stars -->
+  <g fill="#94a3b8" opacity="0.35">
+    <circle cx="220" cy="120" r="1.4"/><circle cx="480" cy="70" r="1"/>
+    <circle cx="700" cy="180" r="1.2"/><circle cx="960" cy="90" r="1"/>
+    <circle cx="1180" cy="150" r="1.4"/><circle cx="1420" cy="60" r="1"/>
+    <circle cx="1560" cy="200" r="1.2"/><circle cx="1760" cy="110" r="1.4"/>
+    <circle cx="1660" cy="320" r="1"/><circle cx="340" cy="260" r="1"/>
+  </g>
+
+  <!-- distant skyline strip on the horizon -->
+  <g fill="#111c30">
+    <rect x="0" y="700" width="1920" height="20"/>
+    <rect x="60" y="668" width="46" height="52"/><rect x="150" y="682" width="70" height="38"/>
+    <rect x="300" y="672" width="38" height="48"/><rect x="420" y="688" width="90" height="32"/>
+    <rect x="600" y="676" width="52" height="44"/><rect x="740" y="690" width="110" height="30"/>
+    <rect x="920" y="670" width="44" height="50"/><rect x="1050" y="684" width="80" height="36"/>
+  </g>
+
+  <!-- water -->
+  <rect x="0" y="720" width="1920" height="360" fill="url(#water)"/>
+  <g opacity="0.25">
+    <rect x="1210" y="740" width="4" height="150" fill="#34d399"/>
+    <rect x="1345" y="742" width="3" height="120" fill="#38bdf8"/>
+    <rect x="1495" y="738" width="4" height="170" fill="#fbbf24"/>
+    <rect x="1620" y="744" width="3" height="120" fill="#34d399"/>
+    <rect x="1750" y="740" width="4" height="140" fill="#38bdf8"/>
+    <rect x="880" y="744" width="3" height="100" fill="#94a3b8"/>
+  </g>
+
+  <!-- quay deck -->
+  <rect x="760" y="700" width="1160" height="26" fill="#152238"/>
+
+  <!-- container stacks, right block -->
+  <g stroke="#020617" stroke-width="2">
+    <g>
+      <rect x="1180" y="652" width="150" height="48" fill="#1e3a5f"/>
+      <rect x="1332" y="652" width="150" height="48" fill="#134e4a"/>
+      <rect x="1484" y="652" width="150" height="48" fill="#334155"/>
+      <rect x="1636" y="652" width="150" height="48" fill="#78350f"/>
+      <rect x="1788" y="652" width="132" height="48" fill="#1e3a5f"/>
+    </g>
+    <g>
+      <rect x="1256" y="604" width="150" height="48" fill="#334155"/>
+      <rect x="1408" y="604" width="150" height="48" fill="#065f46"/>
+      <rect x="1560" y="604" width="150" height="48" fill="#1e3a5f"/>
+      <rect x="1712" y="604" width="150" height="48" fill="#475569"/>
+    </g>
+    <g>
+      <rect x="1332" y="556" width="150" height="48" fill="#7c2d12"/>
+      <rect x="1484" y="556" width="150" height="48" fill="#1e293b"/>
+      <rect x="1636" y="556" width="150" height="48" fill="#134e4a"/>
+    </g>
+    <g>
+      <rect x="1440" y="508" width="150" height="48" fill="#1e3a5f"/>
+      <rect x="1592" y="508" width="150" height="48" fill="#334155"/>
+    </g>
+  </g>
+  <!-- container corrugation hints -->
+  <g stroke="#0f172a" stroke-width="2" opacity="0.5">
+    <path d="M1210 652v48M1240 652v48M1270 652v48M1300 652v48"/>
+    <path d="M1362 604v48M1392 604v48M1422 604v48M1452 604v48"/>
+    <path d="M1514 556v48M1544 556v48M1574 556v48M1604 556v48"/>
+    <path d="M1666 652v48M1696 652v48M1726 652v48M1756 652v48"/>
+  </g>
+
+  <!-- container stacks, mid block -->
+  <g stroke="#020617" stroke-width="2" opacity="0.9">
+    <rect x="800" y="660" width="120" height="40" fill="#1e293b"/>
+    <rect x="922" y="660" width="120" height="40" fill="#134e4a"/>
+    <rect x="1044" y="660" width="120" height="40" fill="#1e3a5f"/>
+    <rect x="860" y="620" width="120" height="40" fill="#334155"/>
+    <rect x="982" y="620" width="120" height="40" fill="#78350f"/>
+  </g>
+
+  <!-- gantry crane, large right -->
+  <g fill="#16233c">
+    <rect x="1500" y="240" width="16" height="470"/>
+    <rect x="1830" y="240" width="16" height="470"/>
+    <rect x="1470" y="220" width="410" height="22"/>
+    <rect x="1560" y="180" width="12" height="46"/>
+    <rect x="1700" y="150" width="12" height="76"/>
+    <path d="M1508 262 1560 380 1516 380Z" opacity="0.8"/>
+    <path d="M1838 262 1786 380 1830 380Z" opacity="0.8"/>
+    <rect x="1500" y="440" width="346" height="10" opacity="0.7"/>
+    <!-- trolley + hoist + hanging container -->
+    <rect x="1640" y="242" width="52" height="18"/>
+    <rect x="1663" y="260" width="5" height="130"/>
+    <rect x="1616" y="390" width="100" height="34" fill="#065f46" stroke="#020617" stroke-width="2"/>
+  </g>
+  <!-- crane lights -->
+  <g>
+    <circle cx="1508" cy="236" r="4" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="1838" cy="236" r="4" fill="#f87171" opacity="0.9"/>
+    <circle cx="1666" cy="252" r="3" fill="#34d399" opacity="0.9"/>
+  </g>
+
+  <!-- gantry crane, small mid -->
+  <g fill="#131e33">
+    <rect x="1080" y="380" width="12" height="330"/>
+    <rect x="1310" y="380" width="12" height="330"/>
+    <rect x="1058" y="364" width="290" height="16"/>
+    <path d="M1086 380 1122 470 1090 470Z" opacity="0.8"/>
+    <path d="M1316 380 1280 470 1312 470Z" opacity="0.8"/>
+    <rect x="1180" y="380" width="40" height="14"/>
+    <rect x="1198" y="394" width="4" height="90"/>
+    <circle cx="1086" cy="360" r="3.5" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="1316" cy="360" r="3.5" fill="#34d399" opacity="0.9"/>
+  </g>
+
+  <!-- ship hull at far right water edge -->
+  <g opacity="0.9">
+    <path d="M1120 780 H1920 V860 L1860 900 H1180 Z" fill="#0d1830"/>
+    <rect x="1230" y="742" width="110" height="38" fill="#1e3a5f" stroke="#020617" stroke-width="2"/>
+    <rect x="1342" y="742" width="110" height="38" fill="#134e4a" stroke="#020617" stroke-width="2"/>
+    <rect x="1454" y="742" width="110" height="38" fill="#78350f" stroke="#020617" stroke-width="2"/>
+    <rect x="1566" y="742" width="110" height="38" fill="#334155" stroke="#020617" stroke-width="2"/>
+    <circle cx="1160" cy="800" r="3" fill="#fbbf24" opacity="0.8"/>
+    <circle cx="1880" cy="800" r="3" fill="#f87171" opacity="0.8"/>
+  </g>
+
+  <!-- subtle data-grid overlay, echoes the ops-console aesthetic -->
+  <g stroke="#334155" stroke-width="1" opacity="0.14">
+    <path d="M0 270h1920M0 540h1920M0 810h1920"/>
+    <path d="M480 0v1080M960 0v1080M1440 0v1080"/>
+  </g>
+
+  <rect x="0" y="880" width="1920" height="200" fill="url(#fadeBottom)"/>
+</svg>

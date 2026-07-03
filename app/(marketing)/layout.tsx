@@ -1,6 +1,8 @@
-import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
+/* Each marketing page brings its own header: the landing page floats a
+   transparent header over its dark hero, while inner pages (pricing)
+   render the standard sticky SiteHeader. The footer is shared. */
 export default function MarketingLayout({
   children,
 }: {
@@ -8,8 +10,7 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <div className="flex-1">{children}</div>
       <SiteFooter />
     </div>
   );

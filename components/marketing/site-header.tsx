@@ -14,9 +14,8 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <Link href="/#how" className="hover:text-foreground">How it works</Link>
-          <Link href="/#who" className="hover:text-foreground">Who it's for</Link>
-          <Link href="/#example" className="hover:text-foreground">Example</Link>
+          <Link href="/#workflow" className="hover:text-foreground">Workflow</Link>
+          <Link href="/#customers" className="hover:text-foreground">Customers</Link>
           <Link href="/pricing" className="hover:text-foreground">Pricing</Link>
         </nav>
 
