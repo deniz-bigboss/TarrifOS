@@ -9,6 +9,7 @@ import type {
   ShipmentPlan,
 } from "@/types";
 import { countryName } from "@/lib/utils";
+import { tradeRemedySummary } from "@/lib/tariff-data/trade-remedies";
 
 /**
  * generateShipmentPlan — the "shipping operations agent" layer.
@@ -275,6 +276,23 @@ function buildCheckpoints(
           : "No action needed unless the product specification changes.",
     },
   ];
+
+  // Additional country tariffs (Section 301 / 232, 2025 reciprocal, EU CVDs).
+  // These often dwarf the base duty, so they lead the checkpoint list.
+  const remedies = result.duty_estimate?.trade_remedies ?? [];
+  if (remedies.length > 0) {
+    checkpoints.unshift({
+      title: "Additional country tariffs",
+      severity: "critical",
+      status_note: tradeRemedySummary(
+        input.destination_country,
+        input.origin_country,
+        remedies,
+      ),
+      instruction:
+        "These stack on top of the base duty and change frequently. Confirm the current rate for your HS code against the official schedule (e.g. USITC HTS, EUR-Lex/TARIC) and price them into landed cost before committing.",
+    });
+  }
 
   // Origin vs supplier mismatch — the classic trap: goods bought from (and
   // dispatched by) a trader in one country while the product was manufactured

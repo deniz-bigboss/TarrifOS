@@ -212,10 +212,34 @@ export interface CostOptimization {
 export interface DutyEstimate {
   duty_rate_placeholder: string;
   vat_rate_placeholder: string | null;
+  /** Base (MFN placeholder) duty value. */
   estimated_duty_value: number | null;
   currency: string | null;
   is_placeholder: true;
   notes: string[];
+  /**
+   * Country-specific additional tariffs (Section 301, Section 232, 2025
+   * reciprocal/IEEPA, EU CVDs, …) that stack on top of the base duty. Present
+   * only when the origin → destination lane is subject to one. All figures are
+   * dated reference points — see trade_remedy_notice.
+   */
+  trade_remedies?: TradeRemedyLine[];
+  /** Additional duty from the auto-added remedies, or null. */
+  additional_duty_value?: number | null;
+  /** Base + additional, or null. */
+  total_duty_value?: number | null;
+  trade_remedy_notice?: string;
+}
+
+export interface TradeRemedyLine {
+  name: string;
+  rate_label: string;
+  estimated_value: number | null;
+  /** "added" = folded into the total; "may-apply" = conditional, not added. */
+  applies: "added" | "may-apply";
+  source: string;
+  effective: string;
+  detail: string;
 }
 
 export const LEGAL_DISCLAIMER =

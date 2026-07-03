@@ -13,6 +13,7 @@ import { assessDataPlausibility } from "./plausibility";
 import { generateCostOptimization } from "./cost-optimizer";
 import { generateShipmentPlan } from "./shipment-plan";
 import { estimateDutyValue } from "./duty";
+import { buildTradeRemedyEstimate } from "@/lib/tariff-data/trade-remedies";
 import { filterRedundantMissingInfo } from "@/lib/ai/missing-info";
 import { isPlausibleHsCode, normalizeHsCode } from "@/lib/tariff-data/hs-chapters";
 import {
@@ -270,6 +271,21 @@ export async function runClassification(
       measures.dutyRatePlaceholder,
       input.declared_value ?? null,
     );
+
+    // Country-specific additional tariffs (Section 301, Section 232, 2025
+    // reciprocal/IEEPA, EU CVDs, …) stacked on top of the base MFN duty.
+    const remedy = buildTradeRemedyEstimate(
+      normalized.destination_country,
+      normalized.origin_country,
+      result.recommended_code,
+      input.declared_value ?? null,
+    );
+    const additional = remedy?.additional_duty_value ?? null;
+    const total =
+      estimatedDuty != null || additional != null
+        ? (estimatedDuty ?? 0) + (additional ?? 0)
+        : null;
+
     result.duty_estimate = {
       duty_rate_placeholder: measures.dutyRatePlaceholder,
       vat_rate_placeholder: measures.vatRatePlaceholder,
@@ -277,6 +293,10 @@ export async function runClassification(
       currency: input.currency ?? null,
       is_placeholder: true,
       notes: measures.notes,
+      trade_remedies: remedy?.lines,
+      additional_duty_value: additional,
+      total_duty_value: total,
+      trade_remedy_notice: remedy?.notice,
     };
   }
 
