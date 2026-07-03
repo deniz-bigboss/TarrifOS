@@ -20,9 +20,9 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "TariffOS — AI customs classification & landed-cost",
+  title: "TariffOS — AI shipping operations agent",
   description:
-    "TariffOS helps importers classify products, estimate landed costs, and prepare customs-ready documentation. AI-powered tariff classification with evidence, confidence scores, and broker-ready reports.",
+    "TariffOS turns product facts into HS code recommendations, document checklists, compliance checkpoints, cost-saving actions, and shipment execution plans — for importers and exporters on any lane worldwide.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   ),

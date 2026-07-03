@@ -27,7 +27,7 @@ export function OverlayHeader() {
             href="/signup"
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-medium text-slate-950 shadow-sm transition-colors hover:bg-slate-100"
           >
-            Start
+            Sign up free
           </Link>
         </div>
       </div>

@@ -33,7 +33,7 @@ const PROBLEM_CARDS = [
 
 const WORKFLOW_STEPS = [
   "Normalize product and trade-lane data",
-  "Retrieve seed HS-style candidates",
+  "Retrieve candidate HS codes with evidence",
   "Generate document and compliance gates",
   "Produce cost actions and a shipment plan",
 ];
@@ -151,8 +151,7 @@ export default function LandingPage() {
           <div>
             <SectionBadge>Who it is for</SectionBadge>
             <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950">
-              Built for repeat-SKU trade worldwide — deepest on EU, UK,
-              Turkey, and US lanes.
+              Built for repeat-SKU trade on any lane, anywhere in the world.
             </h2>
           </div>
           <div className="grid gap-3">
