@@ -488,7 +488,10 @@ export function ClassificationWizard() {
                     <option value="export">Export</option>
                   </Select>
                 </Field>
-                <Field label="Supplier country">
+                <Field
+                  label="Supplier country"
+                  hint="Where you buy or ship from — set it only if different from the origin (manufacturing) country. A mismatch adds an origin-evidence checkpoint to your plan."
+                >
                   <Select {...register("supplier_country")}>
                     <option value="">Select…</option>
                     <CountryOptions />
@@ -632,20 +635,32 @@ function Field({
   label,
   error,
   required,
+  hint,
   children,
 }: {
   label: string;
   error?: string;
   required?: boolean;
+  /** One-line explanation shown under the input. */
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
-      <Label>
+      <Label className="flex items-baseline gap-1.5">
         {label}
-        {required && <span className="text-destructive"> *</span>}
+        {required ? (
+          <span className="text-destructive" title="Required">*</span>
+        ) : (
+          <span className="text-[11px] font-normal text-muted-foreground">
+            (optional)
+          </span>
+        )}
       </Label>
       {children}
+      {hint && !error && (
+        <p className="text-xs text-muted-foreground">{hint}</p>
+      )}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );

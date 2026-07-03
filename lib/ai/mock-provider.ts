@@ -119,6 +119,14 @@ export class MockAIProvider implements AIProvider {
       `Rationale: ${result.reasoning_summary}`,
     ];
 
+    const supplier = input.supplier_country?.toUpperCase();
+    const origin = input.origin_country?.toUpperCase();
+    if (supplier && origin && supplier !== origin) {
+      lines.push(
+        `Origin note: goods are supplied from ${countryName(supplier)} while the declared country of origin is ${countryName(origin)}. Origin evidence (certificate of origin, invoice origin statements) must reflect ${countryName(origin)}, and any preferential duty claim must satisfy ${countryName(origin)} origin rules — not the supplier's location.`,
+      );
+    }
+
     if (result.required_documents.length) {
       lines.push(
         `Likely required documents: ${result.required_documents.join(", ")}.`,

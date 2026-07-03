@@ -62,7 +62,7 @@ export function buildClassificationUserPrompt(
 - Brand / model: ${[input.brand, input.model].filter(Boolean).join(" / ") || "not provided"}
 - Category: ${input.category ?? "not provided"}
 - Origin: ${countryName(input.origin_country)} (${input.origin_country})
-- Destination: ${countryName(input.destination_country)} (${input.destination_country})
+- Destination: ${countryName(input.destination_country)} (${input.destination_country})${input.supplier_country && input.supplier_country.toUpperCase() !== input.origin_country?.toUpperCase() ? `\n- Supplier country (purchased/dispatched from — NOT the origin): ${countryName(input.supplier_country)} (${input.supplier_country})` : ""}
 - Direction: ${input.import_or_export ?? "import"}
 - Declared value: ${input.declared_value ?? "not provided"} ${input.currency ?? ""}
 

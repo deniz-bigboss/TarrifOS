@@ -276,6 +276,22 @@ function buildCheckpoints(
     },
   ];
 
+  // Origin vs supplier mismatch — the classic trap: goods bought from (and
+  // dispatched by) a trader in one country while the product was manufactured
+  // in another. Duty rates, preferential claims, and origin marking all follow
+  // the MANUFACTURING country, and mismatched paperwork is a common trigger
+  // for customs origin verification.
+  const supplier = input.supplier_country?.toUpperCase();
+  const origin = input.origin_country?.toUpperCase();
+  if (supplier && origin && supplier !== origin) {
+    checkpoints.splice(1, 0, {
+      title: "Origin vs supplier mismatch",
+      severity: "high",
+      status_note: `Goods are supplied from ${countryName(supplier)} but their declared origin is ${countryName(origin)} — customs treats these differently and may ask for proof of origin.`,
+      instruction: `Ensure the certificate of origin and invoice origin statements name ${countryName(origin)} (the manufacturing country), not ${countryName(supplier)}. Any preferential-rate claim must be based on ${countryName(origin)} origin rules, and the supplier must be able to substantiate it.`,
+    });
+  }
+
   return checkpoints;
 }
 
