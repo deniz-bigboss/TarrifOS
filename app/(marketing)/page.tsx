@@ -6,6 +6,8 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { OverlayHeader } from "@/components/marketing/overlay-header";
+import { SectionBadge } from "@/components/marketing/section-badge";
 import { PLANS } from "@/lib/billing/plans";
 import { LEGAL_DISCLAIMER } from "@/types";
 
@@ -45,44 +47,10 @@ const CUSTOMER_ROWS = [
 
 const PLAN_PREVIEW = ["free", "starter", "growth"] as const;
 
-function SectionBadge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-      {children}
-    </span>
-  );
-}
-
 export default function LandingPage() {
   return (
     <main className="bg-white">
-      {/* ------------------------------------------- Overlay header */}
-      <header className="absolute inset-x-0 top-0 z-30">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
-          <Link href="/" className="text-base font-semibold text-white">
-            TariffOS
-          </Link>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-white/85 md:flex">
-            <a href="/#workflow" className="hover:text-white">Workflow</a>
-            <a href="/#customers" className="hover:text-white">Customers</a>
-            <Link href="/pricing" className="hover:text-white">Pricing</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-white/85 hover:text-white"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-medium text-slate-950 shadow-sm transition-colors hover:bg-slate-100"
-            >
-              Start
-            </Link>
-          </div>
-        </div>
-      </header>
+      <OverlayHeader />
 
       {/* -------------------------------------------------------- Hero */}
       <section className="relative min-h-[92vh] overflow-hidden bg-slate-950">

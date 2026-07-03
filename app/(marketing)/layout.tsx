@@ -1,8 +1,7 @@
 import { SiteFooter } from "@/components/marketing/site-footer";
 
-/* Each marketing page brings its own header: the landing page floats a
-   transparent header over its dark hero, while inner pages (pricing)
-   render the standard sticky SiteHeader. The footer is shared. */
+/* Every marketing page opens with a dark band and floats the shared
+   OverlayHeader over it, so pages own their headers; the footer is shared. */
 export default function MarketingLayout({
   children,
 }: {
