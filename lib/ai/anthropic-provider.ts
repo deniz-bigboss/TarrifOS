@@ -55,8 +55,8 @@ export class AnthropicProvider implements AIProvider {
       const raw = textOf(message);
       return normalizeModelResult(extractJson(raw), input, candidates);
     } catch (err) {
-      console.error("[AnthropicProvider] classifyProduct failed, using mock:", err);
-      return this.fallback.classifyProduct(input, candidates);
+      console.error("[AnthropicProvider] classifyProduct failed:", err);
+      throw err; // the fallback chain decides what happens next
     }
   }
 
@@ -74,8 +74,8 @@ export class AnthropicProvider implements AIProvider {
       const parsed = extractJson(textOf(message));
       return Array.isArray(parsed) ? parsed.map(String) : [];
     } catch (err) {
-      console.error("[AnthropicProvider] missingInfo failed, using mock:", err);
-      return this.fallback.generateMissingInfoQuestions(input);
+      console.error("[AnthropicProvider] missingInfo failed:", err);
+      throw err;
     }
   }
 
@@ -131,13 +131,8 @@ export class AnthropicProvider implements AIProvider {
       });
       return normalizeLookupResult(extractJson(textOf(message)), query);
     } catch (err) {
-      console.error("[AnthropicProvider] lookupProduct failed, using mock:", err);
-      const offline = await this.fallback.lookupProduct(query);
-      return {
-        ...offline,
-        degraded_reason:
-          "The live Anthropic lookup failed (rate limit, quota, or network). Only the built-in product list was checked.",
-      };
+      console.error("[AnthropicProvider] lookupProduct failed:", err);
+      throw err; // the fallback chain decides what happens next
     }
   }
 }

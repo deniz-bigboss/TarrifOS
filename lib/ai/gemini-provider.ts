@@ -83,8 +83,8 @@ export class GeminiProvider implements AIProvider {
       });
       return normalizeModelResult(extractJson(response.text ?? ""), input, candidates);
     } catch (err) {
-      console.error("[GeminiProvider] classifyProduct failed, using mock:", err);
-      return this.fallback.classifyProduct(input, candidates);
+      console.error("[GeminiProvider] classifyProduct failed:", err);
+      throw err; // the fallback chain decides what happens next
     }
   }
 
@@ -102,8 +102,8 @@ export class GeminiProvider implements AIProvider {
       const parsed = extractJson(response.text ?? "[]");
       return Array.isArray(parsed) ? parsed.map(String) : [];
     } catch (err) {
-      console.error("[GeminiProvider] missingInfo failed, using mock:", err);
-      return this.fallback.generateMissingInfoQuestions(input);
+      console.error("[GeminiProvider] missingInfo failed:", err);
+      throw err;
     }
   }
 
@@ -157,13 +157,8 @@ export class GeminiProvider implements AIProvider {
       });
       return normalizeLookupResult(extractJson(response.text ?? ""), query);
     } catch (err) {
-      console.error("[GeminiProvider] lookupProduct failed, using mock:", err);
-      const offline = await this.fallback.lookupProduct(query);
-      return {
-        ...offline,
-        degraded_reason:
-          "The live Gemini lookup failed (often a free-tier rate limit or daily quota — it resets automatically). Only the built-in product list was checked.",
-      };
+      console.error("[GeminiProvider] lookupProduct failed:", err);
+      throw err; // the fallback chain decides what happens next
     }
   }
 }

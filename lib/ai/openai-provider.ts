@@ -58,8 +58,8 @@ export class OpenAIProvider implements AIProvider {
       const raw = completion.choices[0]?.message?.content ?? "";
       return normalizeModelResult(extractJson(raw), input, candidates);
     } catch (err) {
-      console.error("[OpenAIProvider] classifyProduct failed, using mock:", err);
-      return this.fallback.classifyProduct(input, candidates);
+      console.error("[OpenAIProvider] classifyProduct failed:", err);
+      throw err; // the fallback chain decides what happens next
     }
   }
 
@@ -77,8 +77,8 @@ export class OpenAIProvider implements AIProvider {
       const parsed = extractJson(raw);
       return Array.isArray(parsed) ? parsed.map(String) : [];
     } catch (err) {
-      console.error("[OpenAIProvider] missingInfo failed, using mock:", err);
-      return this.fallback.generateMissingInfoQuestions(input);
+      console.error("[OpenAIProvider] missingInfo failed:", err);
+      throw err;
     }
   }
 
@@ -132,13 +132,8 @@ export class OpenAIProvider implements AIProvider {
       const raw = completion.choices[0]?.message?.content ?? "";
       return normalizeLookupResult(extractJson(raw), query);
     } catch (err) {
-      console.error("[OpenAIProvider] lookupProduct failed, using mock:", err);
-      const offline = await this.fallback.lookupProduct(query);
-      return {
-        ...offline,
-        degraded_reason:
-          "The live OpenAI lookup failed (rate limit, quota, or network). Only the built-in product list was checked.",
-      };
+      console.error("[OpenAIProvider] lookupProduct failed:", err);
+      throw err; // the fallback chain decides what happens next
     }
   }
 }

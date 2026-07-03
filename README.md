@@ -29,7 +29,9 @@ score, and an automatic human-review flag for high-risk or low-confidence cases.
   flagged for human review, and clearly marked as outside the local dataset.
   No live government API dependency at launch.
 - **AI provider abstraction** (`AIProvider`): `MockAIProvider` (default, no key),
-  `GeminiProvider` (free tier), `OpenAIProvider`, `AnthropicProvider`.
+  `GeminiProvider` (free tier), `OpenAIProvider`, `AnthropicProvider`, plus
+  free-tier fallbacks (Groq / OpenRouter / Cerebras) chained behind the primary
+  with a visible service notice whenever a fallback served the result.
 - **Compliance rules enforced in code**: confidence < 0.75 or any high-risk
   category (food, batteries, chemicals, medical, weapons, alcohol, …) forces
   human review. Duty figures are always placeholders.
@@ -101,8 +103,9 @@ auth + persistence:
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Browser/auth client |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | API auth, usage tracking, workspace bootstrap |
-| `AI_PROVIDER` | no | `mock` (default) \| `openai` \| `anthropic` |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | no | Only for real AI |
+| `AI_PROVIDER` | no | `mock` (default) \| `gemini` \| `openai` \| `anthropic` \| `groq` \| `openrouter` \| `cerebras` |
+| `GEMINI_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | no | Only for real AI |
+| `GROQ_API_KEY` / `OPENROUTER_API_KEY` / `CEREBRAS_API_KEY` | no | Free-tier fallback chain when the primary is rate-limited |
 | `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | no | Billing (placeholder) |
 | `NEXT_PUBLIC_SITE_URL` | no | Auth redirects (default `http://localhost:3000`) |
 
@@ -164,8 +167,26 @@ ANTHROPIC_API_KEY=sk-ant-...
 ANTHROPIC_MODEL=claude-3-5-sonnet-latest   # optional
 ```
 
-If a real provider is selected but its key is missing — or the API call fails —
-the engine automatically falls back to the mock so nothing hard-breaks. The
+### Free-tier fallback chain (rate limits never break the product)
+
+Free tiers have daily/minute quotas, so TariffOS supports a **fallback chain**:
+if the primary provider fails (rate limit, quota, outage), the request is
+retried in order against **Groq → OpenRouter → Cerebras** — three providers
+with genuinely free API tiers — and finally the deterministic offline engine.
+Any of these that has a key configured joins the chain automatically:
+
+```bash
+GROQ_API_KEY=...        # https://console.groq.com
+OPENROUTER_API_KEY=...  # https://openrouter.ai/keys
+CEREBRAS_API_KEY=...    # https://cloud.cerebras.ai
+```
+
+Degraded service is **never silent**: when a fallback (or the offline engine)
+served the result, the classification page shows an amber service notice and
+Quick Find explains why its answer may be reduced. Note the fallbacks run
+open-weight models without web search, so results carry a "without web-search
+verification" caveat. If every key is missing or every provider fails, the
+engine still answers via the offline mock, so nothing hard-breaks. The
 compliance rules (human-review thresholds, placeholder duties) are enforced in
 code regardless of provider.
 

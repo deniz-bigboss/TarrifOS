@@ -114,6 +114,12 @@ export interface ClassificationResult {
   duty_estimate?: DutyEstimate;
   cost_optimization?: CostOptimization;
   shipment_plan?: ShipmentPlan;
+  /**
+   * Set when the primary AI provider was unavailable and a fallback (or the
+   * offline engine) produced this result — shown to the user so degraded
+   * service is never silent.
+   */
+  service_notice?: string;
   disclaimer: string;
 }
 

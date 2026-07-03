@@ -57,6 +57,13 @@ export function ResultView({
 
   return (
     <div className="space-y-6">
+      {result.service_notice && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <p className="leading-6">{result.service_notice}</p>
+        </div>
+      )}
+
       {/* ---------------------------------------------------- Header grid */}
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <Card>
