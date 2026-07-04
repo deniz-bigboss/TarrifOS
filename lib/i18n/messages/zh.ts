@@ -104,6 +104,81 @@ export const zh: Messages = {
     checkEmail: "请查收邮件以确认您的账户，然后登录。",
   },
   language: "语言",
+  pricing: {
+    badge: "价格",
+    title: "免费起步，扩展到 API 用量。",
+    subtitle:
+      "所有套餐生成同样的运输计划、单证清单和可交付报关行的报告——升级可获得更大用量、团队席位和 API。",
+    mostPopular: "最受欢迎",
+    perMonth: "/月",
+    starting: "起",
+    meteringBadge: "API 计量",
+    meteringTitle: "按用量计费的 API 价格。",
+    meteringBody:
+      "每次归类 0.20–2.00 美元，取决于用量和数据丰富级别。Forwarder 和 Enterprise 套餐提供用量与级别折扣。",
+    howItWorks: "计量方式",
+    notePre: "每次",
+    notePost: "调用计为套餐中的一次归类，并记录为一条计量用量事件。",
+    tiles: [
+      "1 次 API 调用 = 1 次归类",
+      "规模化用量折扣",
+      "按数据丰富级别定价",
+    ],
+    plans: {
+      free: {
+        desc: "使用手动归类体验 TariffOS。",
+        cta: "免费开始",
+        features: [
+          "每月 10 次归类",
+          "仅手动录入",
+          "基础导出（Markdown / JSON）",
+          "单用户",
+        ],
+      },
+      starter: {
+        desc: "适合运送重复 SKU 的小型进口商。",
+        cta: "选择 Starter",
+        features: [
+          "每月 100 次归类",
+          "归类历史记录",
+          "导出报告",
+          "基础邮件支持",
+        ],
+      },
+      growth: {
+        desc: "适合需要 API 的成长型品牌与团队。",
+        cta: "选择 Growth",
+        features: [
+          "每月 1,000 次归类",
+          "API 访问",
+          "单证上传",
+          "团队工作空间",
+          "反馈与学习闭环",
+        ],
+      },
+      forwarder: {
+        desc: "适合高业务量的货运代理与报关行。",
+        cta: "联系销售",
+        features: [
+          "每月 5,000+ 次归类",
+          "API 访问",
+          "自定义工作流",
+          "优先复核队列",
+          "上手支持",
+        ],
+      },
+      enterprise: {
+        desc: "适合有定制数据与合规需求的组织。",
+        cta: "联系我们",
+        features: [
+          "定制关税数据适配器",
+          "SSO 与审计日志",
+          "SLA 与专属支持",
+          "定制用量",
+        ],
+      },
+    },
+  },
   app: {
     sidebar: {
       tagline: "运输运营代理",

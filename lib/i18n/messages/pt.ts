@@ -107,6 +107,82 @@ export const pt: Messages = {
     checkEmail: "Verifique seu e-mail para confirmar sua conta e depois entre.",
   },
   language: "Idioma",
+  pricing: {
+    badge: "Preços",
+    title: "Comece grátis, escale para o volume de API.",
+    subtitle:
+      "Todos os planos produzem os mesmos planos de envio, listas de documentos e relatórios prontos para o despachante — faça upgrade para volume, assentos de equipe e a API.",
+    mostPopular: "Mais popular",
+    perMonth: "/mês",
+    starting: "a partir de",
+    meteringBadge: "Medição de API",
+    meteringTitle: "Preços de API por uso.",
+    meteringBody:
+      "De US$ 0,20 a US$ 2,00 por classificação, conforme o volume e o nível de enriquecimento. Descontos por volume e nível estão disponíveis nos planos Forwarder e Enterprise.",
+    howItWorks: "Como funciona a medição",
+    notePre: "Cada chamada",
+    notePost:
+      "conta como uma classificação do seu plano e é registrada como um evento de uso para medição.",
+    tiles: [
+      "1 chamada de API = 1 classificação",
+      "Descontos por volume em escala",
+      "Preço por nível de enriquecimento",
+    ],
+    plans: {
+      free: {
+        desc: "Experimente o TariffOS com classificações manuais.",
+        cta: "Começar grátis",
+        features: [
+          "10 classificações / mês",
+          "Somente entrada manual",
+          "Exportação básica (Markdown / JSON)",
+          "Usuário único",
+        ],
+      },
+      starter: {
+        desc: "Para pequenos importadores com SKUs recorrentes.",
+        cta: "Escolher Starter",
+        features: [
+          "100 classificações / mês",
+          "Histórico de classificações",
+          "Exportar relatórios",
+          "Suporte básico por e-mail",
+        ],
+      },
+      growth: {
+        desc: "Para marcas e equipes em crescimento que precisam da API.",
+        cta: "Escolher Growth",
+        features: [
+          "1.000 classificações / mês",
+          "Acesso à API",
+          "Envio de documentos",
+          "Espaço de trabalho em equipe",
+          "Ciclo de feedback e aprendizado",
+        ],
+      },
+      forwarder: {
+        desc: "Para agentes de carga e despachantes com alto volume.",
+        cta: "Falar com vendas",
+        features: [
+          "5.000+ classificações / mês",
+          "Acesso à API",
+          "Fluxos de trabalho personalizados",
+          "Fila de revisão prioritária",
+          "Suporte de integração",
+        ],
+      },
+      enterprise: {
+        desc: "Para organizações com dados e conformidade sob medida.",
+        cta: "Fale conosco",
+        features: [
+          "Adaptadores de dados tarifários sob medida",
+          "SSO e logs de auditoria",
+          "SLA e suporte dedicado",
+          "Volume personalizado",
+        ],
+      },
+    },
+  },
   app: {
     sidebar: {
       tagline: "Agente de operações de envio",

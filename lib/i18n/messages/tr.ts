@@ -107,6 +107,82 @@ export const tr: Messages = {
     checkEmail: "Hesabınızı onaylamak için e-postanızı kontrol edin, ardından giriş yapın.",
   },
   language: "Dil",
+  pricing: {
+    badge: "Fiyatlandırma",
+    title: "Ücretsiz başlayın, API hacmine ölçekleyin.",
+    subtitle:
+      "Her plan aynı sevkiyat planlarını, belge kontrol listelerini ve gümrük müşavirine hazır raporları üretir — hacim, ekip üyeleri ve API için yükseltin.",
+    mostPopular: "En popüler",
+    perMonth: "/ay",
+    starting: "başlangıç",
+    meteringBadge: "API ölçümü",
+    meteringTitle: "Kullanıma dayalı API fiyatlandırması.",
+    meteringBody:
+      "Hacme ve zenginleştirme düzeyine bağlı olarak sınıflandırma başına 0,20–2,00 USD. Forwarder ve Enterprise planlarında hacim ve zenginleştirme indirimleri mevcuttur.",
+    howItWorks: "Ölçüm nasıl çalışır",
+    notePre: "Her",
+    notePost:
+      "çağrısı planınızda bir sınıflandırma olarak sayılır ve ölçüm için bir kullanım kaydı oluşturur.",
+    tiles: [
+      "1 API çağrısı = 1 sınıflandırma",
+      "Ölçekte hacim indirimleri",
+      "Zenginleştirme düzeyine göre fiyat",
+    ],
+    plans: {
+      free: {
+        desc: "TariffOS'u manuel sınıflandırmalarla deneyin.",
+        cta: "Ücretsiz başla",
+        features: [
+          "Ayda 10 sınıflandırma",
+          "Yalnızca manuel giriş",
+          "Temel dışa aktarma (Markdown / JSON)",
+          "Tek kullanıcı",
+        ],
+      },
+      starter: {
+        desc: "Tekrarlayan SKU gönderen küçük ithalatçılar için.",
+        cta: "Starter'ı seç",
+        features: [
+          "Ayda 100 sınıflandırma",
+          "Sınıflandırma geçmişi",
+          "Rapor dışa aktarma",
+          "Temel e-posta desteği",
+        ],
+      },
+      growth: {
+        desc: "API'ye ihtiyaç duyan büyüyen markalar ve ekipler için.",
+        cta: "Growth'u seç",
+        features: [
+          "Ayda 1.000 sınıflandırma",
+          "API erişimi",
+          "Belge yükleme",
+          "Ekip çalışma alanı",
+          "Geri bildirim ve öğrenme döngüsü",
+        ],
+      },
+      forwarder: {
+        desc: "Yüksek hacimli nakliye komisyoncuları ve müşavirler için.",
+        cta: "Satışla görüş",
+        features: [
+          "Ayda 5.000+ sınıflandırma",
+          "API erişimi",
+          "Özel iş akışları",
+          "Öncelikli inceleme kuyruğu",
+          "Kurulum desteği",
+        ],
+      },
+      enterprise: {
+        desc: "Özel veri ve uyum ihtiyaçları olan kurumlar için.",
+        cta: "Bize ulaşın",
+        features: [
+          "Özel tarife verisi adaptörleri",
+          "SSO ve denetim kayıtları",
+          "SLA ve özel destek",
+          "Özel hacim",
+        ],
+      },
+    },
+  },
   app: {
     sidebar: {
       tagline: "Sevkiyat operasyon ajanı",

@@ -107,6 +107,82 @@ export const de: Messages = {
     checkEmail: "Prüfen Sie Ihre E-Mail, um Ihr Konto zu bestätigen, und melden Sie sich dann an.",
   },
   language: "Sprache",
+  pricing: {
+    badge: "Preise",
+    title: "Kostenlos starten, auf API-Volumen skalieren.",
+    subtitle:
+      "Jeder Tarif liefert dieselben Versandpläne, Dokumenten-Checklisten und brokerfertigen Berichte — upgraden Sie für Volumen, Team-Plätze und die API.",
+    mostPopular: "Am beliebtesten",
+    perMonth: "/Monat",
+    starting: "ab",
+    meteringBadge: "API-Messung",
+    meteringTitle: "Nutzungsbasierte API-Preise.",
+    meteringBody:
+      "0,20–2,00 USD pro Klassifizierung je nach Volumen und Anreicherungsstufe. Volumen- und Stufenrabatte gibt es in den Tarifen Forwarder und Enterprise.",
+    howItWorks: "So funktioniert die Messung",
+    notePre: "Jeder",
+    notePost:
+      "Aufruf zählt als eine Klassifizierung Ihres Tarifs und wird als Nutzungsereignis für die Messung erfasst.",
+    tiles: [
+      "1 API-Aufruf = 1 Klassifizierung",
+      "Volumenrabatte bei Skalierung",
+      "Preis nach Anreicherungsstufe",
+    ],
+    plans: {
+      free: {
+        desc: "Testen Sie TariffOS mit manuellen Klassifizierungen.",
+        cta: "Kostenlos starten",
+        features: [
+          "10 Klassifizierungen / Monat",
+          "Nur manuelle Eingabe",
+          "Basis-Export (Markdown / JSON)",
+          "Ein Benutzer",
+        ],
+      },
+      starter: {
+        desc: "Für kleine Importeure mit wiederkehrenden SKUs.",
+        cta: "Starter wählen",
+        features: [
+          "100 Klassifizierungen / Monat",
+          "Klassifizierungsverlauf",
+          "Berichte exportieren",
+          "Basis-E-Mail-Support",
+        ],
+      },
+      growth: {
+        desc: "Für wachsende Marken und Teams, die die API benötigen.",
+        cta: "Growth wählen",
+        features: [
+          "1.000 Klassifizierungen / Monat",
+          "API-Zugang",
+          "Dokumenten-Uploads",
+          "Team-Arbeitsbereich",
+          "Feedback- und Lernschleife",
+        ],
+      },
+      forwarder: {
+        desc: "Für Spediteure und Zollagenten mit hohem Volumen.",
+        cta: "Vertrieb kontaktieren",
+        features: [
+          "5.000+ Klassifizierungen / Monat",
+          "API-Zugang",
+          "Individuelle Workflows",
+          "Priorisierte Prüfwarteschlange",
+          "Onboarding-Unterstützung",
+        ],
+      },
+      enterprise: {
+        desc: "Für Organisationen mit individuellen Daten- und Compliance-Anforderungen.",
+        cta: "Kontakt aufnehmen",
+        features: [
+          "Individuelle Tarifdaten-Adapter",
+          "SSO & Audit-Protokolle",
+          "SLA & dedizierter Support",
+          "Individuelles Volumen",
+        ],
+      },
+    },
+  },
   app: {
     sidebar: {
       tagline: "Agent für Versandabläufe",

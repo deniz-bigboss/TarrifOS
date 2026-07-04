@@ -108,6 +108,82 @@ export const en = {
     checkEmail: "Check your email to confirm your account, then log in.",
   },
   language: "Language",
+  pricing: {
+    badge: "Pricing",
+    title: "Start free, scale to API volume.",
+    subtitle:
+      "Every plan produces the same shipment plans, document checklists, and broker-ready reports — upgrade for volume, team seats, and the API.",
+    mostPopular: "Most popular",
+    perMonth: "/month",
+    starting: "starting",
+    meteringBadge: "API metering",
+    meteringTitle: "Usage-based API pricing.",
+    meteringBody:
+      "$0.20–$2.00 per classification depending on volume and enrichment level. Volume and enrichment-level discounts are available on Forwarder and Enterprise plans.",
+    howItWorks: "How metering works",
+    notePre: "Each",
+    notePost:
+      "call counts as one classification toward your plan and is recorded as a usage event for metering.",
+    tiles: [
+      "1 API call = 1 classification",
+      "Volume discounts at scale",
+      "Priced by enrichment level",
+    ],
+    plans: {
+      free: {
+        desc: "Try TariffOS with manual classifications.",
+        cta: "Start free",
+        features: [
+          "10 classifications / month",
+          "Manual entry only",
+          "Basic export (Markdown / JSON)",
+          "Single user",
+        ],
+      },
+      starter: {
+        desc: "For small importers shipping repeat SKUs.",
+        cta: "Choose Starter",
+        features: [
+          "100 classifications / month",
+          "Classification history",
+          "Export reports",
+          "Basic email support",
+        ],
+      },
+      growth: {
+        desc: "For scaling brands and teams that need the API.",
+        cta: "Choose Growth",
+        features: [
+          "1,000 classifications / month",
+          "API access",
+          "Document uploads",
+          "Team workspace",
+          "Feedback & learning loop",
+        ],
+      },
+      forwarder: {
+        desc: "For freight forwarders and brokers at volume.",
+        cta: "Talk to sales",
+        features: [
+          "5,000+ classifications / month",
+          "API access",
+          "Custom workflows",
+          "Priority review queue",
+          "Onboarding support",
+        ],
+      },
+      enterprise: {
+        desc: "For organizations with custom data and compliance needs.",
+        cta: "Contact us",
+        features: [
+          "Custom tariff-data adapters",
+          "SSO & audit logs",
+          "SLA & dedicated support",
+          "Custom volume",
+        ],
+      },
+    },
+  },
   app: {
     sidebar: {
       tagline: "Shipping operations agent",
@@ -130,7 +206,12 @@ export const en = {
       newTitle: "New classification",
       newSubtitle:
         "Enter product details to get a recommended tariff code with evidence, confidence, and a broker-ready report.",
-      steps: ["Product", "Trade lane", "Documents", "Review"],
+      steps: ["Product", "Trade lane", "Documents", "Review"] as [
+        string,
+        string,
+        string,
+        string,
+      ],
       prefill: "Prefill a demo:",
       demoTshirt: "Cotton t-shirt",
       demoBattery: "E-bike battery",
