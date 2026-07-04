@@ -8,12 +8,14 @@ import {
   type ClassificationRow,
 } from "@/components/classification/classifications-table";
 import { Button } from "@/components/ui/button";
+import { getI18n } from "@/lib/i18n/server";
 
 export const metadata = { title: "Classifications — TariffOS" };
 
 export default async function ClassificationsPage() {
   const session = await getSessionContext();
   if (!session) return null;
+  const { t } = getI18n();
 
   const supabase = createClient();
   const items = await listClassifications(supabase, session.organization.id);
@@ -35,14 +37,12 @@ export default async function ClassificationsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Shipment plans</h1>
-          <p className="text-sm text-muted-foreground">
-            Every classification your workspace has run.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t.app.plansTitle}</h1>
+          <p className="text-sm text-muted-foreground">{t.app.plansSubtitle}</p>
         </div>
         <Button asChild>
           <Link href="/dashboard/classifications/new">
-            <Plus className="h-4 w-4" /> New shipment plan
+            <Plus className="h-4 w-4" /> {t.app.sidebar.newPlan}
           </Link>
         </Button>
       </div>

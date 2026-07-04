@@ -12,16 +12,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { Messages } from "@/lib/i18n/messages";
 
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/classifications", label: "Shipment plans", icon: PackageSearch },
-  { href: "/dashboard/api-keys", label: "API keys", icon: KeyRound },
-  { href: "/dashboard/billing", label: "Plans", icon: CreditCard },
-];
+type SidebarMessages = Messages["app"]["sidebar"];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ messages }: { messages: SidebarMessages }) {
   const pathname = usePathname();
+
+  const nav = [
+    { href: "/dashboard", label: messages.nav.dashboard, icon: LayoutDashboard, exact: true },
+    { href: "/dashboard/classifications", label: messages.nav.plans, icon: PackageSearch },
+    { href: "/dashboard/api-keys", label: messages.nav.apiKeys, icon: KeyRound },
+    { href: "/dashboard/billing", label: messages.nav.billing, icon: CreditCard },
+  ];
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex">
@@ -34,7 +37,7 @@ export function DashboardSidebar() {
             TariffOS
           </span>
           <span className="block truncate text-xs text-muted-foreground">
-            Shipping operations agent
+            {messages.tagline}
           </span>
         </span>
       </div>
@@ -42,13 +45,13 @@ export function DashboardSidebar() {
       <div className="p-3">
         <Button asChild className="w-full justify-start gap-2">
           <Link href="/dashboard/classifications/new">
-            <Plus className="h-4 w-4" /> New shipment plan
+            <Plus className="h-4 w-4" /> {messages.newPlan}
           </Link>
         </Button>
       </div>
 
       <nav className="flex-1 space-y-1 px-3">
-        {NAV.map((item) => {
+        {nav.map((item) => {
           const active = item.exact
             ? pathname === item.href
             : pathname.startsWith(item.href);

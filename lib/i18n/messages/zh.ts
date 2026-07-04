@@ -80,6 +80,15 @@ export const zh: Messages = {
     login: "登录",
     signup: "注册",
   },
+  legal: {
+    privacy: "隐私政策",
+    terms: "服务条款",
+    lastUpdated: "最近更新",
+    authoritativeNote:
+      "本文件以英文提供。英文版本为具有约束力的文本；界面翻译不构成对其的修改。",
+    consentPrefix: "创建账户即表示您同意",
+    and: "和",
+  },
   auth: {
     loginTitle: "欢迎回来",
     loginSubtitle: "登录您的 TariffOS 工作空间。",
@@ -95,4 +104,81 @@ export const zh: Messages = {
     checkEmail: "请查收邮件以确认您的账户，然后登录。",
   },
   language: "语言",
+  app: {
+    sidebar: {
+      tagline: "运输运营代理",
+      newPlan: "新建运输计划",
+      nav: {
+        dashboard: "仪表盘",
+        plans: "运输计划",
+        apiKeys: "API 密钥",
+        billing: "套餐",
+      },
+    },
+    topbar: {
+      plan: "套餐",
+      upgrade: "升级",
+      signOut: "退出登录",
+    },
+    plansTitle: "运输计划",
+    plansSubtitle: "您的工作空间运行过的所有归类。",
+    wizard: {
+      newTitle: "新建归类",
+      newSubtitle:
+        "输入产品信息，即可获得带证据、置信度和可交付报关行报告的推荐税则编码。",
+      steps: ["产品", "贸易航线", "单证", "确认"],
+      prefill: "填充示例：",
+      demoTshirt: "棉质 T 恤",
+      demoBattery: "电动自行车电池",
+      quickFind: "快速查找",
+      quickFindPlaceholder: "如 S-Works Tarmac SL9",
+      quickFindHelp:
+        "输入品牌 + 型号，我们会自动填写描述、材质、用途、类别、品牌、型号和单件重量。",
+      quickFindConfirm:
+        "下方字段现在可以编辑（下一步的单件重量也已预填）——请检查并修正错误，确认后再继续。",
+      quickFindNudge: "请先确认信息无误再继续。",
+      optional: "（可选）",
+      select: "请选择…",
+      fields: {
+        productName: "产品名称",
+        productDescription: "产品描述",
+        material: "材质 / 成分",
+        intendedUse: "预期用途",
+        category: "类别",
+        brand: "品牌",
+        sku: "型号 / SKU",
+        originCountry: "原产国",
+        destinationCountry: "目的国",
+        supplierCountry: "供应商所在国",
+        shippingMethod: "运输方式",
+        declaredValue: "申报价值",
+        currency: "币种",
+        quantity: "数量",
+        unitWeight: "单件重量（kg）",
+      },
+      supplierHint:
+        "采购或发货所在国——仅当与原产（制造）国不同时填写。不一致会在您的计划中新增一个原产地证据检查点。",
+      roadUnavailable: "该航线无法使用公路运输——两国之间没有陆路连接。",
+      methods: {
+        sea: "海运",
+        air: "空运",
+        road: "公路",
+        roadNoRoute: "公路（无陆路连接）",
+        courier: "快递 / 包裹",
+      },
+      documentsIntro:
+        "可选择附上支持单证（商业发票、装箱单、供应商规格书、产品目录）。目前仅记录文件元数据——完整解析尚为占位功能，还不会影响归类。",
+      clickToSelect: "点击选择文件",
+      fileTypes: "PDF、文本、图片",
+      reviewTitle: "确认并归类",
+      reviewProduct: "产品",
+      reviewTradeLane: "贸易航线",
+      reviewDocuments: "已附单证",
+      reviewNote:
+        "我们将规范化描述、检索候选编码并进行推理，生成带置信度评分、可直接交给报关行的报告。高风险或低置信度的条目会被标记复核。",
+      back: "上一步",
+      continue: "继续",
+      classify: "归类产品",
+    },
+  },
 };

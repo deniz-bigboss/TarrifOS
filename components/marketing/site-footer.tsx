@@ -16,8 +16,10 @@ export function SiteFooter() {
         <p className="max-w-md text-xs text-muted-foreground">
           {t.footer.tagline}
         </p>
-        <div className="flex gap-5 text-sm text-muted-foreground">
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
           <Link href="/pricing" className="hover:text-foreground">{t.footer.pricing}</Link>
+          <Link href="/privacy" className="hover:text-foreground">{t.legal.privacy}</Link>
+          <Link href="/terms" className="hover:text-foreground">{t.legal.terms}</Link>
           <Link href="/login" className="hover:text-foreground">{t.footer.login}</Link>
           <Link href="/signup" className="hover:text-foreground">{t.footer.signup}</Link>
         </div>

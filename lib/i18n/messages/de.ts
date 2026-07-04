@@ -82,6 +82,15 @@ export const de: Messages = {
     login: "Anmelden",
     signup: "Registrieren",
   },
+  legal: {
+    privacy: "Datenschutzerklärung",
+    terms: "Nutzungsbedingungen",
+    lastUpdated: "Zuletzt aktualisiert",
+    authoritativeNote:
+      "Dieses Dokument wird auf Englisch bereitgestellt. Die englische Fassung ist maßgeblich; Übersetzungen der Oberfläche ändern sie nicht.",
+    consentPrefix: "Mit der Kontoerstellung akzeptieren Sie die",
+    and: "und die",
+  },
   auth: {
     loginTitle: "Willkommen zurück",
     loginSubtitle: "Melden Sie sich in Ihrem TariffOS-Arbeitsbereich an.",
@@ -98,4 +107,82 @@ export const de: Messages = {
     checkEmail: "Prüfen Sie Ihre E-Mail, um Ihr Konto zu bestätigen, und melden Sie sich dann an.",
   },
   language: "Sprache",
+  app: {
+    sidebar: {
+      tagline: "Agent für Versandabläufe",
+      newPlan: "Neuer Versandplan",
+      nav: {
+        dashboard: "Übersicht",
+        plans: "Versandpläne",
+        apiKeys: "API-Schlüssel",
+        billing: "Tarife",
+      },
+    },
+    topbar: {
+      plan: "Tarif",
+      upgrade: "Upgraden",
+      signOut: "Abmelden",
+    },
+    plansTitle: "Versandpläne",
+    plansSubtitle: "Alle Klassifizierungen, die Ihr Arbeitsbereich ausgeführt hat.",
+    wizard: {
+      newTitle: "Neue Klassifizierung",
+      newSubtitle:
+        "Geben Sie Produktdetails ein, um einen empfohlenen Zolltarifcode mit Belegen, Konfidenz und brokerfertigem Bericht zu erhalten.",
+      steps: ["Produkt", "Handelsroute", "Dokumente", "Prüfung"],
+      prefill: "Demo vorausfüllen:",
+      demoTshirt: "Baumwoll-T-Shirt",
+      demoBattery: "E-Bike-Akku",
+      quickFind: "Schnellsuche",
+      quickFindPlaceholder: "z. B. S-Works Tarmac SL9",
+      quickFindHelp:
+        "Marke + Modell eingeben — wir füllen Beschreibung, Material, Verwendung, Kategorie, Marke, Modell und Stückgewicht aus.",
+      quickFindConfirm:
+        "Die Felder unten sind jetzt bearbeitbar (das Stückgewicht im nächsten Schritt ist ebenfalls vorausgefüllt) — prüfen Sie sie, korrigieren Sie Fehler und bestätigen Sie vor dem Fortfahren.",
+      quickFindNudge: "Bitte bestätigen Sie vor dem Fortfahren, dass die Angaben korrekt sind.",
+      optional: "(optional)",
+      select: "Auswählen…",
+      fields: {
+        productName: "Produktname",
+        productDescription: "Produktbeschreibung",
+        material: "Material / Zusammensetzung",
+        intendedUse: "Verwendungszweck",
+        category: "Kategorie",
+        brand: "Marke",
+        sku: "Modell / SKU",
+        originCountry: "Ursprungsland",
+        destinationCountry: "Zielland",
+        supplierCountry: "Lieferantenland",
+        shippingMethod: "Versandart",
+        declaredValue: "Angemeldeter Wert",
+        currency: "Währung",
+        quantity: "Menge",
+        unitWeight: "Stückgewicht (kg)",
+      },
+      supplierHint:
+        "Das Land, in dem Sie kaufen oder von dem versendet wird — nur angeben, wenn es vom Ursprungsland (Herstellung) abweicht. Eine Abweichung fügt Ihrem Plan einen Prüfpunkt für Ursprungsnachweise hinzu.",
+      roadUnavailable:
+        "Straßentransport ist auf dieser Route nicht verfügbar — es gibt keine Landverbindung zwischen diesen Ländern.",
+      methods: {
+        sea: "Seefracht",
+        air: "Luftfracht",
+        road: "Straße",
+        roadNoRoute: "Straße (keine Landverbindung)",
+        courier: "Kurier / Paket",
+      },
+      documentsIntro:
+        "Fügen Sie optional Belegdokumente bei (Handelsrechnung, Packliste, Lieferanten-Datenblatt, Produktkatalog). Derzeit erfassen wir nur Datei-Metadaten — die vollständige Auswertung ist vorläufig und ändert die Klassifizierung noch nicht.",
+      clickToSelect: "Klicken, um Dateien auszuwählen",
+      fileTypes: "PDF, Text, Bilder",
+      reviewTitle: "Prüfen & klassifizieren",
+      reviewProduct: "Produkt",
+      reviewTradeLane: "Handelsroute",
+      reviewDocuments: "Angehängte Dokumente",
+      reviewNote:
+        "Wir normalisieren die Beschreibung, rufen Kandidatencodes ab, bewerten sie und erstellen einen brokerfertigen Bericht mit Konfidenzwert. Artikel mit hohem Risiko oder niedriger Konfidenz werden zur Prüfung markiert.",
+      back: "Zurück",
+      continue: "Weiter",
+      classify: "Produkt klassifizieren",
+    },
+  },
 };

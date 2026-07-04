@@ -4,6 +4,7 @@ import { getSessionContext } from "@/lib/auth/session";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
 import { SetupRequired } from "@/components/setup-required";
+import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,11 @@ export default async function DashboardLayout({
     redirect("/login?redirect=/dashboard");
   }
 
+  const { t } = getI18n();
+
   return (
     <div className="flex min-h-screen bg-muted/20">
-      <DashboardSidebar />
+      <DashboardSidebar messages={t.app.sidebar} />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardTopbar
           orgName={session.organization.name}

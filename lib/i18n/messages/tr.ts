@@ -82,6 +82,15 @@ export const tr: Messages = {
     login: "Giriş yap",
     signup: "Kaydol",
   },
+  legal: {
+    privacy: "Gizlilik Politikası",
+    terms: "Hizmet Şartları",
+    lastUpdated: "Son güncelleme",
+    authoritativeNote:
+      "Bu belge İngilizce olarak sunulmaktadır. İngilizce sürüm bağlayıcı metindir; arayüz çevirileri bu metni değiştirmez.",
+    consentPrefix: "Hesap oluşturarak şunları kabul etmiş olursunuz:",
+    and: "ve",
+  },
   auth: {
     loginTitle: "Tekrar hoş geldiniz",
     loginSubtitle: "TariffOS çalışma alanınıza giriş yapın.",
@@ -98,4 +107,82 @@ export const tr: Messages = {
     checkEmail: "Hesabınızı onaylamak için e-postanızı kontrol edin, ardından giriş yapın.",
   },
   language: "Dil",
+  app: {
+    sidebar: {
+      tagline: "Sevkiyat operasyon ajanı",
+      newPlan: "Yeni sevkiyat planı",
+      nav: {
+        dashboard: "Panel",
+        plans: "Sevkiyat planları",
+        apiKeys: "API anahtarları",
+        billing: "Planlar",
+      },
+    },
+    topbar: {
+      plan: "planı",
+      upgrade: "Yükselt",
+      signOut: "Çıkış yap",
+    },
+    plansTitle: "Sevkiyat planları",
+    plansSubtitle: "Çalışma alanınızın yürüttüğü tüm sınıflandırmalar.",
+    wizard: {
+      newTitle: "Yeni sınıflandırma",
+      newSubtitle:
+        "Kanıtlı, güven puanlı ve gümrük müşavirine hazır raporlu bir tarife kodu önerisi almak için ürün bilgilerini girin.",
+      steps: ["Ürün", "Ticaret hattı", "Belgeler", "İnceleme"],
+      prefill: "Örnek doldur:",
+      demoTshirt: "Pamuklu tişört",
+      demoBattery: "E-bisiklet bataryası",
+      quickFind: "Hızlı Bul",
+      quickFindPlaceholder: "örn. S-Works Tarmac SL9",
+      quickFindHelp:
+        "Marka + model yazın; açıklamayı, malzemeyi, kullanımı, kategoriyi, markayı, modeli ve birim ağırlığı biz dolduralım.",
+      quickFindConfirm:
+        "Aşağıdaki alanlar artık düzenlenebilir (bir sonraki adımdaki birim ağırlık da önceden dolduruldu) — kontrol edin, hatalı olanları düzeltin ve devam etmeden önce onaylayın.",
+      quickFindNudge: "Devam etmeden önce bilgilerin doğru olduğunu onaylayın.",
+      optional: "(isteğe bağlı)",
+      select: "Seçin…",
+      fields: {
+        productName: "Ürün adı",
+        productDescription: "Ürün açıklaması",
+        material: "Malzeme / bileşim",
+        intendedUse: "Kullanım amacı",
+        category: "Kategori",
+        brand: "Marka",
+        sku: "Model / SKU",
+        originCountry: "Menşe ülkesi",
+        destinationCountry: "Varış ülkesi",
+        supplierCountry: "Tedarikçi ülkesi",
+        shippingMethod: "Taşıma yöntemi",
+        declaredValue: "Beyan edilen değer",
+        currency: "Para birimi",
+        quantity: "Adet",
+        unitWeight: "Birim ağırlık (kg)",
+      },
+      supplierHint:
+        "Satın aldığınız veya sevkiyatın yapıldığı ülke — yalnızca menşe (üretim) ülkesinden farklıysa seçin. Uyumsuzluk, planınıza bir menşe kanıtı kontrol noktası ekler.",
+      roadUnavailable:
+        "Bu hat için karayolu kullanılamaz — bu ülkeler arasında kara bağlantısı yok.",
+      methods: {
+        sea: "Deniz yolu",
+        air: "Hava yolu",
+        road: "Karayolu",
+        roadNoRoute: "Karayolu (kara bağlantısı yok)",
+        courier: "Kurye / koli",
+      },
+      documentsIntro:
+        "İsteğe bağlı olarak destekleyici belgeler ekleyin (ticari fatura, çeki listesi, tedarikçi teknik föyü, ürün kataloğu). Şimdilik yalnızca dosya bilgilerini kaydediyoruz — tam içerik çıkarma henüz sınıflandırmayı etkilemez.",
+      clickToSelect: "Dosya seçmek için tıklayın",
+      fileTypes: "PDF, metin, görseller",
+      reviewTitle: "İncele ve sınıflandır",
+      reviewProduct: "Ürün",
+      reviewTradeLane: "Ticaret hattı",
+      reviewDocuments: "Eklenen belgeler",
+      reviewNote:
+        "Açıklamayı normalleştirecek, aday kodları getirecek, üzerlerinde akıl yürütecek ve güven puanlı, gümrük müşavirine hazır bir rapor üreteceğiz. Yüksek riskli veya düşük güvenli kalemler incelemeye işaretlenir.",
+      back: "Geri",
+      continue: "Devam",
+      classify: "Ürünü sınıflandır",
+    },
+  },
 };

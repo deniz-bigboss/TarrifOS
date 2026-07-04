@@ -18,6 +18,17 @@ export default async function SignupPage() {
       <Suspense>
         <AuthForm mode="signup" messages={t.auth} />
       </Suspense>
+      <p className="text-center text-xs text-muted-foreground">
+        {t.legal.consentPrefix}{" "}
+        <a href="/terms" className="underline hover:text-foreground">
+          {t.legal.terms}
+        </a>{" "}
+        {t.legal.and}{" "}
+        <a href="/privacy" className="underline hover:text-foreground">
+          {t.legal.privacy}
+        </a>
+        .
+      </p>
     </div>
   );
 }

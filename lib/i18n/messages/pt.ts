@@ -82,6 +82,15 @@ export const pt: Messages = {
     login: "Entrar",
     signup: "Cadastrar",
   },
+  legal: {
+    privacy: "Política de Privacidade",
+    terms: "Termos de Serviço",
+    lastUpdated: "Última atualização",
+    authoritativeNote:
+      "Este documento é fornecido em inglês. A versão em inglês é o texto vinculante; as traduções da interface não o modificam.",
+    consentPrefix: "Ao criar uma conta, você concorda com os",
+    and: "e a",
+  },
   auth: {
     loginTitle: "Bem-vindo de volta",
     loginSubtitle: "Entre no seu espaço de trabalho TariffOS.",
@@ -98,4 +107,82 @@ export const pt: Messages = {
     checkEmail: "Verifique seu e-mail para confirmar sua conta e depois entre.",
   },
   language: "Idioma",
+  app: {
+    sidebar: {
+      tagline: "Agente de operações de envio",
+      newPlan: "Novo plano de envio",
+      nav: {
+        dashboard: "Painel",
+        plans: "Planos de envio",
+        apiKeys: "Chaves de API",
+        billing: "Planos",
+      },
+    },
+    topbar: {
+      plan: "plano",
+      upgrade: "Fazer upgrade",
+      signOut: "Sair",
+    },
+    plansTitle: "Planos de envio",
+    plansSubtitle: "Todas as classificações executadas pelo seu espaço de trabalho.",
+    wizard: {
+      newTitle: "Nova classificação",
+      newSubtitle:
+        "Insira os dados do produto para obter um código tarifário recomendado com evidências, confiança e um relatório pronto para o despachante.",
+      steps: ["Produto", "Rota comercial", "Documentos", "Revisão"],
+      prefill: "Preencher uma demo:",
+      demoTshirt: "Camiseta de algodão",
+      demoBattery: "Bateria de e-bike",
+      quickFind: "Busca rápida",
+      quickFindPlaceholder: "ex.: S-Works Tarmac SL9",
+      quickFindHelp:
+        "Digite marca + modelo e preencheremos a descrição, o material, o uso, a categoria, a marca, o modelo e o peso unitário.",
+      quickFindConfirm:
+        "Os campos abaixo agora são editáveis (o peso unitário, na próxima etapa, também foi pré-preenchido) — revise-os, corrija o que for preciso e confirme antes de continuar.",
+      quickFindNudge: "Confirme que os dados estão corretos antes de continuar.",
+      optional: "(opcional)",
+      select: "Selecionar…",
+      fields: {
+        productName: "Nome do produto",
+        productDescription: "Descrição do produto",
+        material: "Material / composição",
+        intendedUse: "Uso pretendido",
+        category: "Categoria",
+        brand: "Marca",
+        sku: "Modelo / SKU",
+        originCountry: "País de origem",
+        destinationCountry: "País de destino",
+        supplierCountry: "País do fornecedor",
+        shippingMethod: "Método de envio",
+        declaredValue: "Valor declarado",
+        currency: "Moeda",
+        quantity: "Quantidade",
+        unitWeight: "Peso unitário (kg)",
+      },
+      supplierHint:
+        "Onde você compra ou de onde o envio parte — informe apenas se for diferente do país de origem (fabricação). Uma divergência adiciona um ponto de verificação de prova de origem ao seu plano.",
+      roadUnavailable:
+        "Rodoviário indisponível para esta rota — não há ligação terrestre entre esses países.",
+      methods: {
+        sea: "Marítimo",
+        air: "Aéreo",
+        road: "Rodoviário",
+        roadNoRoute: "Rodoviário (sem rota terrestre)",
+        courier: "Courier / encomenda",
+      },
+      documentsIntro:
+        "Anexe opcionalmente documentos de apoio (fatura comercial, romaneio, ficha do fornecedor, catálogo do produto). Por enquanto registramos apenas os metadados dos arquivos — a extração completa é provisória e ainda não altera a classificação.",
+      clickToSelect: "Clique para selecionar arquivos",
+      fileTypes: "PDF, texto, imagens",
+      reviewTitle: "Revisar e classificar",
+      reviewProduct: "Produto",
+      reviewTradeLane: "Rota comercial",
+      reviewDocuments: "Documentos anexados",
+      reviewNote:
+        "Vamos normalizar a descrição, recuperar códigos candidatos, raciocinar sobre eles e produzir um relatório pronto para o despachante com pontuação de confiança. Itens de alto risco ou baixa confiança são marcados para revisão.",
+      back: "Voltar",
+      continue: "Continuar",
+      classify: "Classificar produto",
+    },
+  },
 };

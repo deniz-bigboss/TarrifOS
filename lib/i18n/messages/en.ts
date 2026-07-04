@@ -83,6 +83,15 @@ export const en = {
     login: "Log in",
     signup: "Sign up",
   },
+  legal: {
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    lastUpdated: "Last updated",
+    authoritativeNote:
+      "This document is provided in English. The English version is the authoritative text; translations of the interface do not modify it.",
+    consentPrefix: "By creating an account, you agree to the",
+    and: "and",
+  },
   auth: {
     loginTitle: "Welcome back",
     loginSubtitle: "Log in to your TariffOS workspace.",
@@ -99,6 +108,84 @@ export const en = {
     checkEmail: "Check your email to confirm your account, then log in.",
   },
   language: "Language",
+  app: {
+    sidebar: {
+      tagline: "Shipping operations agent",
+      newPlan: "New shipment plan",
+      nav: {
+        dashboard: "Dashboard",
+        plans: "Shipment plans",
+        apiKeys: "API keys",
+        billing: "Plans",
+      },
+    },
+    topbar: {
+      plan: "plan",
+      upgrade: "Upgrade",
+      signOut: "Sign out",
+    },
+    plansTitle: "Shipment plans",
+    plansSubtitle: "Every classification your workspace has run.",
+    wizard: {
+      newTitle: "New classification",
+      newSubtitle:
+        "Enter product details to get a recommended tariff code with evidence, confidence, and a broker-ready report.",
+      steps: ["Product", "Trade lane", "Documents", "Review"],
+      prefill: "Prefill a demo:",
+      demoTshirt: "Cotton t-shirt",
+      demoBattery: "E-bike battery",
+      quickFind: "Quick Find",
+      quickFindPlaceholder: "e.g. S-Works Tarmac SL9",
+      quickFindHelp:
+        "Type a brand + model and we'll fill in the description, material, use, category, brand, model and unit weight.",
+      quickFindConfirm:
+        "The fields below are now editable (unit weight, on the next step, is pre-filled too) — review them, fix anything wrong, then confirm before continuing.",
+      quickFindNudge: "Please confirm the details are correct before continuing.",
+      optional: "(optional)",
+      select: "Select…",
+      fields: {
+        productName: "Product name",
+        productDescription: "Product description",
+        material: "Material / composition",
+        intendedUse: "Intended use",
+        category: "Category",
+        brand: "Brand",
+        sku: "Model / SKU",
+        originCountry: "Origin country",
+        destinationCountry: "Destination country",
+        supplierCountry: "Supplier country",
+        shippingMethod: "Shipping method",
+        declaredValue: "Declared value",
+        currency: "Currency",
+        quantity: "Quantity",
+        unitWeight: "Unit weight (kg)",
+      },
+      supplierHint:
+        "Where you buy or ship from — set it only if different from the origin (manufacturing) country. A mismatch adds an origin-evidence checkpoint to your plan.",
+      roadUnavailable:
+        "Road is unavailable for this lane — there is no land route between these countries.",
+      methods: {
+        sea: "Sea freight",
+        air: "Air freight",
+        road: "Road",
+        roadNoRoute: "Road (no land route)",
+        courier: "Courier / parcel",
+      },
+      documentsIntro:
+        "Optionally attach supporting documents (commercial invoice, packing list, supplier spec sheet, product catalog). For now we capture file metadata — full extraction is a placeholder and won't change the classification yet.",
+      clickToSelect: "Click to select files",
+      fileTypes: "PDF, text, images",
+      reviewTitle: "Review & classify",
+      reviewProduct: "Product",
+      reviewTradeLane: "Trade lane",
+      reviewDocuments: "Documents attached",
+      reviewNote:
+        "We'll normalize the description, retrieve candidate codes, reason over them, and produce a broker-ready report with a confidence score. High-risk or low-confidence items are flagged for review.",
+      back: "Back",
+      continue: "Continue",
+      classify: "Classify product",
+    },
+  },
 };
 
 export type Messages = typeof en;

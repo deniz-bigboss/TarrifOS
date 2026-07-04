@@ -32,6 +32,9 @@ import { cn } from "@/lib/utils";
 import { ALL_COUNTRY_OPTIONS, FREQUENT_LANES } from "@/lib/countries";
 import { CURRENCIES } from "@/lib/currencies";
 import { roadFeasible } from "@/lib/geo/transport-feasibility";
+import type { Messages } from "@/lib/i18n/messages";
+
+type WizardMessages = Messages["app"]["wizard"];
 
 const QUICK_FIND_DEBOUNCE_MS = 700;
 
@@ -96,7 +99,7 @@ const DEMO_BATTERY: Partial<ProductInputSchema> = {
 
 type QuickFindStatus = "idle" | "loading" | "found" | "not_found" | "error";
 
-export function ClassificationWizard() {
+export function ClassificationWizard({ t }: { t: WizardMessages }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [files, setFiles] = useState<{ name: string; type: string }[]>([]);
@@ -275,7 +278,7 @@ export function ClassificationWizard() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Stepper */}
       <div className="flex items-center gap-2">
-        {STEPS.map((label, i) => (
+        {t.steps.map((label, i) => (
           <div key={label} className="flex flex-1 items-center gap-2">
             <div
               className={cn(
@@ -309,26 +312,26 @@ export function ClassificationWizard() {
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
-                  <span className="text-sm text-muted-foreground">Prefill a demo:</span>
+                  <span className="text-sm text-muted-foreground">{t.prefill}</span>
                   <button
                     type="button"
                     onClick={() => loadDemo(DEMO_TSHIRT)}
                     className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80"
                   >
-                    <Sparkles className="h-3 w-3" /> Cotton t-shirt
+                    <Sparkles className="h-3 w-3" /> {t.demoTshirt}
                   </button>
                   <button
                     type="button"
                     onClick={() => loadDemo(DEMO_BATTERY)}
                     className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80"
                   >
-                    <Sparkles className="h-3 w-3" /> E-bike battery
+                    <Sparkles className="h-3 w-3" /> {t.demoBattery}
                   </button>
                 </div>
 
                 <div className="flex items-center gap-2.5">
                   <span className="text-sm font-medium" id="quick-find-label">
-                    Quick Find
+                    {t.quickFind}
                   </span>
                   <Switch
                     aria-labelledby="quick-find-label"
@@ -341,7 +344,7 @@ export function ClassificationWizard() {
               {quickFindOn ? (
                 <div className="space-y-1.5 rounded-lg border border-primary/30 bg-accent/30 p-4">
                   <Label>
-                    Quick find <span className="text-destructive"> *</span>
+                    {t.quickFind} <span className="text-destructive"> *</span>
                   </Label>
                   <div className="relative">
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -349,7 +352,7 @@ export function ClassificationWizard() {
                       autoFocus
                       value={quickFindQuery}
                       onChange={(e) => setQuickFindQuery(e.target.value)}
-                      placeholder="e.g. S-Works Tarmac SL9"
+                      placeholder={t.quickFindPlaceholder}
                       className="pl-9 pr-9"
                     />
                     {quickFindStatus === "loading" && (
@@ -387,24 +390,16 @@ export function ClassificationWizard() {
                           }}
                           className="mt-0.5 h-4 w-4 rounded border-input"
                         />
-                        <span>
-                          The fields below are now editable (unit weight, on the
-                          next step, is pre-filled too) — review them, fix
-                          anything wrong, then confirm before continuing.
-                        </span>
+                        <span>{t.quickFindConfirm}</span>
                       </label>
                       {showConfirmNudge && !quickFindConfirmed && (
                         <p className="flex items-center gap-1.5 text-xs text-destructive">
-                          <AlertCircle className="h-3.5 w-3.5" /> Please confirm the
-                          details are correct before continuing.
+                          <AlertCircle className="h-3.5 w-3.5" /> {t.quickFindNudge}
                         </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">
-                      Type a brand + model and we'll fill in the description, material,
-                      use, category, brand, model and unit weight.
-                    </p>
+                    <p className="text-xs text-muted-foreground">{t.quickFindHelp}</p>
                   )}
                 </div>
               ) : null}
@@ -418,7 +413,12 @@ export function ClassificationWizard() {
                 user edits.
               */}
               <div className="space-y-5">
-                <Field label="Product name" error={formState.errors.product_name?.message} required>
+                <Field
+                  label={t.fields.productName}
+                  optionalLabel={t.optional}
+                  error={formState.errors.product_name?.message}
+                  required
+                >
                   <Input
                     {...register("product_name")}
                     placeholder="Men's cotton t-shirt"
@@ -426,7 +426,8 @@ export function ClassificationWizard() {
                   />
                 </Field>
                 <Field
-                  label="Product description"
+                  label={t.fields.productDescription}
+                  optionalLabel={t.optional}
                   error={formState.errors.product_description?.message}
                   required
                 >
@@ -438,14 +439,14 @@ export function ClassificationWizard() {
                   />
                 </Field>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Material / composition">
+                  <Field label={t.fields.material} optionalLabel={t.optional}>
                     <Input
                       {...register("material_composition")}
                       placeholder="100% cotton"
                       {...lockedFieldProps}
                     />
                   </Field>
-                  <Field label="Intended use">
+                  <Field label={t.fields.intendedUse} optionalLabel={t.optional}>
                     <Input
                       {...register("intended_use")}
                       placeholder="apparel"
@@ -454,22 +455,22 @@ export function ClassificationWizard() {
                   </Field>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <Field label="Category">
+                  <Field label={t.fields.category} optionalLabel={t.optional}>
                     <Select {...register("category")} {...lockedFieldProps}>
-                      <option value="">Select…</option>
+                      <option value="">{t.select}</option>
                       {CATEGORIES.map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </Select>
                   </Field>
-                  <Field label="Brand">
+                  <Field label={t.fields.brand} optionalLabel={t.optional}>
                     <Input
                       {...register("brand")}
                       placeholder="Acme"
                       {...lockedFieldProps}
                     />
                   </Field>
-                  <Field label="Model / SKU">
+                  <Field label={t.fields.sku} optionalLabel={t.optional}>
                     <Input
                       {...register("sku")}
                       placeholder="TS-001"
@@ -485,12 +486,22 @@ export function ClassificationWizard() {
           {step === 1 && (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Origin country" error={formState.errors.origin_country?.message} required>
+                <Field
+                  label={t.fields.originCountry}
+                  optionalLabel={t.optional}
+                  error={formState.errors.origin_country?.message}
+                  required
+                >
                   <Select {...register("origin_country")}>
                     <CountryOptions />
                   </Select>
                 </Field>
-                <Field label="Destination country" error={formState.errors.destination_country?.message} required>
+                <Field
+                  label={t.fields.destinationCountry}
+                  optionalLabel={t.optional}
+                  error={formState.errors.destination_country?.message}
+                  required
+                >
                   <Select {...register("destination_country")}>
                     <CountryOptions />
                   </Select>
@@ -498,49 +509,47 @@ export function ClassificationWizard() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Supplier country"
-                  hint="Where you buy or ship from — set it only if different from the origin (manufacturing) country. A mismatch adds an origin-evidence checkpoint to your plan."
+                  label={t.fields.supplierCountry}
+                  optionalLabel={t.optional}
+                  hint={t.supplierHint}
                 >
                   <Select {...register("supplier_country")}>
-                    <option value="">Select…</option>
+                    <option value="">{t.select}</option>
                     <CountryOptions />
                   </Select>
                 </Field>
                 <Field
-                  label="Shipping method"
+                  label={t.fields.shippingMethod}
+                  optionalLabel={t.optional}
                   error={formState.errors.shipping_method?.message}
-                  hint={
-                    !roadOk
-                      ? "Road is unavailable for this lane — there is no land route between these countries."
-                      : undefined
-                  }
+                  hint={!roadOk ? t.roadUnavailable : undefined}
                 >
                   <Select {...register("shipping_method")}>
-                    <option value="">Select…</option>
-                    <option value="sea">Sea freight</option>
-                    <option value="air">Air freight</option>
+                    <option value="">{t.select}</option>
+                    <option value="sea">{t.methods.sea}</option>
+                    <option value="air">{t.methods.air}</option>
                     <option value="road" disabled={!roadOk}>
-                      Road{!roadOk ? " (no land route)" : ""}
+                      {!roadOk ? t.methods.roadNoRoute : t.methods.road}
                     </option>
-                    <option value="courier">Courier / parcel</option>
+                    <option value="courier">{t.methods.courier}</option>
                   </Select>
                 </Field>
               </div>
               <div className="grid gap-4 sm:grid-cols-4">
-                <Field label="Declared value">
+                <Field label={t.fields.declaredValue} optionalLabel={t.optional}>
                   <Input type="number" step="0.01" {...register("declared_value")} placeholder="1200" />
                 </Field>
-                <Field label="Currency">
+                <Field label={t.fields.currency} optionalLabel={t.optional}>
                   <Select {...register("currency")}>
                     {CURRENCIES.map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </Select>
                 </Field>
-                <Field label="Quantity">
+                <Field label={t.fields.quantity} optionalLabel={t.optional}>
                   <Input type="number" step="1" {...register("quantity")} placeholder="500" />
                 </Field>
-                <Field label="Unit weight (kg)">
+                <Field label={t.fields.unitWeight} optionalLabel={t.optional}>
                   <Input type="number" step="0.01" {...register("unit_weight")} placeholder="0.2" />
                 </Field>
               </div>
@@ -550,16 +559,11 @@ export function ClassificationWizard() {
           {/* Step 2 — Documents (optional, placeholder) */}
           {step === 2 && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Optionally attach supporting documents (commercial invoice, packing
-                list, supplier spec sheet, product catalog). For now we capture file
-                metadata — full extraction is a placeholder and won't change the
-                classification yet.
-              </p>
+              <p className="text-sm text-muted-foreground">{t.documentsIntro}</p>
               <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-muted/30 p-8 text-center hover:bg-muted/50">
                 <FileUp className="h-6 w-6 text-muted-foreground" />
-                <span className="text-sm font-medium">Click to select files</span>
-                <span className="text-xs text-muted-foreground">PDF, text, images</span>
+                <span className="text-sm font-medium">{t.clickToSelect}</span>
+                <span className="text-xs text-muted-foreground">{t.fileTypes}</span>
                 <input
                   type="file"
                   multiple
@@ -589,34 +593,32 @@ export function ClassificationWizard() {
           {/* Step 3 — Review */}
           {step === 3 && (
             <div className="space-y-4">
-              <h3 className="font-semibold">Review & classify</h3>
+              <h3 className="font-semibold">{t.reviewTitle}</h3>
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                <Review label="Product" value={watch("product_name")} />
-                <Review label="Category" value={watch("category")} />
-                <Review label="Material" value={watch("material_composition")} />
-                <Review label="Intended use" value={watch("intended_use")} />
+                <Review label={t.reviewProduct} value={watch("product_name")} />
+                <Review label={t.fields.category} value={watch("category")} />
+                <Review label={t.fields.material} value={watch("material_composition")} />
+                <Review label={t.fields.intendedUse} value={watch("intended_use")} />
                 <Review
-                  label="Trade lane"
+                  label={t.reviewTradeLane}
                   value={`${watch("origin_country")} → ${watch("destination_country")}`}
                 />
                 <Review
-                  label="Shipping method"
+                  label={t.fields.shippingMethod}
                   value={watch("shipping_method") || "—"}
                 />
                 <Review
-                  label="Declared value"
+                  label={t.fields.declaredValue}
                   value={
                     watch("declared_value")
                       ? `${watch("declared_value")} ${watch("currency")}`
                       : "—"
                   }
                 />
-                <Review label="Documents attached" value={String(files.length)} />
+                <Review label={t.reviewDocuments} value={String(files.length)} />
               </dl>
               <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-                We'll normalize the description, retrieve candidate codes, reason
-                over them, and produce a broker-ready report with a confidence
-                score. High-risk or low-confidence items are flagged for review.
+                {t.reviewNote}
               </p>
               {serverError && (
                 <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -636,17 +638,17 @@ export function ClassificationWizard() {
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0 || submitting}
         >
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeft className="h-4 w-4" /> {t.back}
         </Button>
 
         {step < STEPS.length - 1 ? (
           <Button type="button" onClick={next}>
-            Continue <ArrowRight className="h-4 w-4" />
+            {t.continue} <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
           <Button type="submit" disabled={submitting}>
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Classify product
+            {t.classify}
           </Button>
         )}
       </div>
@@ -659,6 +661,7 @@ function Field({
   error,
   required,
   hint,
+  optionalLabel = "(optional)",
   children,
 }: {
   label: string;
@@ -666,6 +669,8 @@ function Field({
   required?: boolean;
   /** One-line explanation shown under the input. */
   hint?: string;
+  /** Localized "(optional)" tag. */
+  optionalLabel?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -676,7 +681,7 @@ function Field({
           <span className="text-destructive" title="Required">*</span>
         ) : (
           <span className="text-[11px] font-normal text-muted-foreground">
-            (optional)
+            {optionalLabel}
           </span>
         )}
       </Label>
