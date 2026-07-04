@@ -48,15 +48,15 @@ export function buildRoutePath(
     // A projected x-jump greater than half the map means the leg crossed the
     // antimeridian — finish this polyline at the edge and restart at the other.
     if (Math.abs(p.x - prev.x) > width / 2) {
-      const prevLng = samples[i - 1][1];
-      const goingEast = prevLng > 0; // prev near +180 → exits right edge
-      const exitX = goingEast ? width : 0;
-      const enterX = goingEast ? 0 : width;
-      // Interpolate y at the crossing using wrapped distance.
-      const wrappedPrev = goingEast ? prev.x : prev.x + width;
-      const wrappedCur = goingEast ? p.x + width : p.x;
-      const t = (wrappedPrev - (goingEast ? width : 0)) /
-        (wrappedPrev - wrappedCur) || 0.5;
+      // Direction from the projected positions, not longitude sign: if prev is
+      // near the right edge the path exits east (off the right), otherwise it
+      // exits west (off the left). Unwrap the current point onto prev's side
+      // so the crossing y interpolates correctly in both directions.
+      const eastward = prev.x > p.x;
+      const exitX = eastward ? width : 0;
+      const enterX = eastward ? 0 : width;
+      const unwrapped = eastward ? p.x + width : p.x - width;
+      const t = (exitX - prev.x) / (unwrapped - prev.x);
       const yCross = prev.y + t * (p.y - prev.y);
       current.push({ x: exitX, y: yCross });
       polylines.push(current);
