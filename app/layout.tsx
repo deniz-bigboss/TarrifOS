@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { getLocale } from "@/lib/i18n/server";
+import { isRtl } from "@/lib/i18n/config";
 import "./globals.css";
 
 // Inter everywhere — headings included — for one uniform voice across the site.
@@ -24,9 +26,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const locale = getLocale();
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={isRtl(locale) ? "rtl" : "ltr"}
       suppressHydrationWarning
       className={cn(inter.variable)}
     >

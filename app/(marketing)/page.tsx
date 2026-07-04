@@ -9,45 +9,19 @@ import {
 import { OverlayHeader } from "@/components/marketing/overlay-header";
 import { SectionBadge } from "@/components/marketing/section-badge";
 import { PLANS } from "@/lib/billing/plans";
-import { LEGAL_DISCLAIMER } from "@/types";
+import { getI18n } from "@/lib/i18n/server";
 
 /* Landing page replicating the operations-console marketing design:
    a transparent header floating over a full-viewport dark port hero,
    followed by Problem / Workflow / Customers / Example output /
-   Pricing preview bands and the amber compliance disclaimer. */
-
-const PROBLEM_CARDS = [
-  {
-    title: "Classification uncertainty",
-    body: "Product titles rarely map cleanly to an HS code. TariffOS grounds every recommendation in evidence, confidence scores, and review gates.",
-  },
-  {
-    title: "Missing documents",
-    body: "Certificates and origin proofs usually surface at the border. TariffOS builds the document checklist before you book, not after.",
-  },
-  {
-    title: "Late landed-cost surprises",
-    body: "Duty, VAT, and fees tend to appear after the deal is priced. TariffOS estimates them up front and suggests legitimate cost levers.",
-  },
-];
-
-const WORKFLOW_STEPS = [
-  "Normalize product and trade-lane data",
-  "Retrieve candidate HS codes with evidence",
-  "Generate document and compliance gates",
-  "Produce cost actions and a shipment plan",
-];
-
-const CUSTOMER_ROWS = [
-  "Shopify and e-commerce importers",
-  "Small importers/exporters",
-  "Freight forwarders handling repeat SKUs",
-  "Customs brokers doing pre-classification",
-];
+   Pricing preview bands and the amber compliance disclaimer. All copy is
+   localized from lib/i18n. */
 
 const PLAN_PREVIEW = ["free", "starter", "growth"] as const;
 
 export default function LandingPage() {
+  const { t } = getI18n();
+
   return (
     <main className="bg-white dark:bg-slate-950">
       <OverlayHeader />
@@ -64,29 +38,26 @@ export default function LandingPage() {
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-4 pb-24 pt-28 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1 text-xs font-medium text-white">
-              AI shipping operations agent
+              {t.hero.badge}
             </span>
             <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-normal text-white sm:text-6xl">
               TariffOS
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
-              An AI-assisted workspace for importers and exporters that turns
-              product facts into HS recommendations, document checklists,
-              compliance checkpoints, cost-saving actions, and shipment
-              execution plans.
+              {t.hero.description}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/signup"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-emerald-700 px-5 text-base font-medium text-white shadow-sm transition-colors hover:bg-emerald-800"
               >
-                Create shipment plan <ArrowRight className="h-4 w-4" />
+                {t.hero.ctaPrimary} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/pricing"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/25 bg-white/10 px-5 text-base font-medium text-white shadow-sm transition-colors hover:bg-white/20"
               >
-                View pricing
+                {t.hero.ctaSecondary}
               </Link>
             </div>
           </div>
@@ -97,14 +68,13 @@ export default function LandingPage() {
       <section className="border-b border-border bg-slate-50 px-4 py-16 dark:bg-slate-900/50 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <SectionBadge>Problem</SectionBadge>
+            <SectionBadge>{t.problem.badge}</SectionBadge>
             <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
-              Product-level customs work is still trapped in email,
-              spreadsheets, and brittle lookups.
+              {t.problem.heading}
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            {PROBLEM_CARDS.map((card) => (
+            {t.problem.cards.map((card) => (
               <div
                 key={card.title}
                 className="rounded-lg border border-border bg-white p-5 shadow-sm dark:bg-slate-900"
@@ -123,9 +93,9 @@ export default function LandingPage() {
       {/* ---------------------------------------------------- Workflow */}
       <section id="workflow" className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <SectionBadge>How it works</SectionBadge>
+          <SectionBadge>{t.workflow.badge}</SectionBadge>
           <div className="mt-6 grid gap-6 lg:grid-cols-4">
-            {WORKFLOW_STEPS.map((step, i) => (
+            {t.workflow.steps.map((step, i) => (
               <div
                 key={step}
                 className="rounded-lg border border-border bg-white p-5 shadow-sm dark:bg-slate-900"
@@ -149,18 +119,18 @@ export default function LandingPage() {
       >
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
           <div>
-            <SectionBadge>Who it is for</SectionBadge>
+            <SectionBadge>{t.customers.badge}</SectionBadge>
             <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
-              Built for repeat-SKU trade on any lane, anywhere in the world.
+              {t.customers.heading}
             </h2>
           </div>
           <div className="grid gap-3">
-            {CUSTOMER_ROWS.map((row) => (
+            {t.customers.rows.map((row) => (
               <div
                 key={row}
                 className="flex items-center gap-3 rounded-md border border-border bg-white p-4 dark:bg-slate-900"
               >
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
                 <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
                   {row}
                 </span>
@@ -174,46 +144,39 @@ export default function LandingPage() {
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <SectionBadge>Example output</SectionBadge>
+            <SectionBadge>{t.example.badge}</SectionBadge>
             <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
-              Shipment execution plans, not chatbot transcripts.
+              {t.example.heading}
             </h2>
             <p className="mt-4 text-slate-600 dark:text-slate-300">
-              Every result includes candidate codes, confidence, missing
-              information, required documents, warnings, next actions,
-              compliance gates, and cost-reduction levers.
+              {t.example.body}
             </p>
           </div>
           <div className="card-shadow rounded-lg border border-border bg-slate-950 p-5 text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <p className="text-xs uppercase text-slate-400">
-                  Shipment readiness
+                  {t.example.readiness}
                 </p>
                 <p className="mt-1 text-2xl font-semibold">82%</p>
               </div>
               <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-                ready with review
+                {t.example.ready}
               </span>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
-              {["Confirm HS code", "Collect origin proof", "Compare freight quotes"].map(
-                (action) => (
-                  <div
-                    key={action}
-                    className="rounded-md border border-white/10 bg-white/5 p-3 text-sm text-slate-200"
-                  >
-                    <FileText className="mb-3 h-4 w-4 text-blue-300" />
-                    {action}
-                  </div>
-                ),
-              )}
+              {t.example.actions.map((action) => (
+                <div
+                  key={action}
+                  className="rounded-md border border-white/10 bg-white/5 p-3 text-sm text-slate-200"
+                >
+                  <FileText className="mb-3 h-4 w-4 text-blue-300" />
+                  {action}
+                </div>
+              ))}
             </div>
             <p className="mt-5 text-sm leading-6 text-slate-300">
-              Agent plan for a cotton t-shirt shipment: use 6109.10 as the
-              working classification, collect the invoice and origin evidence,
-              validate value basis, and benchmark carrier options before
-              booking.
+              {t.example.planText}
             </p>
           </div>
         </div>
@@ -223,9 +186,9 @@ export default function LandingPage() {
       <section className="border-t border-border bg-slate-50 px-4 py-16 dark:bg-slate-900/50 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
           <div>
-            <SectionBadge>Pricing preview</SectionBadge>
+            <SectionBadge>{t.pricingPreview.badge}</SectionBadge>
             <h2 className="mt-4 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
-              Start narrow, scale to API volume.
+              {t.pricingPreview.heading}
             </h2>
           </div>
           {PLAN_PREVIEW.map((id) => (
@@ -238,7 +201,7 @@ export default function LandingPage() {
                 {PLANS[id].name}
               </p>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                {PLANS[id].description}
+                {t.pricingPreview.plans[id]}
               </p>
             </div>
           ))}
@@ -248,7 +211,7 @@ export default function LandingPage() {
       {/* ----------------------------------------- Compliance disclaimer */}
       <section className="bg-white px-4 py-10 dark:bg-slate-950 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          Compliance disclaimer: {LEGAL_DISCLAIMER}
+          {t.disclaimer}
         </div>
       </section>
     </main>

@@ -9,6 +9,9 @@ import { createAccount } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { Messages } from "@/lib/i18n/messages";
+
+type AuthMessages = Messages["auth"];
 
 /** Turns raw Supabase auth errors into friendly, actionable messages. */
 function friendlyAuthError(message: string): string {
@@ -25,7 +28,13 @@ function friendlyAuthError(message: string): string {
   return message;
 }
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({
+  mode,
+  messages,
+}: {
+  mode: "login" | "signup";
+  messages: AuthMessages;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const redirectTo = params.get("redirect") || "/dashboard";
@@ -86,7 +95,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             router.push(redirectTo);
             router.refresh();
           } else {
-            setInfo("Check your email to confirm your account, then log in.");
+            setInfo(messages.checkEmail);
           }
         } else {
           setError(created.error ?? "Could not create the account.");
@@ -108,7 +117,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {isSignup && (
         <div className="space-y-1.5">
-          <Label htmlFor="fullName">Full name</Label>
+          <Label htmlFor="fullName">{messages.fullName}</Label>
           <Input
             id="fullName"
             value={fullName}
@@ -119,7 +128,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </div>
       )}
       <div className="space-y-1.5">
-        <Label htmlFor="email">Work email</Label>
+        <Label htmlFor="email">{messages.email}</Label>
         <Input
           id="email"
           type="email"
@@ -131,7 +140,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{messages.password}</Label>
         <Input
           id="password"
           type="password"
@@ -157,22 +166,22 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       <Button type="submit" className="w-full" disabled={loading}>
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {isSignup ? "Create account" : "Log in"}
+        {isSignup ? messages.createAccount : messages.login}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
         {isSignup ? (
           <>
-            Already have an account?{" "}
+            {messages.haveAccount}{" "}
             <Link href="/login" className="text-primary hover:underline">
-              Log in
+              {messages.login}
             </Link>
           </>
         ) : (
           <>
-            New to TariffOS?{" "}
+            {messages.noAccount}{" "}
             <Link href="/signup" className="text-primary hover:underline">
-              Create an account
+              {messages.createAccount}
             </Link>
           </>
         )}
