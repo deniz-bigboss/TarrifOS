@@ -13,7 +13,10 @@ import { assessDataPlausibility } from "./plausibility";
 import { generateCostOptimization } from "./cost-optimizer";
 import { generateShipmentPlan } from "./shipment-plan";
 import { estimateDutyValue } from "./duty";
-import { buildTradeRemedyEstimate } from "@/lib/tariff-data/trade-remedies";
+import {
+  buildTradeRemedyEstimate,
+  ensureTradeRemediesWarm,
+} from "@/lib/tariff-data/trade-remedies";
 import { filterRedundantMissingInfo } from "@/lib/ai/missing-info";
 import { isPlausibleHsCode, normalizeHsCode } from "@/lib/tariff-data/hs-chapters";
 import {
@@ -274,6 +277,8 @@ export async function runClassification(
 
     // Country-specific additional tariffs (Section 301, Section 232, 2025
     // reciprocal/IEEPA, EU CVDs, …) stacked on top of the base MFN duty.
+    // Warm any operator-hosted override JSON on first use in this instance.
+    await ensureTradeRemediesWarm();
     const remedy = buildTradeRemedyEstimate(
       normalized.destination_country,
       normalized.origin_country,

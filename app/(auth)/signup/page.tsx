@@ -1,9 +1,12 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth/auth-form";
+import { redirectIfAuthenticated } from "../guard";
 
 export const metadata = { title: "Sign up — TariffOS" };
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  if (await redirectIfAuthenticated()) redirect("/dashboard");
   return (
     <div className="space-y-6">
       <div className="space-y-1.5 text-center">

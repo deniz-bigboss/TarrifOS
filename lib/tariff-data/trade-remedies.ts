@@ -1,5 +1,6 @@
 import type { TradeRemedyLine } from "@/types";
 import { countryName } from "@/lib/utils";
+import { fetchJson } from "./live/cache";
 
 /**
  * Trade-remedy / additional-tariff reference layer.
@@ -184,6 +185,100 @@ function originMatches(remedy: TradeRemedy, origin: string): boolean {
   return remedy.origins.includes(origin);
 }
 
+// ---------------------------------------------------------------------------
+// External overrides — bump rates without a code change.
+//
+// Set TRADE_REMEDY_OVERRIDE_URL to a JSON file you host (an array of TradeRemedy
+// objects, or { asOf, remedies: [...] }). The scheduled refresh route fetches
+// it and merges it over the built-in dataset by `id` (an override replaces the
+// built-in with the same id; new ids are added). This keeps the current
+// US trade-war rates editable operationally, on your own cadence.
+// ---------------------------------------------------------------------------
+
+let overrideRemedies: TradeRemedy[] = [];
+let overrideAsOf: string | null = null;
+
+function isTradeRemedy(x: unknown): x is TradeRemedy {
+  if (!x || typeof x !== "object") return false;
+  const r = x as Record<string, unknown>;
+  return (
+    typeof r.id === "string" &&
+    typeof r.name === "string" &&
+    typeof r.imposedBy === "string" &&
+    (r.origins === "most" || Array.isArray(r.origins)) &&
+    typeof r.ratePercent === "number" &&
+    typeof r.rateLabel === "string" &&
+    (r.mode === "added" || r.mode === "flag") &&
+    typeof r.effective === "string" &&
+    typeof r.source === "string" &&
+    typeof r.detail === "string"
+  );
+}
+
+/** Applies a validated override list (exported for tests / manual wiring). */
+export function applyTradeRemedyOverrides(
+  list: TradeRemedy[],
+  asOf?: string | null,
+): void {
+  overrideRemedies = list;
+  overrideAsOf = asOf ?? null;
+}
+
+/**
+ * Fetches and applies the override JSON from TRADE_REMEDY_OVERRIDE_URL, if set.
+ * Called by the scheduled refresh route. Returns the number of remedies loaded
+ * (0 when no URL is configured or the document is invalid — the built-in
+ * dataset then stands on its own).
+ */
+export async function refreshTradeRemedyOverrides(): Promise<number> {
+  const url = process.env.TRADE_REMEDY_OVERRIDE_URL;
+  if (!url) return 0;
+  const doc = await fetchJson<unknown>(url, { timeoutMs: 7000 });
+  if (!doc) return 0;
+
+  const rawList = Array.isArray(doc)
+    ? doc
+    : (doc as { remedies?: unknown }).remedies;
+  const asOf = Array.isArray(doc)
+    ? null
+    : ((doc as { asOf?: string }).asOf ?? null);
+  if (!Array.isArray(rawList)) return 0;
+
+  const valid = rawList.filter(isTradeRemedy);
+  applyTradeRemedyOverrides(valid, asOf);
+  return valid.length;
+}
+
+let warmed = false;
+
+/**
+ * Best-effort, once-per-instance load of the override JSON so a fresh
+ * serverless instance picks up current rates without waiting for the next
+ * cron. Safe to call on every classification — it no-ops after the first.
+ */
+export async function ensureTradeRemediesWarm(): Promise<void> {
+  if (warmed) return;
+  warmed = true;
+  if (process.env.TRADE_REMEDY_OVERRIDE_URL) {
+    await refreshTradeRemedyOverrides().catch(() => {});
+  }
+}
+
+/** Built-in dataset merged with any loaded overrides (override wins by id). */
+function effectiveRemedies(): TradeRemedy[] {
+  if (overrideRemedies.length === 0) return TRADE_REMEDIES;
+  const overriddenIds = new Set(overrideRemedies.map((r) => r.id));
+  return [
+    ...overrideRemedies,
+    ...TRADE_REMEDIES.filter((r) => !overriddenIds.has(r.id)),
+  ];
+}
+
+/** Date the currently-active reference set was reviewed (override or built-in). */
+export function tradeRemedyAsOf(): string {
+  return overrideAsOf ?? TRADE_REMEDY_AS_OF;
+}
+
 /**
  * Returns the trade remedies that apply to an origin → destination lane for a
  * given HS code. Order: broad "added" measures first, conditional "flag"
@@ -199,7 +294,7 @@ export function getTradeRemedies(
   if (!dest || !orig) return [];
   const chapter = chapterOf(hsCode);
 
-  return TRADE_REMEDIES.filter((remedy) => {
+  return effectiveRemedies().filter((remedy) => {
     if (!imposedByMatches(remedy, dest)) return false;
     if (!originMatches(remedy, orig)) return false;
     if (remedy.hsChapterPrefixes) {
@@ -261,7 +356,9 @@ export function buildTradeRemedyEstimate(
     lines,
     added_rate_percent: addedRate,
     additional_duty_value: additional,
-    notice: TRADE_REMEDY_NOTICE,
+    // Notice carries the *effective* review date (override date when an
+    // override JSON is loaded, otherwise the built-in date).
+    notice: TRADE_REMEDY_NOTICE.replace(TRADE_REMEDY_AS_OF, tradeRemedyAsOf()),
   };
 }
 

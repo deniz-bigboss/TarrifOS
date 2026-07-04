@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cacheClear } from "@/lib/tariff-data/live/cache";
 import { resetTariffDataProvider } from "@/lib/tariff-data";
+import { refreshTradeRemedyOverrides } from "@/lib/tariff-data/trade-remedies";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +28,14 @@ export async function GET(request: Request) {
 
   const cleared = cacheClear();
   resetTariffDataProvider();
+  // Pull the latest trade-remedy overrides (US trade-war rates) if configured.
+  const overrides = await refreshTradeRemedyOverrides();
 
   return NextResponse.json({
     ok: true,
     cleared,
+    tradeRemedyOverrides: overrides,
     refreshedAt: new Date().toISOString(),
-    note: "Live tariff cache flushed; next classifications re-fetch current rates.",
+    note: "Live tariff cache flushed and trade-remedy overrides refreshed; next classifications use current rates.",
   });
 }

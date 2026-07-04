@@ -5,9 +5,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/db/supabase/client";
+import { createAccount } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+/** Turns raw Supabase auth errors into friendly, actionable messages. */
+function friendlyAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("rate limit") || m.includes("too many")) {
+    return "Too many attempts in a short time. Wait a minute and try again — if this keeps happening, your Supabase project's email settings need attention (see README).";
+  }
+  if (m.includes("invalid login") || m.includes("invalid credentials")) {
+    return "Incorrect email or password.";
+  }
+  if (m.includes("already") || m.includes("registered")) {
+    return "An account with this email already exists — log in instead.";
+  }
+  return message;
+}
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
@@ -40,22 +56,40 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
     try {
       if (isSignup) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName },
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-        if (error) throw error;
-        // If email confirmation is disabled, a session exists immediately.
-        const { data } = await supabase.auth.getSession();
-        if (data.session) {
+        // Clear any stale session first, so we can never fall back into a
+        // previously signed-in account instead of the new one.
+        await supabase.auth.signOut();
+
+        // Preferred path: create a confirmed account server-side (no
+        // confirmation email → no email rate limit), then sign in.
+        const created = await createAccount({ email, password, fullName });
+
+        if (created.ok) {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
           router.push(redirectTo);
           router.refresh();
+        } else if (created.needsClientSignup) {
+          // Fallback when the service-role key isn't configured: standard
+          // client signUp. Trust the signUp response's own session — never a
+          // separate getSession() that could return a stale one.
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { full_name: fullName },
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          });
+          if (error) throw error;
+          if (data.session) {
+            router.push(redirectTo);
+            router.refresh();
+          } else {
+            setInfo("Check your email to confirm your account, then log in.");
+          }
         } else {
-          setInfo("Check your email to confirm your account, then log in.");
+          setError(created.error ?? "Could not create the account.");
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -64,7 +98,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         router.refresh();
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(friendlyAuthError(err instanceof Error ? err.message : "Something went wrong."));
     } finally {
       setLoading(false);
     }

@@ -1,0 +1,31 @@
+{
+  "asOf": "2025-07",
+  "remedies": [
+    {
+      "id": "us-china-additional",
+      "name": "US additional tariffs on China (Section 301 + 2025 IEEPA)",
+      "imposedBy": "US",
+      "origins": ["CN", "HK"],
+      "ratePercent": 30,
+      "rateLabel": "≈30% combined reference — edit to the current figure",
+      "mode": "added",
+      "effective": "Update this note when the rate changes.",
+      "source": "Your source — verify USITC HTS / USTR",
+      "detail": "Override entry: edit ratePercent/rateLabel/effective here to bump the China stack without a code change. Objects with a new id are added; objects reusing a built-in id replace it."
+    },
+    {
+      "id": "us-example-new-measure",
+      "name": "Example: a brand-new measure you add",
+      "imposedBy": "US",
+      "origins": "most",
+      "originsExcept": ["US"],
+      "hsChapterPrefixes": ["94"],
+      "ratePercent": 15,
+      "rateLabel": "15% (example)",
+      "mode": "added",
+      "effective": "Example effective note.",
+      "source": "Example source",
+      "detail": "A new id like this is merged in alongside the built-in measures."
+    }
+  ]
+}

@@ -123,6 +123,15 @@ supabase db push
 #   0004_rls_hardening.sql  pins profiles.organization_id on update (security fix)
 ```
 
+**Sign-up & email:** With `SUPABASE_SERVICE_ROLE_KEY` set, new accounts are
+created server-side already-confirmed (`app/(auth)/actions.ts`), so **no
+confirmation email is sent** — this sidesteps Supabase's built-in-SMTP "email
+rate limit exceeded" wall during testing and lets sign-in happen immediately.
+If you *want* email verification in production, either configure a
+[custom SMTP provider](https://supabase.com/docs/guides/auth/auth-smtp) in the
+Supabase dashboard (raises the low default limit) or turn off the service-role
+key so the app falls back to the standard confirmation-email flow.
+
 ### 4. Seed tariff codes (optional)
 
 The classification engine reads seed data directly from
@@ -232,6 +241,14 @@ exclusion logic that no free API resolves into a single rate. So those remain a
 measures *do* update live via the API above. For fully-automatic, authoritative
 US trade-war rates, drop a paid specialist feed (Avalara, Zonos, CustomsInfo)
 into the same `TariffDataProvider` seam.
+
+**Editing the trade-war rates without a deploy.** Host a JSON file and point
+`TRADE_REMEDY_OVERRIDE_URL` at it. It's merged over the built-in dataset by
+`id` — reuse a built-in id to replace that measure's rate, or use a new id to
+add one — and refreshed by the daily cron (and once per instance on first use).
+See [`docs/trade-remedies.override.example.json`](docs/trade-remedies.override.example.json)
+for the format. This lets ops bump the China/reciprocal rates the moment they
+change, on your own cadence, without touching code.
 
 Adding another official source is just as modular: implement the
 `TariffDataProvider` interface (`lib/tariff-data/types.ts`) for EU TARIC /
