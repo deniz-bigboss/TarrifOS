@@ -256,6 +256,36 @@ Turkey / a paid API and wire it into `LiveTariffDataProvider`.
 
 ---
 
+## Payments
+
+Billing runs through a provider abstraction (`lib/billing/payment.ts`) chosen by
+`PAYMENT_PROVIDER`, so switching providers is a config change, not a rewrite.
+
+- **iyzico (Türkiye — active).** Set `IYZICO_API_KEY`, `IYZICO_SECRET_KEY`, and
+  `IYZICO_URI` (sandbox vs production). In the iyzico merchant panel create one
+  Product and a monthly **Pricing Plan** per paid tier, then map each plan's
+  **reference code** via `IYZICO_PLAN_STARTER` / `_GROWTH` / `_FORWARDER`.
+  Checkout uses iyzico's subscription checkout form (PCI-compliant hosted card
+  form with installment support); on payment, iyzico posts to
+  `/api/iyzico/callback`, which verifies the result server-side and applies the
+  plan. Downgrade to Free cancels the iyzico subscription.
+- **Stripe (future / EU).** Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+  and the `STRIPE_PRICE_*` recurring price IDs, then flip
+  `PAYMENT_PROVIDER=stripe`. Checkout is a hosted Stripe session; the signed
+  webhook at `/api/stripe/webhook` keeps the plan in sync, and the customer
+  portal (**Manage billing**) handles upgrades/cancellations.
+- **Mock (default).** With no provider configured, plan changes apply directly
+  so the product stays demoable locally.
+
+Run migration `0005_billing_providers.sql` to add the provider linkage columns.
+
+> Live payment flows can only be verified end-to-end against a real merchant
+> account (this repo's CI/sandbox can't reach the payment APIs). The plan
+> mapping, callback interpretation, and webhook logic are covered by offline
+> unit tests, but do a sandbox test transaction before going live.
+
+---
+
 ## API
 
 Create a key in **Dashboard → API keys**, then:
