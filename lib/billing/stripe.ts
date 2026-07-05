@@ -10,10 +10,10 @@ import type { PlanId } from "@/types/database";
  *   STRIPE_WEBHOOK_SECRET    whsec_... (from the webhook endpoint config)
  *   STRIPE_PRICE_STARTER     price_... (recurring price for Starter)
  *   STRIPE_PRICE_GROWTH      price_...
- *   STRIPE_PRICE_FORWARDER   price_...
+ *   STRIPE_PRICE_BUSINESS    price_...
  *
  * Free needs no price (downgrade = cancel via the customer portal) and
- * Enterprise is sales-led, so neither has a checkout price.
+ * Forwarder is sales-led, so neither has a checkout price.
  */
 
 let cached: Stripe | null = null;
@@ -30,16 +30,16 @@ export function isStripeConfigured(): boolean {
 }
 
 /** Plans purchasable through Checkout (paid, self-serve). */
-export const CHECKOUT_PLANS: PlanId[] = ["starter", "growth", "forwarder"];
+export const CHECKOUT_PLANS: PlanId[] = ["starter", "pro", "business"];
 
 export function priceIdForPlan(planId: PlanId): string | null {
   switch (planId) {
     case "starter":
       return process.env.STRIPE_PRICE_STARTER || null;
-    case "growth":
-      return process.env.STRIPE_PRICE_GROWTH || null;
-    case "forwarder":
-      return process.env.STRIPE_PRICE_FORWARDER || null;
+    case "pro":
+      return process.env.STRIPE_PRICE_PRO || null;
+    case "business":
+      return process.env.STRIPE_PRICE_BUSINESS || null;
     default:
       return null;
   }
@@ -49,7 +49,7 @@ export function priceIdForPlan(planId: PlanId): string | null {
 export function planFromPriceId(priceId: string | null | undefined): PlanId | null {
   if (!priceId) return null;
   if (priceId === process.env.STRIPE_PRICE_STARTER) return "starter";
-  if (priceId === process.env.STRIPE_PRICE_GROWTH) return "growth";
-  if (priceId === process.env.STRIPE_PRICE_FORWARDER) return "forwarder";
+  if (priceId === process.env.STRIPE_PRICE_PRO) return "pro";
+  if (priceId === process.env.STRIPE_PRICE_BUSINESS) return "business";
   return null;
 }

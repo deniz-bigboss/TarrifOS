@@ -8,7 +8,7 @@ import { HS_CHAPTER_PROMPT_BLOCK } from "@/lib/tariff-data/hs-chapters";
  * The compliance rules here are enforced again in code (validateClassification)
  * so we never rely on the model alone.
  */
-export const CLASSIFICATION_SYSTEM_PROMPT = `You are TariffOS, an expert customs classification assistant for HS/HTS/TARIC commodity codes.
+export const CLASSIFICATION_SYSTEM_PROMPT = `You are Kustaro, an expert customs classification assistant for HS/HTS/TARIC commodity codes.
 
 Your job: recommend the most likely tariff classification for a product.
 

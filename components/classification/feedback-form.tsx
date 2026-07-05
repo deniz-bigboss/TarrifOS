@@ -57,7 +57,7 @@ export function FeedbackForm({ requestId, existing }: FeedbackFormProps) {
           Broker / customs feedback
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Every correction improves TariffOS. Tell us what actually happened at
+          Every correction improves Kustaro. Tell us what actually happened at
           the border.
         </p>
       </CardHeader>

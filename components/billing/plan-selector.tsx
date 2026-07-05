@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { PLANS, PLAN_ORDER } from "@/lib/billing/plans";
+import { PLANS, PLAN_ORDER, SALES_CONTACT_EMAIL } from "@/lib/billing/plans";
 import type { PlanId } from "@/types/database";
 import type { PaymentProvider } from "@/lib/billing/payment";
 
@@ -21,17 +21,30 @@ export function PlanSelector({
   currentPlan,
   provider,
   hasBillingAccount,
+  demoMode = false,
 }: {
   currentPlan: PlanId;
   provider: PaymentProvider;
   hasBillingAccount: boolean;
+  /** True only when PAYMENT_PROVIDER=mock is set explicitly (local demo):
+   * plan changes apply directly. When no provider is configured at all,
+   * upgrades open the contact/manual-payment dialog instead. */
+  demoMode?: boolean;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<PlanId | "portal" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [contactPlan, setContactPlan] = useState<PlanId | null>(null);
 
   async function choose(planId: PlanId) {
     setError(null);
+
+    // Billing not configured (and not an explicit local demo): self-serve
+    // checkout isn't live yet, so upgrades go through contact/manual payment.
+    if (provider === "mock" && !demoMode) {
+      setContactPlan(planId);
+      return;
+    }
 
     // Paddle: downgrading to Free = cancel the subscription.
     if (provider === "paddle" && planId === "free") {
@@ -85,6 +98,40 @@ export function PlanSelector({
 
   return (
     <div className="space-y-4">
+      {contactPlan && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4"
+          onClick={() => setContactPlan(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-lg border bg-card p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold">
+              Upgrade to {PLANS[contactPlan].name}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Self-serve checkout is being set up. To upgrade now, email us and
+              we&apos;ll activate the plan manually (invoice or bank transfer) —
+              usually within a day.
+            </p>
+            <a
+              href={`mailto:${SALES_CONTACT_EMAIL}?subject=Kustaro ${PLANS[contactPlan].name} plan`}
+              className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Email {SALES_CONTACT_EMAIL}
+            </a>
+            <Button
+              variant="outline"
+              className="mt-2 w-full"
+              onClick={() => setContactPlan(null)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
+
       {provider !== "mock" && hasBillingAccount && (
         <div className="flex justify-end">
           <Button

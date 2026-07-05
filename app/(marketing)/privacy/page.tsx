@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { LegalPage, type LegalSection } from "@/components/marketing/legal-page";
 
-export const metadata: Metadata = { title: "Privacy Policy — TariffOS" };
+export const metadata: Metadata = { title: "Privacy Policy — Kustaro" };
 
-/* Original policy text written for TariffOS's actual data flows. Items marked
+/* Original policy text written for Kustaro's actual data flows. Items marked
    [FILL IN] must be completed by the operator before general availability, and
    the whole document should be reviewed by counsel. */
 
@@ -11,7 +11,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "1. Who we are",
     paragraphs: [
-      "TariffOS is an AI-assisted workspace that turns product information into HS code recommendations, document checklists, compliance checkpoints, and shipment execution plans. It is operated by [FILL IN: legal entity name and registered address]. For any privacy question or request, contact deniz@terra-reform.org.",
+      "Kustaro is an AI-assisted workspace that turns product information into HS code recommendations, document checklists, compliance checkpoints, and shipment execution plans. It is operated by [FILL IN: legal entity name and registered address]. For any privacy question or request, contact deniz@terra-reform.org.",
     ],
   },
   {
@@ -34,7 +34,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "4. Processors we rely on",
     paragraphs: [
-      "TariffOS runs on a small set of infrastructure providers that process data on our behalf:",
+      "Kustaro runs on a small set of infrastructure providers that process data on our behalf:",
     ],
     bullets: [
       "Supabase — authentication and database hosting for accounts, workspaces, and classification records.",

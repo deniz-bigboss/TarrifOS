@@ -54,6 +54,19 @@ export function normalizeProductInput(
     import_or_export: input.import_or_export ?? "import",
   };
 
+  // Product-fact flags from the wizard become explicit phrases so retrieval
+  // and the AI reasoning see them even when the free text doesn't say so.
+  const flagPhrases = [
+    cleaned.is_textile && "textile product",
+    cleaned.is_electronics && "electronic device",
+    cleaned.contains_battery && "contains a battery",
+    cleaned.is_food && "food product",
+    cleaned.is_cosmetic && "cosmetic product",
+    cleaned.is_medical_or_health_related && "medical or health-related product",
+    cleaned.is_chemical && "chemical product",
+    cleaned.is_dual_use_or_restricted && "dual-use or restricted goods",
+  ].filter(Boolean) as string[];
+
   const normalizedText = [
     cleaned.product_name,
     cleaned.product_description,
@@ -61,6 +74,7 @@ export function normalizeProductInput(
     cleaned.intended_use,
     cleaned.category,
     cleaned.brand,
+    ...flagPhrases,
   ]
     .filter(Boolean)
     .join(" ");
@@ -146,12 +160,28 @@ export function validateClassification(
         `Code ${normalized} was proposed by the AI beyond the local reference dataset and must be verified against an official tariff source.`,
       );
       next.restriction_warnings.push(
-        `AI-proposed code: ${normalized} is not in TariffOS's local reference dataset — confirm it against the destination country's official tariff before filing.`,
+        `AI-proposed code: ${normalized} is not in Kustaro's local reference dataset — confirm it against the destination country's official tariff before filing.`,
       );
     } else if (candidates[0]) {
       next.recommended_code = candidates[0].code;
       next.recommended_title = candidates[0].title;
     }
+  }
+
+  // Rule: user-declared high-risk flags always require human review, even if
+  // the free text didn't trigger the keyword-based risk engine.
+  const declaredRisks = [
+    input.contains_battery && "battery",
+    input.is_food && "food",
+    input.is_cosmetic && "cosmetics",
+    input.is_medical_or_health_related && "medical/health",
+    input.is_chemical && "chemicals",
+    input.is_dual_use_or_restricted && "dual-use/restricted",
+  ].filter(Boolean) as string[];
+  if (declaredRisks.length > 0) {
+    reviewReasons.push(
+      `Declared high-risk categor${declaredRisks.length > 1 ? "ies" : "y"} (${declaredRisks.join(", ")}) — destination-specific controls and documents usually apply; review before official use.`,
+    );
   }
 
   // Rule: high-risk categories always require human review.

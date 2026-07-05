@@ -60,12 +60,12 @@ export default async function DashboardPage() {
           <p className="text-sm text-muted-foreground">
             {limit.limit == null
               ? `${limit.used} classifications this month`
-              : `${limit.used} / ${limit.limit} classifications used this month`}
+              : `You used ${limit.used} of ${limit.limit} classifications this month`}
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/classifications/new">
-            <Plus className="h-4 w-4" /> New shipment plan
+          <Link href="/classify">
+            <Plus className="h-4 w-4" /> New classification
           </Link>
         </Button>
       </div>
@@ -203,8 +203,8 @@ function EmptyState() {
         </p>
       </div>
       <Button asChild>
-        <Link href="/dashboard/classifications/new">
-          <Plus className="h-4 w-4" /> New shipment plan
+        <Link href="/classify">
+          <Plus className="h-4 w-4" /> New classification
         </Link>
       </Button>
     </div>

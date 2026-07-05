@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { ApiKeyRow } from "@/types/database";
 
-export const metadata = { title: "API keys — TariffOS" };
+export const metadata = { title: "API keys — Kustaro" };
 
 export default async function ApiKeysPage() {
   const session = await getSessionContext();
@@ -40,7 +40,7 @@ export default async function ApiKeysPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">API keys</h1>
         <p className="text-sm text-muted-foreground">
-          Authenticate requests to the TariffOS classification API.
+          The Kustaro API is a waitlist feature: it will let teams classify products, retrieve customs-readiness reports, and integrate HS-code candidate workflows into internal systems. Keys below authenticate early-access requests.
         </p>
       </div>
 

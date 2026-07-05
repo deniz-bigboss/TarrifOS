@@ -1,339 +1,162 @@
-# TariffOS
+# Kustaro
 
-**AI-native customs / tariff classification and landed-cost recommendation platform.**
+**Self-serve customs-readiness workspace for product classification, HS-code
+candidates, document checklists, risk flags, and exportable reports.**
 
-Live: **https://tariff-os.vercel.app**
+Live: **https://tariff-os.vercel.app** (moving to **https://kustaro.com**)
 
-TariffOS helps importers, exporters, e-commerce brands and freight forwarders
-classify products, estimate duties/taxes, identify required customs documents,
-and generate a broker-ready classification report — with evidence, a confidence
-score, and an automatic human-review flag for high-risk or low-confidence cases.
+Kustaro helps importers, exporters, e-commerce brands, and freight teams
+classify products for customs **before they ship**: a guided wizard turns
+product facts into HS-code candidates with reasoning, a confidence score,
+missing-information questions, a required-document checklist, risk flags, and
+a customs-readiness score out of 100 — all exportable as a
+**Kustaro Customs-Readiness Report**.
 
-> This is a structured workflow product, not a chatbot. Every result is grounded
-> in retrieved tariff evidence and clearly marked as a recommendation, not legal
-> advice.
-
----
-
-## Features
-
-- **Landing + pricing** marketing site (premium B2B SaaS styling).
-- **Supabase Auth** with one auto-provisioned organization workspace per user.
-- **Multi-step classification wizard** (product, trade lane, documents, review).
-- **Classification engine** with a 7-stage pipeline:
-  `normalize → retrieve → reason → validate → confidence → broker report → save`.
-- **Modular tariff-data adapter** (`TariffDataProvider`) with a local
-  `SeedTariffDataProvider` (99 HS-style seed codes across all required
-  categories) plus the full HS chapter map (`lib/tariff-data/hs-chapters.ts`)
-  injected into the classification prompt. When no local candidate fits, a
-  real AI provider may propose the correct HS code from its knowledge/web
-  search — such codes are format- and chapter-validated in code, always
-  flagged for human review, and clearly marked as outside the local dataset.
-  No live government API dependency at launch.
-- **AI provider abstraction** (`AIProvider`): `MockAIProvider` (default, no key),
-  `GeminiProvider` (free tier), `OpenAIProvider`, `AnthropicProvider`, plus
-  free-tier fallbacks (Groq / OpenRouter / Cerebras) chained behind the primary
-  with a visible service notice whenever a fallback served the result.
-- **Compliance rules enforced in code**: confidence < 0.75 or any high-risk
-  category (food, batteries, chemicals, medical, weapons, alcohol, …) forces
-  human review. Duty figures are always placeholders.
-- **Result page** with confidence meter, alternatives, documents, restrictions,
-  missing-info questions, broker-ready explanation, and export (Copy / Markdown /
-  JSON / print-to-PDF).
-- **Dashboard** with metrics + a filterable TanStack table of classifications.
-- **Feedback loop** (the data moat) — broker/customs corrections stored to
-  `feedback_labels`.
-- **Public API** with API-key auth, usage metering, and plan limits.
-- **Billing** with plan limits and a mock upgrade flow (Stripe placeholder).
+> Every output is a customs-readiness **recommendation for review** grounded
+> in retrieved tariff evidence. It is not legal advice and does not guarantee
+> acceptance by customs authorities.
 
 ---
 
-## Tech stack
+## Product surface
 
-Next.js (App Router) · TypeScript · Tailwind CSS · shadcn-style UI · Supabase
-(Auth / Postgres / Storage) · Zod · React Hook Form · TanStack Table ·
-OpenAI / Anthropic SDKs · Stripe placeholder · Vercel-ready.
+| Route | What it does |
+| --- | --- |
+| `/` | Marketing site (8 languages, geo-detected) |
+| `/classify` | **The core flow.** Guided 5-step wizard — guests get one free classification with no signup; results render in-browser with readiness score + improve-confidence loop |
+| `/dashboard` | Usage, review queue, quick stats |
+| `/dashboard/classifications` | History — every classification, refinement versions included |
+| `/dashboard/products` | Saved SKU library — reclassify repeat products in one click |
+| `/dashboard/bulk-upload` | CSV bulk classification (beta, first 10 rows) |
+| `/dashboard/billing` | Self-serve credit plans (Free 3/mo → Forwarder custom) |
+| `/hs-code/*`, `/customs-documents/*`, `/customs-readiness/*` | Long-tail SEO templates |
 
----
-
-## Project structure
-
-```
-app/
-  (marketing)/        landing + pricing
-  (auth)/             login + signup
-  auth/               callback + signout routes
-  dashboard/          overview, classifications, api-keys, billing
-  api/v1/             classify, classifications/[id], feedback
-components/           ui primitives + feature components
-lib/
-  ai/                 AIProvider abstraction (mock/openai/anthropic)
-  tariff-data/        TariffDataProvider + SeedTariffDataProvider + seed data
-  classification/     pipeline, confidence, risk rules
-  db/                 supabase clients + repositories
-  auth/               session + workspace bootstrap
-  billing/            plans + limit enforcement
-  api-keys/           key generation + request auth
-  export/             markdown / text report rendering
-  validation/         zod schemas
-supabase/migrations/  SQL schema, RLS, bootstrap trigger
-supabase/seed/        generated tariff_codes seed
-types/                domain + database row types
-```
+The **confidence-improvement loop** is the differentiator: when the result has
+open questions (or confidence < 80%), the user answers 2–5 targeted questions,
+Kustaro re-runs the classification, shows old → new confidence, and keeps both
+versions in history.
 
 ---
 
-## Getting started
-
-### 1. Install
+## 1. Running Kustaro locally
 
 ```bash
 npm install
+cp .env.example .env.local   # fill in Supabase; everything else is optional
+npm run dev                  # http://localhost:3000
 ```
 
-### 2. Environment
+The app runs out of the box with `AI_PROVIDER=mock` — no paid AI required.
 
-```bash
-cp .env.example .env.local
-```
+## 2. Environment variables
 
-The app runs out of the box with `AI_PROVIDER=mock`. Supabase is required for
-auth + persistence:
+See `.env.example` for the full annotated list. The short version:
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Browser/auth client |
-| `SUPABASE_SERVICE_ROLE_KEY` | yes | API auth, usage tracking, workspace bootstrap |
-| `AI_PROVIDER` | no | `mock` (default) \| `gemini` \| `openai` \| `anthropic` \| `groq` \| `openrouter` \| `cerebras` |
-| `GEMINI_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | no | Only for real AI |
-| `GROQ_API_KEY` / `OPENROUTER_API_KEY` / `CEREBRAS_API_KEY` | no | Free-tier fallback chain when the primary is rate-limited |
-| `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | no | Billing (placeholder) |
-| `NEXT_PUBLIC_SITE_URL` | no | Auth redirects (default `http://localhost:3000`) |
+- **Required:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY` (auth + persistence).
+- **Optional AI:** `AI_PROVIDER` = `mock | gemini | openai | anthropic |
+  groq | openrouter | cerebras` plus the matching key. Free-tier fallback
+  chain: Groq → OpenRouter → Cerebras → offline engine.
+- **Optional tariff data:** `TARIFF_DATA_SOURCE=live` for UK/US government
+  APIs (no keys needed); `TRADE_REMEDY_OVERRIDE_URL` for hosted trade-war
+  rate overrides; `CRON_SECRET` for the daily refresh cron.
+- **Optional billing:** Paddle (`NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`,
+  `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_*`) or Stripe
+  (`STRIPE_*`) behind `PAYMENT_PROVIDER`.
 
-### 3. Database migrations
+## 3. Free-first development
 
-Run the SQL files in `supabase/migrations/` in order, via the Supabase SQL
-editor or the CLI:
+Kustaro is built to cost $0 until it earns money: Vercel free tier, Supabase
+free tier, `AI_PROVIDER=mock` by default, free-tier AI fallbacks
+(Groq/OpenRouter/Cerebras), local seed tariff data, and plan limits that stop
+free users from burning real AI calls. Analytics are Vercel Web Analytics
+(cookieless). Billing is optional — with no provider configured, upgrade
+buttons open a contact/manual-payment dialog instead of blocking the MVP.
 
-```bash
-supabase db push
-# or paste each file in order:
-#   0001_init.sql           tables + indexes
-#   0002_rls.sql            row-level security
-#   0003_bootstrap.sql      auto-create workspace on signup
-#   0004_rls_hardening.sql  pins profiles.organization_id on update (security fix)
-```
+## 4. AI providers
 
-**Sign-up & email:** With `SUPABASE_SERVICE_ROLE_KEY` set, new accounts are
-created server-side already-confirmed (`app/(auth)/actions.ts`), so **no
-confirmation email is sent** — this sidesteps Supabase's built-in-SMTP "email
-rate limit exceeded" wall during testing and lets sign-in happen immediately.
-If you *want* email verification in production, either configure a
-[custom SMTP provider](https://supabase.com/docs/guides/auth/auth-smtp) in the
-Supabase dashboard (raises the low default limit) or turn off the service-role
-key so the app falls back to the standard confirmation-email flow.
+`lib/ai/` defines one `AIProvider` interface with implementations for mock
+(deterministic, offline), Gemini, OpenAI, Anthropic, and OpenAI-compatible
+free hosts (Groq, OpenRouter, Cerebras). If the primary provider hits a rate
+limit or outage, the fallback chain takes over and the user sees a service
+notice — degraded service is never silent.
 
-### 4. Seed tariff codes (optional)
+## 5. Supabase setup
 
-The classification engine reads seed data directly from
-`lib/tariff-data/seed-data.ts`, so seeding the DB is optional. To also populate
-the `tariff_codes` table:
+1. Create a project at [app.supabase.com](https://app.supabase.com).
+2. Run the migrations in `supabase/migrations/` **in order** (0001 → 0006)
+   in the SQL editor.
+3. Seed the tariff reference data: `supabase/seed/seed_tariff_codes.sql`.
+4. Copy the project URL + keys into `.env.local`.
+5. In Auth → URL Configuration, set your site URL and redirect URLs.
 
-```bash
-npm run seed:sql                       # regenerate supabase/seed/seed_tariff_codes.sql
-# then run supabase/seed/seed_tariff_codes.sql in Supabase
-```
+Migration `0006_kustaro.sql` adds the saved-products table, the wizard's
+extra-input column, and renames the plan ids to the credit model.
 
-### 5. Run
+## 6. Seed tariff data
 
-```bash
-npm run dev      # http://localhost:3000
-```
+`lib/tariff-data/seed-data.ts` is the offline reference dataset (regenerate
+the SQL with `npm run seed:sql`). With `TARIFF_DATA_SOURCE=live`, GB/US
+destinations fetch real MFN rates from the UK Trade Tariff API and USITC HTS
+with automatic fallback to seed data. Country trade-remedy tariffs
+(Section 301/232, 2025 reciprocal, EU CVDs…) live in
+`lib/tariff-data/trade-remedies.ts` with a hosted-JSON override.
 
-Sign up → a workspace is created automatically → **New classification** → use the
-built-in **Cotton t-shirt** or **E-bike battery** demo prefill.
+## 7. Rebrand notes
 
----
+Kustaro was previously TariffOS/TarrifOS. User-facing copy, metadata,
+reports, exports, and the API key prefix (`kustaro_sk_`, legacy
+`tariffos_sk_` keys still authenticate) are rebranded. Internal database
+table names (e.g. `classification_requests`) are intentionally unchanged.
+Plan ids were migrated: `growth → pro`, `forwarder → business`,
+`enterprise → forwarder` (0006).
 
-## Switching from MockAIProvider to a real provider
+## 8. Legal disclaimer
 
-The engine works fully offline with the deterministic `MockAIProvider`. To use a
-real model, set in `.env.local`:
+Kustaro outputs are customs-readiness recommendations generated from
+available product information and tariff-reference data. They are **not
+legal advice** and do not guarantee acceptance by customs authorities. Final
+classification and customs declarations should be verified before official
+use. High-risk categories (food, cosmetics, chemicals, batteries, medical,
+dual-use…) always carry a review warning. See `/terms` and `/privacy`.
 
-```bash
-# Gemini (free tier — no billing card; get a key at https://aistudio.google.com)
-AI_PROVIDER=gemini
-GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.5-flash   # optional
+## 9. Deployment to Kustaro.com
 
-# or OpenAI
-AI_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini        # optional
-
-# or Anthropic
-AI_PROVIDER=anthropic
-ANTHROPIC_API_KEY=sk-ant-...
-ANTHROPIC_MODEL=claude-3-5-sonnet-latest   # optional
-```
-
-### Free-tier fallback chain (rate limits never break the product)
-
-Free tiers have daily/minute quotas, so TariffOS supports a **fallback chain**:
-if the primary provider fails (rate limit, quota, outage), the request is
-retried in order against **Groq → OpenRouter → Cerebras** — three providers
-with genuinely free API tiers — and finally the deterministic offline engine.
-Any of these that has a key configured joins the chain automatically:
-
-```bash
-GROQ_API_KEY=...        # https://console.groq.com
-OPENROUTER_API_KEY=...  # https://openrouter.ai/keys
-CEREBRAS_API_KEY=...    # https://cloud.cerebras.ai
-```
-
-Degraded service is **never silent**: when a fallback (or the offline engine)
-served the result, the classification page shows an amber service notice and
-Quick Find explains why its answer may be reduced. Note the fallbacks run
-open-weight models without web search, so results carry a "without web-search
-verification" caveat. If every key is missing or every provider fails, the
-engine still answers via the offline mock, so nothing hard-breaks. The
-compliance rules (human-review thresholds, placeholder duties) are enforced in
-code regardless of provider.
-
-**Quick Find** (the wizard's product-lookup toggle) only has real internet
-awareness under a real provider — `mock` can only ever match its small curated
-list (`lib/ai/curated-products.ts`), by design, since mock mode has zero
-external calls. Real web search per provider:
-
-- `gemini` — Google Search grounding (`googleSearch` tool). **Free tier.**
-- `openai` — a search-enabled model (`OPENAI_SEARCH_MODEL`, default `gpt-4o-search-preview`).
-- `anthropic` — Claude's `web_search` tool.
-
-Either way it explicitly returns "not found" rather than fabricate details for a
-product it can't confirm, and any match is shown as editable fields the user
-must confirm before continuing — never auto-submitted.
-
-### Live tariff data
-
-Set `TARIFF_DATA_SOURCE=live` to fetch **real MFN duty rates** from free,
-official government APIs instead of the offline seed placeholders:
-
-- **GB destinations** → the [UK Trade Tariff API](https://www.trade-tariff.service.gov.uk/)
-  (HMRC) — base third-country duty, VAT, **and live anti-dumping / safeguard
-  measures**, which are the UK's trade-remedy duties. No key required.
-- **US destinations** → the [USITC HTS](https://hts.usitc.gov/) export — the
-  current column-1 (MFN) duty. No key required.
-
-Live results are cached per instance (12h TTL) and **fall back to seed data on
-any failure**, so a slow or down API never breaks a classification. When a rate
-is live, the duty card shows a green source badge with the retrieval date.
-
-**Staying current automatically:** a daily [Vercel Cron](https://vercel.com/docs/cron-jobs)
-(`vercel.json` → `/api/cron/refresh-tariffs`) flushes the cache so the next
-classifications re-fetch fresh rates. Protect it by setting `CRON_SECRET`. You
-can also hit the route manually (with the `Authorization: Bearer <CRON_SECRET>`
-header) to force a refresh.
-
-**Trade-war tariffs — an honest note.** The 2025 US measures (Section 301/232,
-the IEEPA "reciprocal" tariffs) live in HTS Chapter 99 with product/country/
-exclusion logic that no free API resolves into a single rate. So those remain a
-**dated reference layer** (`lib/tariff-data/trade-remedies.ts`, with a visible
-"reviewed" date) that the UI always tells you to verify — while UK anti-dumping
-measures *do* update live via the API above. For fully-automatic, authoritative
-US trade-war rates, drop a paid specialist feed (Avalara, Zonos, CustomsInfo)
-into the same `TariffDataProvider` seam.
-
-**Editing the trade-war rates without a deploy.** Host a JSON file and point
-`TRADE_REMEDY_OVERRIDE_URL` at it. It's merged over the built-in dataset by
-`id` — reuse a built-in id to replace that measure's rate, or use a new id to
-add one — and refreshed by the daily cron (and once per instance on first use).
-See [`docs/trade-remedies.override.example.json`](docs/trade-remedies.override.example.json)
-for the format. This lets ops bump the China/reciprocal rates the moment they
-change, on your own cadence, without touching code.
-
-Adding another official source is just as modular: implement the
-`TariffDataProvider` interface (`lib/tariff-data/types.ts`) for EU TARIC /
-Turkey / a paid API and wire it into `LiveTariffDataProvider`.
+1. Vercel project `tariffos` currently serves production from this repo's
+   working branch; attach **kustaro.com** in Project → Settings → Domains
+   once the domain is purchased.
+2. Update `NEXT_PUBLIC_SITE_URL=https://kustaro.com` and redeploy.
+3. Update Supabase Auth site URL + redirect list to kustaro.com.
+4. Point the Paddle webhook at `https://kustaro.com/api/paddle/webhook`.
+5. Canonical URLs, Open Graph, sitemap, robots, and the web manifest already
+   point at `https://kustaro.com`.
 
 ---
 
 ## Payments
 
-Billing runs through a provider abstraction (`lib/billing/payment.ts`) chosen by
-`PAYMENT_PROVIDER`, so switching providers is a config change, not a rewrite.
+Billing runs through a provider abstraction (`lib/billing/payment.ts`) chosen
+by `PAYMENT_PROVIDER`:
 
-- **Paddle (active).** Paddle is a **merchant of record**: it is the legal
-  seller, so an individual can sell worldwide **without forming a company** —
-  sign up as an *Individual*, pass identity verification, and payouts go to a
-  personal bank account (works from Türkiye). Paddle collects and remits
-  VAT/sales tax globally. Setup: create one Product with a monthly recurring
-  **Price** per paid tier, then set `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`,
-  `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, and the `PADDLE_PRICE_*` ids
-  (see `.env.example`). Checkout opens Paddle's hosted overlay (card data
-  never touches this app); the signed webhook at `/api/paddle/webhook` grants
-  the plan, and **Manage billing** opens Paddle's customer portal. Downgrade
-  to Free cancels the subscription.
-- **Stripe (future / EU).** Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
-  and the `STRIPE_PRICE_*` recurring price IDs, then flip
-  `PAYMENT_PROVIDER=stripe`. Checkout is a hosted Stripe session; the signed
-  webhook at `/api/stripe/webhook` keeps the plan in sync, and the customer
-  portal (**Manage billing**) handles upgrades/cancellations.
-- **Mock (default).** With no provider configured, plan changes apply directly
-  so the product stays demoable locally.
+- **Paddle (active).** Merchant of record — an individual can sell worldwide
+  without forming a company; payouts go to a personal bank account. Hosted
+  overlay checkout + signed webhook at `/api/paddle/webhook`.
+- **Stripe (future / EU).** Fully wired, dormant until the EU move.
+- **Unconfigured.** Pricing still shows; upgrades open a contact dialog and
+  the founder sets plans manually in the `organizations` table.
 
-Run migration `0005_billing_providers.sql` to add the provider linkage columns.
+Plans: Free $0 (3/mo) · Starter $19 (50/mo) · Pro $49 (250/mo) · Business
+$149 (1,000/mo) · Forwarder from $499 (custom). Limits reset monthly; at the
+limit no AI calls are made and old classifications stay viewable.
+
+## API (waitlist)
+
+The Kustaro API will let teams classify products, retrieve customs-readiness
+reports, and integrate HS-code candidate workflows into internal systems.
+`POST /api/v1/classify` exists for early access holders — contact us. Keys
+are managed in Dashboard → API keys.
 
 > Live payment flows can only be verified end-to-end against a real merchant
-> account (this repo's CI/sandbox can't reach the payment APIs). The plan
+> account (this repo's CI/sandbox can't reach the payment APIs). Plan
 > mapping, webhook signature verification, and event handling are covered by
-> offline unit tests, but do a sandbox test transaction before going live.
-
----
-
-## API
-
-Create a key in **Dashboard → API keys**, then:
-
-```bash
-curl -X POST http://localhost:3000/api/v1/classify \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "product_name": "Men'\''s cotton t-shirt",
-    "product_description": "100% cotton knitted short-sleeve t-shirt",
-    "material_composition": "100% cotton",
-    "intended_use": "apparel",
-    "origin_country": "TR",
-    "destination_country": "DE",
-    "declared_value": 1200,
-    "currency": "EUR"
-  }'
-```
-
-Other endpoints:
-
-- `GET  /api/v1/classifications/:id` — fetch a stored classification.
-- `POST /api/v1/classifications/:id/feedback` — submit broker/customs feedback:
-  `{ "actual_code": "6109.10", "was_correct": true, "broker_notes": "..." }`
-
-Every API classification is metered as a `usage_event` and counts toward the
-organization's monthly plan limit (Free 10 · Starter 100 · Growth 1,000 · …).
-
----
-
-## Deployment (Vercel)
-
-1. Import the repo into Vercel.
-2. Add the environment variables above.
-3. Run the Supabase migrations against your project.
-4. Deploy. (No microservices — a single Next.js app.)
-
----
-
-## Compliance
-
-TariffOS outputs **recommendations, not legal advice**. High-risk categories and
-low-confidence results are flagged for human review. Duty/tax figures are
-placeholders until an official tariff adapter is connected. Final classification
-and duty treatment must be confirmed by a qualified customs broker or authority.
+> offline unit tests — do a sandbox transaction before going live.

@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { redirectIfAuthenticated } from "../guard";
 import { getI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "Log in — TariffOS" };
+export const metadata = { title: "Log in — Kustaro" };
 
 export default async function LoginPage() {
   if (await redirectIfAuthenticated()) redirect("/dashboard");

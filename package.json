@@ -1,5 +1,5 @@
 {
-  "name": "tariffos",
+  "name": "kustaro",
   "version": "0.1.0",
   "private": true,
   "description": "AI-native customs/tariff classification and landed-cost recommendation platform.",

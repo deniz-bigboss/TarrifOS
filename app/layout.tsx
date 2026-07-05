@@ -15,12 +15,29 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TariffOS — AI shipping operations agent",
+  title: {
+    default: "Kustaro — Classify products for customs before they ship",
+    template: "%s | Kustaro",
+  },
   description:
-    "TariffOS turns product facts into HS code recommendations, document checklists, compliance checkpoints, cost-saving actions, and shipment execution plans — for importers and exporters on any lane worldwide.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ),
+    "Kustaro is a self-serve customs-readiness workspace: generate HS-code candidates, missing-information questions, document checklists, risk flags, and customs-readiness reports directly in your browser.",
+  metadataBase: new URL("https://kustaro.com"),
+  alternates: { canonical: "/" },
+  applicationName: "Kustaro",
+  openGraph: {
+    title: "Kustaro — Classify products for customs before they ship",
+    description:
+      "HS-code candidates, missing-information questions, document checklists, risk flags, and customs-readiness reports — directly in your browser.",
+    url: "https://kustaro.com",
+    siteName: "Kustaro",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kustaro — Classify products for customs before they ship",
+    description:
+      "Self-serve customs-readiness workspace for importers, exporters, e-commerce brands, and freight teams.",
+  },
 };
 
 export default function RootLayout({

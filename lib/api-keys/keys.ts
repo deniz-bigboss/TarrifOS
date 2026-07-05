@@ -1,6 +1,8 @@
 import { createHash, randomBytes } from "crypto";
 
-const KEY_PREFIX = "tariffos_sk_";
+const KEY_PREFIX = "kustaro_sk_";
+// Keys issued before the Kustaro rebrand keep working.
+const LEGACY_KEY_PREFIX = "tariffos_sk_";
 
 export interface GeneratedApiKey {
   /** Full plaintext key — shown to the user exactly once. */

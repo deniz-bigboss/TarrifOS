@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button";
 import type { ClassificationResult, ProductInput } from "@/types";
 import { toMarkdown, toPlainText, type ReportContext } from "@/lib/export/report";
 
+import type { ReadinessBreakdown } from "@/lib/scoring/readiness";
+
 interface ExportButtonsProps {
   input: ProductInput;
   result: ClassificationResult;
   classificationId: string;
   createdAt?: string;
+  readiness?: ReadinessBreakdown;
 }
 
 export function ExportButtons({
@@ -18,10 +21,11 @@ export function ExportButtons({
   result,
   classificationId,
   createdAt,
+  readiness,
 }: ExportButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const ctx: ReportContext = { input, result, classificationId, createdAt };
+  const ctx: ReportContext = { input, result, classificationId, createdAt, readiness };
 
   function download(filename: string, content: string, type: string) {
     const blob = new Blob([content], { type });
@@ -50,7 +54,7 @@ export function ExportButtons({
         size="sm"
         onClick={() =>
           download(
-            `tariffos-${classificationId}.md`,
+            `kustaro-${classificationId}.md`,
             toMarkdown(ctx),
             "text/markdown",
           )
@@ -63,8 +67,8 @@ export function ExportButtons({
         size="sm"
         onClick={() =>
           download(
-            `tariffos-${classificationId}.json`,
-            JSON.stringify({ classification_id: classificationId, input, result }, null, 2),
+            `kustaro-${classificationId}.json`,
+            JSON.stringify({ classification_id: classificationId, input, result, customs_readiness: readiness ?? null }, null, 2),
             "application/json",
           )
         }

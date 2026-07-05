@@ -15,10 +15,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { productInputSchema, type ProductInputSchema } from "@/lib/validation/schemas";
-import {
-  createClassificationAction,
-  lookupProductAction,
-} from "@/app/dashboard/classifications/actions";
+import { lookupProductAction } from "@/app/dashboard/classifications/actions";
+import { classifyAction, type GuestClassification } from "@/app/classify/actions";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +64,18 @@ function CountryOptions() {
   );
 }
 
-const STEPS = ["Product", "Trade lane", "Documents", "Review"] as const;
+const STEP_COUNT = 5;
+
+const PRODUCT_FLAGS = [
+  "is_textile",
+  "is_electronics",
+  "contains_battery",
+  "is_food",
+  "is_cosmetic",
+  "is_medical_or_health_related",
+  "is_chemical",
+  "is_dual_use_or_restricted",
+] as const;
 
 const DEMO_TSHIRT: Partial<ProductInputSchema> = {
   product_name: "Men's short-sleeve knitted t-shirt",
@@ -74,6 +83,7 @@ const DEMO_TSHIRT: Partial<ProductInputSchema> = {
   material_composition: "100% cotton",
   intended_use: "apparel",
   category: "apparel",
+  is_textile: true,
   origin_country: "TR",
   destination_country: "DE",
   declared_value: 1200,
@@ -89,6 +99,8 @@ const DEMO_BATTERY: Partial<ProductInputSchema> = {
   material_composition: "lithium-ion cells, plastic housing",
   intended_use: "e-bike power supply",
   category: "batteries",
+  is_electronics: true,
+  contains_battery: true,
   origin_country: "CN",
   destination_country: "GB",
   declared_value: 8000,
@@ -99,17 +111,30 @@ const DEMO_BATTERY: Partial<ProductInputSchema> = {
 
 type QuickFindStatus = "idle" | "loading" | "found" | "not_found" | "error";
 
-export function ClassificationWizard({ t }: { t: WizardMessages }) {
+export function ClassificationWizard({
+  t,
+  mode = "authed",
+  initialValues,
+  onGuestResult,
+}: {
+  t: WizardMessages;
+  /** "guest" renders the no-signup flow: one free classification, result inline. */
+  mode?: "guest" | "authed";
+  /** Prefill (reclassify from the SKU library). */
+  initialValues?: Partial<ProductInputSchema>;
+  /** Guest flow: called with the in-memory result instead of navigating. */
+  onGuestResult?: (data: GuestClassification) => void;
+}) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [files, setFiles] = useState<{ name: string; type: string }[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [confirmNudge, setConfirmNudge] = useState(false);
 
-  // Quick Find: when on, the user types a brand/model into one field and we
-  // auto-fill the rest from a lookup instead of manual entry. Fields stay
-  // locked only until a lookup resolves; once matched, they unlock so the
-  // user can edit, and an explicit confirmation is required before Continue.
+  // Quick Find: type a brand/model, we fill the rest from a lookup. Only for
+  // signed-in users (the lookup needs a session).
   const [quickFindOn, setQuickFindOn] = useState(false);
   const [quickFindQuery, setQuickFindQuery] = useState("");
   const [quickFindStatus, setQuickFindStatus] = useState<QuickFindStatus>("idle");
@@ -124,15 +149,13 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
       origin_country: "TR",
       destination_country: "DE",
       currency: "EUR",
+      ...initialValues,
     },
     mode: "onTouched",
   });
 
   const { register, handleSubmit, trigger, formState, setValue, watch } = form;
 
-  // A truck can't cross an ocean: watch the lane so the Road option can be
-  // disabled (and auto-cleared) when origin and destination aren't on the
-  // same landmass.
   const originCountry = watch("origin_country");
   const destinationCountry = watch("destination_country");
   const shippingMethod = watch("shipping_method");
@@ -144,9 +167,6 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
     }
   }, [roadOk, shippingMethod, setValue]);
 
-  // Debounced Quick Find lookup — fires QUICK_FIND_DEBOUNCE_MS after typing
-  // stops, fills the form fields on a confident match, and is honest (not a
-  // fabricated guess) when nothing is recognized.
   const quickFindToken = useRef(0);
   useEffect(() => {
     if (!quickFindOn) return;
@@ -176,9 +196,6 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
       const data = result.data;
       if (!data.found) {
         setQuickFindStatus("not_found");
-        // Distinguish "the AI couldn't identify this product" from "the AI
-        // was unreachable (quota/rate limit) and only the offline list ran" —
-        // without this, quota exhaustion looks like the product not existing.
         setQuickFindMessage(
           data.degraded_reason
             ? `${data.degraded_reason} Try again in a minute, or turn off Quick Find to enter details manually.`
@@ -193,9 +210,7 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
       if (data.intended_use) setValue("intended_use", data.intended_use);
       if (data.category) setValue("category", data.category, { shouldValidate: true });
       if (data.brand) setValue("brand", data.brand);
-      if (data.model) setValue("sku", data.model);
-      // Unit weight lives on the Trade lane step; pre-fill it too (estimate —
-      // the user reviews it there before submitting).
+      if (data.model) setValue("model", data.model);
       if (data.unit_weight_kg != null) setValue("unit_weight", data.unit_weight_kg);
 
       setQuickFindStatus("found");
@@ -218,11 +233,8 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
     if (!on) setQuickFindQuery("");
   }
 
-  // Fields lock only while we don't yet have a resolved lookup — once a
-  // search finishes (found, not found, or errored) they unlock so the user
-  // can freely edit or type manually. NOT the native `disabled` attribute —
-  // React Hook Form excludes disabled fields from validation entirely.
-  const fieldsLocked = quickFindOn && (quickFindStatus === "idle" || quickFindStatus === "loading");
+  const fieldsLocked =
+    quickFindOn && (quickFindStatus === "idle" || quickFindStatus === "loading");
   const lockedFieldProps = fieldsLocked
     ? {
         readOnly: true,
@@ -245,13 +257,14 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
     }
 
     const fieldsByStep: (keyof ProductInputSchema)[][] = [
-      ["product_name", "product_description", "material_composition", "intended_use", "category"],
+      ["product_name", "product_description", "sku", "brand", "model"],
+      ["material_composition", "intended_use", "category"],
       ["origin_country", "destination_country", "shipping_method", "declared_value", "currency"],
       [],
       [],
     ];
     const valid = await trigger(fieldsByStep[step]);
-    if (valid) setStep((s) => Math.min(s + 1, STEPS.length - 1));
+    if (valid) setStep((s) => Math.min(s + 1, STEP_COUNT - 1));
   }
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -263,15 +276,24 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
   }
 
   async function onSubmit(values: ProductInputSchema) {
+    if (!confirmed) {
+      setConfirmNudge(true);
+      return;
+    }
     setSubmitting(true);
     setServerError(null);
-    const result = await createClassificationAction(values);
-    if (result.ok) {
-      router.push(`/dashboard/classifications/${result.data.id}`);
-    } else {
+    const result = await classifyAction(values);
+    if (!result.ok) {
       setServerError(result.error);
       setSubmitting(false);
+      return;
     }
+    if (result.data.kind === "saved") {
+      router.push(`/dashboard/classifications/${result.data.id}`);
+      return;
+    }
+    onGuestResult?.(result.data.data);
+    setSubmitting(false);
   }
 
   return (
@@ -298,16 +320,14 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
             >
               {label}
             </span>
-            {i < STEPS.length - 1 && (
-              <div className="h-px flex-1 bg-border" />
-            )}
+            {i < STEP_COUNT - 1 && <div className="h-px flex-1 bg-border" />}
           </div>
         ))}
       </div>
 
       <Card>
         <CardContent className="space-y-5 pt-6">
-          {/* Step 0 — Product basics */}
+          {/* Step 0 — Product identity */}
           {step === 0 && (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -329,16 +349,18 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2.5">
-                  <span className="text-sm font-medium" id="quick-find-label">
-                    {t.quickFind}
-                  </span>
-                  <Switch
-                    aria-labelledby="quick-find-label"
-                    checked={quickFindOn}
-                    onChange={(e) => toggleQuickFind(e.target.checked)}
-                  />
-                </div>
+                {mode === "authed" && (
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-sm font-medium" id="quick-find-label">
+                      {t.quickFind}
+                    </span>
+                    <Switch
+                      aria-labelledby="quick-find-label"
+                      checked={quickFindOn}
+                      onChange={(e) => toggleQuickFind(e.target.checked)}
+                    />
+                  </div>
+                )}
               </div>
 
               {quickFindOn ? (
@@ -404,14 +426,6 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
                 </div>
               ) : null}
 
-              {/*
-                Locked fields use readOnly + pointer-events-none + tabIndex=-1
-                instead of the native `disabled` attribute. React Hook Form
-                excludes disabled fields from validation/values entirely, which
-                would silently block submission even after Quick Find fills
-                them in — readOnly keeps the values valid while still blocking
-                user edits.
-              */}
               <div className="space-y-5">
                 <Field
                   label={t.fields.productName}
@@ -438,52 +452,64 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
                     {...lockedFieldProps}
                   />
                 </Field>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={t.fields.material} optionalLabel={t.optional}>
-                    <Input
-                      {...register("material_composition")}
-                      placeholder="100% cotton"
-                      {...lockedFieldProps}
-                    />
-                  </Field>
-                  <Field label={t.fields.intendedUse} optionalLabel={t.optional}>
-                    <Input
-                      {...register("intended_use")}
-                      placeholder="apparel"
-                      {...lockedFieldProps}
-                    />
-                  </Field>
-                </div>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <Field label={t.fields.category} optionalLabel={t.optional}>
-                    <Select {...register("category")} {...lockedFieldProps}>
-                      <option value="">{t.select}</option>
-                      {CATEGORIES.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </Select>
+                  <Field label={t.fields.sku} optionalLabel={t.optional}>
+                    <Input {...register("sku")} placeholder="TS-001" {...lockedFieldProps} />
                   </Field>
                   <Field label={t.fields.brand} optionalLabel={t.optional}>
-                    <Input
-                      {...register("brand")}
-                      placeholder="Acme"
-                      {...lockedFieldProps}
-                    />
+                    <Input {...register("brand")} placeholder="Acme" {...lockedFieldProps} />
                   </Field>
-                  <Field label={t.fields.sku} optionalLabel={t.optional}>
-                    <Input
-                      {...register("sku")}
-                      placeholder="TS-001"
-                      {...lockedFieldProps}
-                    />
+                  <Field label={t.fields.model} optionalLabel={t.optional}>
+                    <Input {...register("model")} placeholder="V2" {...lockedFieldProps} />
                   </Field>
                 </div>
               </div>
             </>
           )}
 
-          {/* Step 1 — Trade lane */}
+          {/* Step 1 — Product facts */}
           {step === 1 && (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t.fields.material} optionalLabel={t.optional}>
+                  <Input {...register("material_composition")} placeholder="100% cotton" />
+                </Field>
+                <Field label={t.fields.intendedUse} optionalLabel={t.optional}>
+                  <Input {...register("intended_use")} placeholder="apparel" />
+                </Field>
+              </div>
+              <Field label={t.fields.category} optionalLabel={t.optional}>
+                <Select {...register("category")}>
+                  <option value="">{t.select}</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </Select>
+              </Field>
+              <div>
+                <p className="mb-2 text-sm font-medium">{t.factsIntro}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {PRODUCT_FLAGS.map((flag) => (
+                    <label
+                      key={flag}
+                      className="flex items-start gap-2 rounded-md border bg-card px-3 py-2 text-sm hover:bg-muted/40"
+                    >
+                      <input
+                        type="checkbox"
+                        {...register(flag)}
+                        className="mt-0.5 h-4 w-4 rounded border-input"
+                      />
+                      <span>{t.flags[flag]}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">{t.factsHint}</p>
+              </div>
+            </>
+          )}
+
+          {/* Step 2 — Trade lane */}
+          {step === 2 && (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
@@ -556,11 +582,33 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
             </>
           )}
 
-          {/* Step 2 — Documents (optional, placeholder) */}
-          {step === 2 && (
+          {/* Step 3 — Documents (optional) */}
+          {step === 3 && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">{t.documentsIntro}</p>
-              <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-muted/30 p-8 text-center hover:bg-muted/50">
+              <Field label={t.fields.invoiceText} optionalLabel={t.optional}>
+                <Textarea
+                  {...register("invoice_text")}
+                  rows={3}
+                  placeholder={t.invoicePlaceholder}
+                />
+              </Field>
+              <Field label={t.fields.specText} optionalLabel={t.optional}>
+                <Textarea
+                  {...register("product_spec_text")}
+                  rows={3}
+                  placeholder={t.specPlaceholder}
+                />
+              </Field>
+              <label className="flex items-start gap-2 rounded-md border bg-card px-3 py-2 text-sm hover:bg-muted/40">
+                <input
+                  type="checkbox"
+                  {...register("certificate_of_origin_available")}
+                  className="mt-0.5 h-4 w-4 rounded border-input"
+                />
+                <span>{t.fields.certificate}</span>
+              </label>
+              <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-muted/30 p-6 text-center hover:bg-muted/50">
                 <FileUp className="h-6 w-6 text-muted-foreground" />
                 <span className="text-sm font-medium">{t.clickToSelect}</span>
                 <span className="text-xs text-muted-foreground">{t.fileTypes}</span>
@@ -590,8 +638,8 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
             </div>
           )}
 
-          {/* Step 3 — Review */}
-          {step === 3 && (
+          {/* Step 4 — Generate (review + confirmation) */}
+          {step === 4 && (
             <div className="space-y-4">
               <h3 className="font-semibold">{t.reviewTitle}</h3>
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
@@ -615,11 +663,35 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
                       : "—"
                   }
                 />
-                <Review label={t.reviewDocuments} value={String(files.length)} />
+                <Review
+                  label={t.reviewFlags}
+                  value={
+                    PRODUCT_FLAGS.filter((f) => watch(f))
+                      .map((f) => t.flags[f])
+                      .join(", ") || "—"
+                  }
+                />
               </dl>
               <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
                 {t.reviewNote}
               </p>
+              <label className="flex items-start gap-2 rounded-md border border-primary/30 bg-accent/30 px-3 py-2.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  onChange={(e) => {
+                    setConfirmed(e.target.checked);
+                    if (e.target.checked) setConfirmNudge(false);
+                  }}
+                  className="mt-0.5 h-4 w-4 rounded border-input"
+                />
+                <span>{t.confirmRecommendation}</span>
+              </label>
+              {confirmNudge && !confirmed && (
+                <p className="flex items-center gap-1.5 text-xs text-destructive">
+                  <AlertCircle className="h-3.5 w-3.5" /> {t.confirmNudge}
+                </p>
+              )}
               {serverError && (
                 <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
                   {serverError}
@@ -641,7 +713,7 @@ export function ClassificationWizard({ t }: { t: WizardMessages }) {
           <ArrowLeft className="h-4 w-4" /> {t.back}
         </Button>
 
-        {step < STEPS.length - 1 ? (
+        {step < STEP_COUNT - 1 ? (
           <Button type="button" onClick={next}>
             {t.continue} <ArrowRight className="h-4 w-4" />
           </Button>
@@ -667,9 +739,7 @@ function Field({
   label: string;
   error?: string;
   required?: boolean;
-  /** One-line explanation shown under the input. */
   hint?: string;
-  /** Localized "(optional)" tag. */
   optionalLabel?: string;
   children: React.ReactNode;
 }) {

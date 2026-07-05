@@ -27,7 +27,7 @@ const rows = SEED_TARIFF_CODES.map((c) => {
 }).join(",\n");
 
 const sql = `-- ===========================================================================
--- TariffOS — tariff_codes seed (generated from lib/tariff-data/seed-data.ts)
+-- Kustaro — tariff_codes seed (generated from lib/tariff-data/seed-data.ts)
 -- Regenerate with: npm run seed:sql
 -- ===========================================================================
 

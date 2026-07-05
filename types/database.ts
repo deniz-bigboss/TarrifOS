@@ -3,7 +3,7 @@
 // (For a larger project you would generate these with `supabase gen types`.)
 // ---------------------------------------------------------------------------
 
-export type PlanId = "free" | "starter" | "growth" | "forwarder" | "enterprise";
+export type PlanId = "free" | "starter" | "pro" | "business" | "forwarder";
 
 export interface OrganizationRow {
   id: string;
@@ -45,6 +45,7 @@ export interface ClassificationRequestRow {
   quantity: number | null;
   unit_weight: number | null;
   shipping_method: string | null;
+  extra_input: Record<string, unknown> | null;
   status: string;
   created_at: string;
 }
@@ -138,6 +139,26 @@ export interface FeedbackLabelRow {
   shipment_cleared: boolean | null;
   delay_occurred: boolean | null;
   penalty_occurred: boolean | null;
+  created_at: string;
+}
+
+export interface ProductRow {
+  id: string;
+  organization_id: string;
+  created_by: string | null;
+  product_name: string;
+  sku: string | null;
+  description: string | null;
+  material_composition: string | null;
+  intended_use: string | null;
+  category: string | null;
+  origin_country: string | null;
+  last_destination_country: string | null;
+  extra_input: Record<string, unknown> | null;
+  latest_recommended_code: string | null;
+  latest_confidence: number | null;
+  latest_readiness_score: number | null;
+  last_classified_at: string | null;
   created_at: string;
 }
 

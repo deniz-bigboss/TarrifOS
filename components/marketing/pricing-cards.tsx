@@ -10,7 +10,6 @@ function cadenceFor(
   planId: PlanId,
   t: { perMonth: string; starting: string },
 ): string {
-  if (planId === "enterprise") return "";
   if (planId === "forwarder") return `${t.perMonth} ${t.starting}`;
   return t.perMonth;
 }
@@ -28,7 +27,7 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
             key={plan.id}
             className={cn(
               "flex flex-col rounded-lg border border-border bg-white p-5 shadow-sm dark:bg-slate-900",
-              plan.highlight && "card-shadow border-emerald-300 ring-1 ring-emerald-200",
+              plan.highlight && "card-shadow border-primary/40 ring-1 ring-primary/30",
             )}
           >
             <div className="space-y-2">
@@ -37,7 +36,7 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
                   {plan.name}
                 </h3>
                 {plan.highlight && (
-                  <span className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300">
+                  <span className="inline-flex items-center rounded-md border border-primary/30 bg-accent px-2 py-1 text-xs font-medium text-primary">
                     {t.pricing.mostPopular}
                   </span>
                 )}
@@ -58,7 +57,7 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
               <ul className="space-y-2 text-sm text-slate-800 dark:text-slate-200">
                 {copy.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -69,7 +68,7 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
                   className={cn(
                     "inline-flex h-10 w-full items-center justify-center rounded-md px-4 text-sm font-medium shadow-sm transition-colors",
                     plan.highlight
-                      ? "bg-emerald-700 text-white hover:bg-emerald-800"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
                       : "border border-border bg-white text-slate-900 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800",
                   )}
                 >

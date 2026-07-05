@@ -13,9 +13,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Slate neutrals + blue primary, emerald/amber/red severity accents —
-       matches the operations-console design language of the result page. */
-    --primary: 221 83% 53%; /* blue-600 */
+    /* Kustaro: slate neutrals + teal-blue primary, emerald/amber/red kept
+       as severity semantics (success/warning/danger). */
+    --primary: 192 91% 30%; /* cyan-800 — Kustaro teal-blue */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%; /* slate-100 */
@@ -24,8 +24,8 @@
     --muted: 210 40% 98%; /* slate-50 */
     --muted-foreground: 215 19% 35%; /* slate-600 */
 
-    --accent: 152 76% 96%; /* emerald-50 — agent/positive accent */
-    --accent-foreground: 161 94% 24%; /* emerald-700 */
+    --accent: 187 92% 95%; /* cyan-50 — brand accent surface */
+    --accent-foreground: 192 91% 30%; /* cyan-800 */
 
     --destructive: 0 74% 50%; /* red-600 */
     --destructive-foreground: 0 0% 100%;
@@ -38,7 +38,7 @@
 
     --border: 213 27% 90%; /* slate-200 */
     --input: 213 27% 90%;
-    --ring: 221 83% 53%;
+    --ring: 192 91% 30%;
 
     --radius: 0.5rem;
   }
@@ -56,7 +56,7 @@
     --popover: 222 44% 10%;
     --popover-foreground: 210 40% 96%;
 
-    --primary: 217 91% 60%; /* blue-500 pops better on dark */
+    --primary: 187 85% 43%; /* cyan-500 pops better on dark */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217 33% 16%; /* slate-800 */
@@ -65,8 +65,8 @@
     --muted: 218 35% 13%;
     --muted-foreground: 215 20% 68%; /* slate-400 */
 
-    --accent: 160 60% 10%; /* deep emerald */
-    --accent-foreground: 156 72% 67%; /* emerald-300 */
+    --accent: 192 70% 12%; /* deep teal */
+    --accent-foreground: 187 80% 65%; /* cyan-300 */
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -79,7 +79,7 @@
 
     --border: 217 33% 20%;
     --input: 217 33% 20%;
-    --ring: 217 91% 60%;
+    --ring: 187 85% 43%;
   }
 }
 

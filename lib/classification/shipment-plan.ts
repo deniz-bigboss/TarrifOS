@@ -477,7 +477,7 @@ function buildSummary(
   }
 
   return (
-    `TariffOS is treating this as a ${lane} shipment plan for ${input.product_name}. ` +
+    `Kustaro is treating this as a ${lane} shipment plan for ${input.product_name}. ` +
     `The working classification is ${result.recommended_code || "not yet confirmed"}${result.recommended_title ? ` (${result.recommended_title})` : ""}. ` +
     `Top priority: ${topPriority}.` +
     (bits.length ? ` ${bits.join("; ")}.` : "")

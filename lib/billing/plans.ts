@@ -15,6 +15,10 @@ export interface Plan {
   cta: string;
 }
 
+/**
+ * Kustaro self-serve credit plans. A "classification" is one credit; limits
+ * reset each calendar month (see lib/billing/limits.ts).
+ */
 export const PLANS: Record<PlanId, Plan> = {
   free: {
     id: "free",
@@ -22,102 +26,107 @@ export const PLANS: Record<PlanId, Plan> = {
     price: "$0",
     priceValue: 0,
     cadence: "/month",
-    monthlyLimit: 10,
+    monthlyLimit: 3,
     apiAccess: false,
-    description: "Try TariffOS with manual classifications.",
+    description: "Try Kustaro on your first products.",
     features: [
-      "10 classifications / month",
-      "Manual entry only",
+      "3 classifications / month",
+      "Guided classification wizard",
+      "Customs-readiness score",
       "Basic export (Markdown / JSON)",
-      "Single user",
     ],
     cta: "Start free",
   },
   starter: {
     id: "starter",
     name: "Starter",
-    price: "$99",
-    priceValue: 99,
+    price: "$19",
+    priceValue: 19,
     cadence: "/month",
-    monthlyLimit: 100,
+    monthlyLimit: 50,
     apiAccess: false,
-    description: "For small importers shipping repeat SKUs.",
+    description: "For small importers with repeat SKUs.",
     features: [
-      "100 classifications / month",
+      "50 classifications / month",
+      "Saved SKU library",
       "Classification history",
       "Export reports",
-      "Basic email support",
     ],
     cta: "Choose Starter",
   },
-  growth: {
-    id: "growth",
-    name: "Growth",
-    price: "$499",
-    priceValue: 499,
+  pro: {
+    id: "pro",
+    name: "Pro",
+    price: "$49",
+    priceValue: 49,
+    cadence: "/month",
+    monthlyLimit: 250,
+    apiAccess: false,
+    highlight: true,
+    description: "For growing brands classifying at volume.",
+    features: [
+      "250 classifications / month",
+      "Bulk upload (beta)",
+      "PDF / CSV exports",
+      "Classification history",
+      "Saved SKU library",
+    ],
+    cta: "Choose Pro",
+  },
+  business: {
+    id: "business",
+    name: "Business",
+    price: "$149",
+    priceValue: 149,
     cadence: "/month",
     monthlyLimit: 1000,
     apiAccess: true,
-    highlight: true,
-    description: "For scaling brands and teams that need the API.",
+    description: "For teams that classify every shipment.",
     features: [
       "1,000 classifications / month",
-      "API access",
-      "Document uploads",
       "Team workspace",
-      "Feedback & learning loop",
+      "API access",
+      "Priority limits",
+      "Bulk upload (beta)",
     ],
-    cta: "Choose Growth",
+    cta: "Choose Business",
   },
   forwarder: {
     id: "forwarder",
     name: "Forwarder",
-    price: "$1,500",
-    priceValue: 1500,
-    cadence: "/month starting",
-    monthlyLimit: 5000,
-    apiAccess: true,
-    description: "For freight forwarders and brokers at volume.",
-    features: [
-      "5,000+ classifications / month",
-      "API access",
-      "Custom workflows",
-      "Priority review queue",
-      "Onboarding support",
-    ],
-    cta: "Talk to sales",
-  },
-  enterprise: {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Custom",
+    price: "$499+",
     priceValue: null,
-    cadence: "",
+    cadence: "/month starting",
     monthlyLimit: null,
     apiAccess: true,
-    description: "For organizations with custom data and compliance needs.",
+    description: "For forwarders and brokers at custom volume.",
     features: [
-      "Custom tariff-data adapters",
-      "SSO & audit logs",
-      "SLA & dedicated support",
       "Custom volume",
+      "Team workspace",
+      "API access",
+      "Custom workflows",
+      "Onboarding support",
     ],
-    cta: "Contact us",
+    cta: "Talk to us",
   },
 };
 
 export const PLAN_ORDER: PlanId[] = [
   "free",
   "starter",
-  "growth",
+  "pro",
+  "business",
   "forwarder",
-  "enterprise",
 ];
 
 export function getPlan(planId: string | null | undefined): Plan {
   return PLANS[(planId as PlanId) ?? "free"] ?? PLANS.free;
 }
 
-/** Usage-based API pricing placeholder copy. */
+/** Contact for sales-led plans and manual/invoice payment while self-serve
+ * billing is being configured. */
+export const SALES_CONTACT_EMAIL = "deniz@terra-reform.org";
+
+/** Usage-based API pricing placeholder copy (API is waitlist/future). */
 export const API_USAGE_PRICING =
-  "$0.20–$2.00 per classification depending on volume and enrichment level.";
+  "The Kustaro API is in a private waitlist — contact us for early access.";

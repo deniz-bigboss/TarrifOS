@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// TariffOS domain types
+// Kustaro domain types
 // These are the canonical shapes used across the AI engine, tariff-data
 // adapters, API routes and UI. Database row shapes live in types/database.ts.
 // ---------------------------------------------------------------------------
@@ -63,8 +63,20 @@ export interface Restriction {
   severity: "info" | "warning" | "critical";
 }
 
+/** Product-fact flags collected by the wizard (all optional). */
+export interface ProductFlags {
+  is_textile?: boolean;
+  is_electronics?: boolean;
+  contains_battery?: boolean;
+  is_food?: boolean;
+  is_cosmetic?: boolean;
+  is_medical_or_health_related?: boolean;
+  is_chemical?: boolean;
+  is_dual_use_or_restricted?: boolean;
+}
+
 /** The structured product input to the classification pipeline. */
-export interface ProductInput {
+export interface ProductInput extends ProductFlags {
   product_name: string;
   product_description: string;
   material_composition?: string | null;
@@ -82,6 +94,11 @@ export interface ProductInput {
   quantity?: number | null;
   unit_weight?: number | null;
   shipping_method?: string | null;
+  /** Pasted commercial-invoice text (optional, documents step). */
+  invoice_text?: string | null;
+  /** Pasted product spec text (optional, documents step). */
+  product_spec_text?: string | null;
+  certificate_of_origin_available?: boolean;
 }
 
 /** Normalized form of the product input (stage 1 output). */

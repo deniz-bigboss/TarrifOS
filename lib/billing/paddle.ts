@@ -11,11 +11,11 @@ import type { PlanId } from "@/types/database";
  *   NEXT_PUBLIC_PADDLE_CLIENT_TOKEN   test_... / live_...  (Paddle.js checkout)
  *   PADDLE_API_KEY                    pdl_sdmy_apikey_... / pdl_live_apikey_...
  *   PADDLE_WEBHOOK_SECRET             pdl_ntfset_... (notification destination)
- *   PADDLE_PRICE_STARTER/_GROWTH/_FORWARDER   pri_... (monthly recurring)
+ *   PADDLE_PRICE_STARTER/_PRO/_BUSINESS   pri_... (monthly recurring)
  *   PADDLE_ENV                        sandbox | production (auto-detected from
  *                                     the client token prefix when unset)
  *
- * Free needs no price (downgrade = cancel) and Enterprise is sales-led, so
+ * Free needs no price (downgrade = cancel) and Forwarder is sales-led, so
  * neither has a checkout price.
  */
 
@@ -38,16 +38,16 @@ const API_BASE: Record<"sandbox" | "production", string> = {
 };
 
 /** Plans purchasable through Paddle checkout (paid, self-serve). */
-export const PADDLE_PLANS: PlanId[] = ["starter", "growth", "forwarder"];
+export const PADDLE_PLANS: PlanId[] = ["starter", "pro", "business"];
 
 export function paddlePriceIdForPlan(planId: PlanId): string | null {
   switch (planId) {
     case "starter":
       return process.env.PADDLE_PRICE_STARTER || null;
-    case "growth":
-      return process.env.PADDLE_PRICE_GROWTH || null;
-    case "forwarder":
-      return process.env.PADDLE_PRICE_FORWARDER || null;
+    case "pro":
+      return process.env.PADDLE_PRICE_PRO || null;
+    case "business":
+      return process.env.PADDLE_PRICE_BUSINESS || null;
     default:
       return null;
   }
@@ -59,8 +59,8 @@ export function planFromPaddlePriceId(
 ): PlanId | null {
   if (!priceId) return null;
   if (priceId === process.env.PADDLE_PRICE_STARTER) return "starter";
-  if (priceId === process.env.PADDLE_PRICE_GROWTH) return "growth";
-  if (priceId === process.env.PADDLE_PRICE_FORWARDER) return "forwarder";
+  if (priceId === process.env.PADDLE_PRICE_PRO) return "pro";
+  if (priceId === process.env.PADDLE_PRICE_BUSINESS) return "business";
   return null;
 }
 

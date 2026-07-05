@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { KustaroMark } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { getI18n } from "@/lib/i18n/server";
@@ -12,8 +13,8 @@ export function OverlayHeader() {
   return (
     <header className="absolute inset-x-0 top-0 z-30">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
-        <Link href="/" className="text-base font-semibold text-white">
-          TariffOS
+        <Link href="/" className="inline-flex items-center gap-2 text-base font-semibold text-white">
+          <KustaroMark className="h-6 w-6" /> Kustaro
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-white/85 md:flex">
           <a href="/#workflow" className="hover:text-white">{t.nav.workflow}</a>

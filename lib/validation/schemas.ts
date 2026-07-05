@@ -48,6 +48,19 @@ export const productInputSchema = z.object({
   quantity: optionalNumber,
   unit_weight: optionalNumber,
   shipping_method: optionalString,
+  // Product-fact flags (wizard step 2).
+  is_textile: z.boolean().optional(),
+  is_electronics: z.boolean().optional(),
+  contains_battery: z.boolean().optional(),
+  is_food: z.boolean().optional(),
+  is_cosmetic: z.boolean().optional(),
+  is_medical_or_health_related: z.boolean().optional(),
+  is_chemical: z.boolean().optional(),
+  is_dual_use_or_restricted: z.boolean().optional(),
+  // Documents step (all optional).
+  invoice_text: optionalString,
+  product_spec_text: optionalString,
+  certificate_of_origin_available: z.boolean().optional(),
 }).superRefine((val, ctx) => {
   // A truck can't cross an ocean: reject road freight between countries that
   // aren't on the same landmass. Runs after field parsing so origin/

@@ -28,12 +28,20 @@ import { ExportButtons } from "./export-buttons";
 import { LaneMap } from "./lane-map";
 import { findDocLink } from "@/lib/documents/doc-links";
 import { countryName, formatCurrency } from "@/lib/utils";
+import { ReadinessCard } from "./readiness-card";
+import type { ReadinessBreakdown } from "@/lib/scoring/readiness";
 
 interface ResultViewProps {
   input: ProductInput;
   result: ClassificationResult;
   classificationId: string;
   createdAt?: string;
+  /** Customs-readiness score breakdown (computed by the caller). */
+  readiness?: ReadinessBreakdown;
+  /** The improve-confidence Q&A panel (client component slot). */
+  improveSlot?: React.ReactNode;
+  /** Save-to-SKU-library / signup CTA slot rendered next to the exports. */
+  actionsSlot?: React.ReactNode;
 }
 
 const PRIORITY_VARIANT: Record<
@@ -55,6 +63,9 @@ export function ResultView({
   result,
   classificationId,
   createdAt,
+  readiness,
+  improveSlot,
+  actionsSlot,
 }: ResultViewProps) {
   const plan = result.shipment_plan;
 
@@ -72,7 +83,7 @@ export function ResultView({
         <Card>
           <CardHeader className="border-b border-border p-5">
             <p className="text-sm text-muted-foreground">
-              Shipment plan for
+              Recommended HS-code candidate
             </p>
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="font-mono text-3xl font-bold tracking-tight text-foreground">
@@ -84,12 +95,16 @@ export function ResultView({
             </div>
           </CardHeader>
           <CardContent className="space-y-5 p-5">
-            <ExportButtons
-              input={input}
-              result={result}
-              classificationId={classificationId}
-              createdAt={createdAt}
-            />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <ExportButtons
+                input={input}
+                result={result}
+                classificationId={classificationId}
+                createdAt={createdAt}
+                readiness={readiness}
+              />
+              {actionsSlot}
+            </div>
             <ConfidenceMeter
               confidence={result.confidence}
               label={result.confidence_label}
@@ -270,6 +285,10 @@ export function ResultView({
         </Card>
       </div>
 
+      {/* ------------------------- Customs-readiness score + improvement */}
+      {readiness && <ReadinessCard readiness={readiness} />}
+      {improveSlot}
+
       {/* -------------------------------------- Shipment execution plan */}
       {plan && (
         <section className="space-y-5">
@@ -282,10 +301,10 @@ export function ResultView({
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-emerald-300">
-                      Shipping operations agent
+                      Kustaro readiness engine
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold text-white">
-                      Shipment execution plan
+                      Customs-readiness action plan
                     </h2>
                     <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
                       {plan.summary}
@@ -657,7 +676,7 @@ export function ResultView({
       {/* Broker-ready explanation */}
       <Card>
         <CardHeader className="border-b border-border p-5">
-          <CardTitle className="text-base">Broker-ready explanation</CardTitle>
+          <CardTitle className="text-base">Explanation for customs review</CardTitle>
         </CardHeader>
         <CardContent className="p-5">
           <div className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">

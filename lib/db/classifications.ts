@@ -17,6 +17,41 @@ export interface PersistArgs {
   input: ProductInput;
   output: ClassificationOutput;
   source: "web" | "api";
+  /** Refinement metadata for the confidence-improvement loop. */
+  extra?: {
+    refined_from?: string;
+    previous_confidence?: number;
+    answered_questions?: Record<string, string>;
+  };
+}
+
+/**
+ * Wizard extras (flags, pasted document text, certificate info) plus
+ * refinement metadata, stored as one jsonb column so the readiness score can
+ * be recomputed from history and refinement versions stay linked.
+ */
+function buildExtraInput(
+  input: ProductInput,
+  extra?: PersistArgs["extra"],
+): Record<string, unknown> | undefined {
+  const flags: Record<string, unknown> = {};
+  for (const key of [
+    "is_textile",
+    "is_electronics",
+    "contains_battery",
+    "is_food",
+    "is_cosmetic",
+    "is_medical_or_health_related",
+    "is_chemical",
+    "is_dual_use_or_restricted",
+    "certificate_of_origin_available",
+  ] as const) {
+    if (input[key] !== undefined) flags[key] = input[key];
+  }
+  if (input.invoice_text) flags.invoice_text = input.invoice_text;
+  if (input.product_spec_text) flags.product_spec_text = input.product_spec_text;
+  const merged = { ...flags, ...(extra ?? {}) };
+  return Object.keys(merged).length > 0 ? merged : undefined;
 }
 
 export interface PersistedClassification {
@@ -61,6 +96,7 @@ export async function persistClassification(
       quantity: input.quantity ?? null,
       unit_weight: input.unit_weight ?? null,
       shipping_method: input.shipping_method ?? null,
+      extra_input: buildExtraInput(input, args.extra) ?? null,
       status,
     })
     .select("id")
@@ -250,6 +286,47 @@ export async function getClassificationDetail(
     result: (result as ClassificationResultRow) ?? null,
     candidates,
     feedback,
+  };
+}
+
+/** Rebuild the pipeline's ProductInput from a stored request row (including
+ * the wizard extras persisted in extra_input) for display, export, readiness
+ * recomputation, and reclassification. */
+export function requestRowToProductInput(
+  request: ClassificationRequestRow,
+): ProductInput {
+  const extra = (request.extra_input ?? {}) as Record<string, unknown>;
+  const flag = (k: string) => (typeof extra[k] === "boolean" ? (extra[k] as boolean) : undefined);
+  return {
+    product_name: request.product_name,
+    product_description: request.product_description ?? "",
+    material_composition: request.material_composition,
+    intended_use: request.intended_use,
+    brand: request.brand,
+    model: request.model,
+    sku: request.sku,
+    category: request.category,
+    supplier_country: request.supplier_country,
+    origin_country: request.origin_country ?? "",
+    destination_country: request.destination_country ?? "",
+    import_or_export: (request.import_or_export as "import" | "export") ?? "import",
+    declared_value: request.declared_value,
+    currency: request.currency,
+    quantity: request.quantity,
+    unit_weight: request.unit_weight,
+    shipping_method: request.shipping_method,
+    is_textile: flag("is_textile"),
+    is_electronics: flag("is_electronics"),
+    contains_battery: flag("contains_battery"),
+    is_food: flag("is_food"),
+    is_cosmetic: flag("is_cosmetic"),
+    is_medical_or_health_related: flag("is_medical_or_health_related"),
+    is_chemical: flag("is_chemical"),
+    is_dual_use_or_restricted: flag("is_dual_use_or_restricted"),
+    certificate_of_origin_available: flag("certificate_of_origin_available"),
+    invoice_text: typeof extra.invoice_text === "string" ? extra.invoice_text : null,
+    product_spec_text:
+      typeof extra.product_spec_text === "string" ? extra.product_spec_text : null,
   };
 }
 

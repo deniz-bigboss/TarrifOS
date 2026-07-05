@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { LegalPage, type LegalSection } from "@/components/marketing/legal-page";
 
-export const metadata: Metadata = { title: "Terms of Service — TariffOS" };
+export const metadata: Metadata = { title: "Terms of Service — Kustaro" };
 
-/* Original terms written for TariffOS's actual functionality. Items marked
+/* Original terms written for Kustaro's actual functionality. Items marked
    [FILL IN] must be completed by the operator before general availability, and
    the whole document should be reviewed by counsel. */
 
@@ -11,13 +11,13 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "1. The service",
     paragraphs: [
-      "TariffOS provides AI-assisted tariff-classification recommendations, duty and landed-cost estimates, document checklists, compliance checkpoints, and shipment execution plans, via the web application and the API. The service is operated by [FILL IN: legal entity name]. By creating an account or using the API you agree to these terms.",
+      "Kustaro provides AI-assisted tariff-classification recommendations, duty and landed-cost estimates, document checklists, compliance checkpoints, and shipment execution plans, via the web application and the API. The service is operated by [FILL IN: legal entity name]. By creating an account or using the API you agree to these terms.",
     ],
   },
   {
     heading: "2. Recommendations, not legal advice",
     paragraphs: [
-      "This is the most important term. TariffOS outputs — including HS code recommendations, duty and additional-tariff estimates, trade-remedy references, document lists, and plans — are recommendations generated from the information you provide and available tariff data. They are not legal, customs, or tax advice, and rates shown may be estimates or dated reference points. You are responsible for confirming the final classification, duty treatment, and declarations with a qualified customs broker or the customs authority before filing. TariffOS is a decision-support tool, not a declarant.",
+      "This is the most important term. Kustaro outputs — including HS code recommendations, duty and additional-tariff estimates, trade-remedy references, document lists, and plans — are recommendations generated from the information you provide and available tariff data. They are not legal, customs, or tax advice, and rates shown may be estimates or dated reference points. You are responsible for confirming the final classification, duty treatment, and declarations with a qualified customs broker or the customs authority before filing. Kustaro is a decision-support tool, not a declarant.",
     ],
   },
   {
@@ -35,7 +35,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "5. Your data and our IP",
     paragraphs: [
-      "You retain all rights to the product information you submit and may export your classification results. We retain all rights to the TariffOS software, models of operation, and interface. You grant us the limited license needed to process your inputs and store your results in order to provide the service, as described in the Privacy Policy.",
+      "You retain all rights to the product information you submit and may export your classification results. We retain all rights to the Kustaro software, models of operation, and interface. You grant us the limited license needed to process your inputs and store your results in order to provide the service, as described in the Privacy Policy.",
     ],
   },
   {

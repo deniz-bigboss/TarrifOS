@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "Classifications — TariffOS" };
+export const metadata = { title: "Classifications — Kustaro" };
 
 export default async function ClassificationsPage() {
   const session = await getSessionContext();
@@ -41,7 +41,7 @@ export default async function ClassificationsPage() {
           <p className="text-sm text-muted-foreground">{t.app.plansSubtitle}</p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/classifications/new">
+          <Link href="/classify">
             <Plus className="h-4 w-4" /> {t.app.sidebar.newPlan}
           </Link>
         </Button>

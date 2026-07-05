@@ -46,10 +46,10 @@ export async function changePlanAction(
 
   const provider = getPaymentProvider();
 
-  if (planId === "enterprise" && provider !== "mock") {
+  if (planId === "forwarder" && provider !== "mock") {
     return {
       ok: false,
-      error: "Enterprise is sales-led — contact us and we'll set it up.",
+      error: "Forwarder is sales-led — contact us and we'll set it up.",
     };
   }
 

@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { redirectIfAuthenticated } from "../guard";
 import { getI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "Sign up — TariffOS" };
+export const metadata = { title: "Sign up — Kustaro" };
 
 export default async function SignupPage() {
   if (await redirectIfAuthenticated()) redirect("/dashboard");

@@ -12,7 +12,7 @@ export default function AuthLayout({
         <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Ship className="h-5 w-5" />
         </span>
-        <span className="text-xl tracking-tight">TariffOS</span>
+        <span className="text-xl tracking-tight">Kustaro</span>
       </Link>
       <div className="w-full max-w-sm rounded-xl border bg-card p-6 shadow-sm sm:p-8">
         {children}

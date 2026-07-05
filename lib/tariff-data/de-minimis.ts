@@ -1,7 +1,7 @@
 import type { DeMinimisNote } from "@/types";
 
 /**
- * De minimis reference notes for destination countries TariffOS targets at
+ * De minimis reference notes for destination countries Kustaro targets at
  * launch. Thresholds change frequently and depend on shipment channel
  * (postal/express/formal entry) — every entry is explicitly a placeholder
  * to verify, not a number to rely on for a filing decision.

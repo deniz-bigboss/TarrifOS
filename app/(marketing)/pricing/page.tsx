@@ -6,7 +6,7 @@ import { PricingCards } from "@/components/marketing/pricing-cards";
 import { getI18n } from "@/lib/i18n/server";
 
 export const metadata: Metadata = {
-  title: "Pricing — TariffOS",
+  title: "Pricing — Kustaro",
 };
 
 const TILE_ICONS = [ReceiptText, Gauge, Layers];

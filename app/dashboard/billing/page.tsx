@@ -7,13 +7,13 @@ import { PlanSelector } from "@/components/billing/plan-selector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlanId } from "@/types/database";
 
-export const metadata = { title: "Billing — TariffOS" };
+export const metadata = { title: "Billing — Kustaro" };
 
 const PROVIDER_LABEL: Record<string, string> = {
   paddle:
     "Payments are processed securely by Paddle, our merchant of record — Paddle handles cards, invoices, and VAT/sales tax worldwide.",
   stripe: "Manage your subscription — payments processed by Stripe.",
-  mock: "No payment provider is configured — plan changes apply directly (demo mode).",
+  mock: "Self-serve checkout is being set up — upgrades are activated manually for now (contact us from any plan button).",
 };
 
 export default async function BillingPage({
@@ -96,6 +96,7 @@ export default async function BillingPage({
         currentPlan={session.organization.plan as PlanId}
         provider={provider}
         hasBillingAccount={hasBillingAccount}
+        demoMode={process.env.PAYMENT_PROVIDER === "mock"}
       />
 
       <p className="text-sm text-muted-foreground">
