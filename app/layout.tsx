@@ -21,14 +21,14 @@ export const metadata: Metadata = {
   },
   description:
     "Kustaro is a self-serve customs-readiness workspace: generate HS-code candidates, missing-information questions, document checklists, risk flags, and customs-readiness reports directly in your browser.",
-  metadataBase: new URL("https://kustaro.com"),
+  metadataBase: new URL("https://kustaro.app"),
   alternates: { canonical: "/" },
   applicationName: "Kustaro",
   openGraph: {
     title: "Kustaro — Classify products for customs before they ship",
     description:
       "HS-code candidates, missing-information questions, document checklists, risk flags, and customs-readiness reports — directly in your browser.",
-    url: "https://kustaro.com",
+    url: "https://kustaro.app",
     siteName: "Kustaro",
     type: "website",
   },

@@ -3,7 +3,7 @@
 **Self-serve customs-readiness workspace for product classification, HS-code
 candidates, document checklists, risk flags, and exportable reports.**
 
-Live: **https://tariff-os.vercel.app** (moving to **https://kustaro.com**)
+Live: **https://kustaro.app** (also served at tariff-os.vercel.app)
 
 Kustaro helps importers, exporters, e-commerce brands, and freight teams
 classify products for customs **before they ship**: a guided wizard turns
@@ -120,16 +120,16 @@ classification and customs declarations should be verified before official
 use. High-risk categories (food, cosmetics, chemicals, batteries, medical,
 dual-use…) always carry a review warning. See `/terms` and `/privacy`.
 
-## 9. Deployment to Kustaro.com
+## 9. Deployment to Kustaro.app
 
 1. Vercel project `tariffos` currently serves production from this repo's
-   working branch; attach **kustaro.com** in Project → Settings → Domains
+   working branch; attach **kustaro.app** in Project → Settings → Domains
    once the domain is purchased.
-2. Update `NEXT_PUBLIC_SITE_URL=https://kustaro.com` and redeploy.
-3. Update Supabase Auth site URL + redirect list to kustaro.com.
-4. Point the Paddle webhook at `https://kustaro.com/api/paddle/webhook`.
+2. Update `NEXT_PUBLIC_SITE_URL=https://kustaro.app` and redeploy.
+3. Update Supabase Auth site URL + redirect list to kustaro.app.
+4. Point the Paddle webhook at `https://kustaro.app/api/paddle/webhook`.
 5. Canonical URLs, Open Graph, sitemap, robots, and the web manifest already
-   point at `https://kustaro.com`.
+   point at `https://kustaro.app`.
 
 ---
 
