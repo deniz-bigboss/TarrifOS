@@ -261,14 +261,17 @@ Turkey / a paid API and wire it into `LiveTariffDataProvider`.
 Billing runs through a provider abstraction (`lib/billing/payment.ts`) chosen by
 `PAYMENT_PROVIDER`, so switching providers is a config change, not a rewrite.
 
-- **iyzico (Türkiye — active).** Set `IYZICO_API_KEY`, `IYZICO_SECRET_KEY`, and
-  `IYZICO_URI` (sandbox vs production). In the iyzico merchant panel create one
-  Product and a monthly **Pricing Plan** per paid tier, then map each plan's
-  **reference code** via `IYZICO_PLAN_STARTER` / `_GROWTH` / `_FORWARDER`.
-  Checkout uses iyzico's subscription checkout form (PCI-compliant hosted card
-  form with installment support); on payment, iyzico posts to
-  `/api/iyzico/callback`, which verifies the result server-side and applies the
-  plan. Downgrade to Free cancels the iyzico subscription.
+- **Paddle (active).** Paddle is a **merchant of record**: it is the legal
+  seller, so an individual can sell worldwide **without forming a company** —
+  sign up as an *Individual*, pass identity verification, and payouts go to a
+  personal bank account (works from Türkiye). Paddle collects and remits
+  VAT/sales tax globally. Setup: create one Product with a monthly recurring
+  **Price** per paid tier, then set `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`,
+  `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, and the `PADDLE_PRICE_*` ids
+  (see `.env.example`). Checkout opens Paddle's hosted overlay (card data
+  never touches this app); the signed webhook at `/api/paddle/webhook` grants
+  the plan, and **Manage billing** opens Paddle's customer portal. Downgrade
+  to Free cancels the subscription.
 - **Stripe (future / EU).** Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
   and the `STRIPE_PRICE_*` recurring price IDs, then flip
   `PAYMENT_PROVIDER=stripe`. Checkout is a hosted Stripe session; the signed
@@ -281,8 +284,8 @@ Run migration `0005_billing_providers.sql` to add the provider linkage columns.
 
 > Live payment flows can only be verified end-to-end against a real merchant
 > account (this repo's CI/sandbox can't reach the payment APIs). The plan
-> mapping, callback interpretation, and webhook logic are covered by offline
-> unit tests, but do a sandbox test transaction before going live.
+> mapping, webhook signature verification, and event handling are covered by
+> offline unit tests, but do a sandbox test transaction before going live.
 
 ---
 

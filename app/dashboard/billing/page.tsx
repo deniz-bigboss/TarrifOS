@@ -10,7 +10,8 @@ import type { PlanId } from "@/types/database";
 export const metadata = { title: "Billing — TariffOS" };
 
 const PROVIDER_LABEL: Record<string, string> = {
-  iyzico: "Payments are processed securely by iyzico (Türkiye).",
+  paddle:
+    "Payments are processed securely by Paddle, our merchant of record — Paddle handles cards, invoices, and VAT/sales tax worldwide.",
   stripe: "Manage your subscription — payments processed by Stripe.",
   mock: "No payment provider is configured — plan changes apply directly (demo mode).",
 };
@@ -35,10 +36,13 @@ export default async function BillingPage({
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("stripe_customer_id")
+    .select("stripe_customer_id, paddle_customer_id")
     .eq("id", session.organization.id)
     .single();
-  const hasBillingAccount = Boolean(org?.stripe_customer_id);
+  const hasBillingAccount =
+    provider === "paddle"
+      ? Boolean(org?.paddle_customer_id)
+      : Boolean(org?.stripe_customer_id);
 
   return (
     <div className="space-y-6">

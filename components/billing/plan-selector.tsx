@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
 import {
   changePlanAction,
-  cancelIyzicoSubscriptionAction,
+  cancelSubscriptionAction,
   openBillingPortalAction,
 } from "@/app/dashboard/billing/actions";
+import { openPaddleCheckout } from "@/components/billing/paddle-js";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -32,25 +33,16 @@ export function PlanSelector({
   async function choose(planId: PlanId) {
     setError(null);
 
-    // iyzico: card capture happens on a dedicated checkout page.
-    if (provider === "iyzico") {
-      if (planId === "free") {
-        setPending(planId);
-        const res = await cancelIyzicoSubscriptionAction();
-        setPending(null);
-        if (!res.ok) return setError(res.error);
-        router.refresh();
-        return;
-      }
-      if (planId === "enterprise") {
-        setError("Enterprise is sales-led — contact us and we'll set it up.");
-        return;
-      }
-      router.push(`/dashboard/billing/checkout?plan=${planId}`);
+    // Paddle: downgrading to Free = cancel the subscription.
+    if (provider === "paddle" && planId === "free") {
+      setPending(planId);
+      const res = await cancelSubscriptionAction();
+      setPending(null);
+      if (!res.ok) return setError(res.error);
+      router.refresh();
       return;
     }
 
-    // stripe / mock: the action returns a redirect URL or applies directly.
     setPending(planId);
     const res = await changePlanAction(planId);
     if (!res.ok) {
@@ -58,10 +50,24 @@ export function PlanSelector({
       setPending(null);
       return;
     }
+    // Paddle: card capture happens in Paddle's hosted overlay right here.
+    if (res.data.paddle) {
+      try {
+        await openPaddleCheckout(res.data.paddle);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Could not open the checkout.",
+        );
+      }
+      setPending(null);
+      return;
+    }
+    // Stripe: hosted checkout redirect.
     if (res.data.checkoutUrl) {
       window.location.assign(res.data.checkoutUrl);
       return;
     }
+    // Mock: the plan was applied directly.
     window.location.reload();
   }
 
@@ -79,7 +85,7 @@ export function PlanSelector({
 
   return (
     <div className="space-y-4">
-      {provider === "stripe" && hasBillingAccount && (
+      {provider !== "mock" && hasBillingAccount && (
         <div className="flex justify-end">
           <Button
             variant="outline"

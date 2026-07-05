@@ -7,12 +7,11 @@ import { PLANS } from "@/lib/billing/plans";
 import { getPaymentProvider } from "@/lib/billing/payment";
 import { getStripe, priceIdForPlan } from "@/lib/billing/stripe";
 import {
-  IYZICO_PLANS,
-  getIyzico,
-  iyzicoCall,
-  pricingPlanRefForPlan,
-} from "@/lib/billing/iyzico";
-import { encodeConversationId } from "@/lib/billing/iyzico-callback";
+  PADDLE_PLANS,
+  cancelPaddleSubscription,
+  createPaddlePortalSession,
+  paddlePriceIdForPlan,
+} from "@/lib/billing/paddle";
 import type { PlanId } from "@/types/database";
 import type { ActionResult } from "@/app/dashboard/classifications/actions";
 
@@ -20,35 +19,26 @@ function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
 
-/** Billing details iyzico requires for a subscription checkout. */
-export interface BillingDetails {
-  name: string;
-  surname: string;
-  gsmNumber: string;
-  identityNumber: string;
-  city: string;
-  country: string;
-  address: string;
-}
-
 export type CheckoutOutcome = {
   plan?: PlanId;
   /** Stripe hosted checkout redirect. */
   checkoutUrl?: string;
-  /** iyzico embedded form: HTML/JS to inject, plus whether details are needed. */
-  iyzicoFormContent?: string;
-  needsBillingDetails?: boolean;
+  /** Paddle overlay checkout: the client opens Paddle.js with these. */
+  paddle?: {
+    priceId: string;
+    organizationId: string;
+    email: string | null;
+  };
 };
 
 /**
  * Plan change entry point. Routes by the active payment provider:
- *   iyzico -> initialize a subscription checkout form (returns embed content)
+ *   paddle -> returns the price the client-side overlay checkout should open
  *   stripe -> hosted Checkout session (returns redirect URL)
  *   mock   -> apply the plan directly (demo/local)
  */
 export async function changePlanAction(
   planId: PlanId,
-  billing?: BillingDetails,
 ): Promise<ActionResult<CheckoutOutcome>> {
   const session = await getSessionContext();
   if (!session) return { ok: false, error: "Not authenticated." };
@@ -63,8 +53,8 @@ export async function changePlanAction(
     };
   }
 
-  if (provider === "iyzico") {
-    return startIyzicoCheckout(session, planId, billing);
+  if (provider === "paddle") {
+    return startPaddleCheckout(session, planId);
   }
   if (provider === "stripe") {
     return startStripeCheckout(session, planId);
@@ -72,78 +62,39 @@ export async function changePlanAction(
   return applyMockPlan(session.organization.id, planId);
 }
 
-// ---------------------------------------------------------------- iyzico
-async function startIyzicoCheckout(
+// ---------------------------------------------------------------- paddle
+async function startPaddleCheckout(
   session: NonNullable<Awaited<ReturnType<typeof getSessionContext>>>,
   planId: PlanId,
-  billing?: BillingDetails,
 ): Promise<ActionResult<CheckoutOutcome>> {
   if (planId === "free") {
     return {
       ok: false,
-      error: "To downgrade to Free, cancel your subscription (Manage billing).",
+      error: "To downgrade to Free, cancel your subscription first.",
     };
   }
-  if (!IYZICO_PLANS.includes(planId)) {
+  if (!PADDLE_PLANS.includes(planId)) {
     return { ok: false, error: "This plan can't be purchased online." };
   }
-  const ref = pricingPlanRefForPlan(planId);
-  if (!ref) {
+  const priceId = paddlePriceIdForPlan(planId);
+  if (!priceId) {
     return {
       ok: false,
-      error: `No iyzico pricing plan is configured for ${PLANS[planId].name} (set IYZICO_PLAN_${planId.toUpperCase()}).`,
+      error: `No Paddle price is configured for ${PLANS[planId].name} (set PADDLE_PRICE_${planId.toUpperCase()}).`,
     };
   }
-  if (!billing) {
-    // The UI collects these once, then re-calls with them.
-    return { ok: true, data: { needsBillingDetails: true } };
-  }
-
-  try {
-    const iyzico = getIyzico();
-    const result = await iyzicoCall(
-      iyzico.subscriptionCheckoutForm.initialize.bind(iyzico.subscriptionCheckoutForm),
-      {
-        locale: "tr",
-        conversationId: encodeConversationId(session.organization.id, planId),
-        pricingPlanReferenceCode: ref,
-        subscriptionInitialStatus: "ACTIVE",
-        callbackUrl: `${siteUrl()}/api/iyzico/callback`,
-        customer: {
-          name: billing.name,
-          surname: billing.surname,
-          email: session.user.email ?? "",
-          gsmNumber: billing.gsmNumber,
-          identityNumber: billing.identityNumber,
-          billingAddress: {
-            contactName: `${billing.name} ${billing.surname}`.trim(),
-            city: billing.city,
-            country: billing.country || "Türkiye",
-            address: billing.address,
-          },
-          shippingAddress: {
-            contactName: `${billing.name} ${billing.surname}`.trim(),
-            city: billing.city,
-            country: billing.country || "Türkiye",
-            address: billing.address,
-          },
-        },
+  // Card capture happens entirely inside Paddle's hosted overlay; we only
+  // hand the client the price and the org id to round-trip via custom data.
+  return {
+    ok: true,
+    data: {
+      paddle: {
+        priceId,
+        organizationId: session.organization.id,
+        email: session.user.email ?? null,
       },
-    );
-
-    const status = (result as { status?: string }).status;
-    const content = (result as { checkoutFormContent?: string }).checkoutFormContent;
-    if (status !== "success" || !content) {
-      const msg = (result as { errorMessage?: string }).errorMessage;
-      return { ok: false, error: msg || "iyzico did not return a checkout form." };
-    }
-    return { ok: true, data: { iyzicoFormContent: content } };
-  } catch (err) {
-    return {
-      ok: false,
-      error: err instanceof Error ? err.message : "iyzico checkout failed.",
-    };
-  }
+    },
+  };
 }
 
 // ---------------------------------------------------------------- stripe
@@ -236,39 +187,38 @@ async function applyMockPlan(
 }
 
 /**
- * Cancels the active iyzico subscription (used for downgrade to Free). Stripe
- * cancellation is handled by its customer portal.
+ * Cancels the active Paddle subscription immediately (used for downgrade to
+ * Free). The webhook also reports the cancellation; applying it here too just
+ * makes the UI reflect it without waiting.
  */
-export async function cancelIyzicoSubscriptionAction(): Promise<ActionResult<null>> {
+export async function cancelSubscriptionAction(): Promise<ActionResult<null>> {
   const session = await getSessionContext();
   if (!session) return { ok: false, error: "Not authenticated." };
-  if (getPaymentProvider() !== "iyzico") {
-    return { ok: false, error: "iyzico is not the active provider." };
+  if (getPaymentProvider() !== "paddle") {
+    return { ok: false, error: "Cancel your subscription via Manage billing." };
   }
 
   const supabase = createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("iyzico_subscription_reference")
+    .select("paddle_subscription_id")
     .eq("id", session.organization.id)
     .single();
-  const ref = org?.iyzico_subscription_reference as string | null;
-  if (!ref) return { ok: false, error: "No active subscription to cancel." };
+  const subscriptionId = org?.paddle_subscription_id as string | null;
+  if (!subscriptionId) {
+    return { ok: false, error: "No active subscription to cancel." };
+  }
 
   try {
-    const iyzico = getIyzico();
-    await iyzicoCall(
-      iyzico.subscription.cancel.bind(iyzico.subscription),
-      { locale: "tr", subscriptionReferenceCode: ref },
-    );
+    await cancelPaddleSubscription(subscriptionId);
     await supabase
       .from("organizations")
-      .update({ plan: "free", iyzico_subscription_reference: null })
+      .update({ plan: "free", paddle_subscription_id: null })
       .eq("id", session.organization.id);
     await supabase.from("billing_events").insert({
       organization_id: session.organization.id,
       plan: "free",
-      status: "iyzico_cancelled",
+      status: "paddle_cancelled",
     });
     revalidatePath("/dashboard/billing");
     return { ok: true, data: null };
@@ -280,17 +230,48 @@ export async function cancelIyzicoSubscriptionAction(): Promise<ActionResult<nul
   }
 }
 
-/** Opens the Stripe customer portal (EU / future). */
+/**
+ * Opens the provider's customer portal: Paddle's hosted portal (invoices,
+ * card updates, cancellation) or Stripe's billing portal (EU / future).
+ */
 export async function openBillingPortalAction(): Promise<
   ActionResult<{ portalUrl: string }>
 > {
   const session = await getSessionContext();
   if (!session) return { ok: false, error: "Not authenticated." };
-  if (getPaymentProvider() !== "stripe") {
-    return { ok: false, error: "The Stripe portal is not active." };
-  }
+  const provider = getPaymentProvider();
 
   const supabase = createClient();
+
+  if (provider === "paddle") {
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("paddle_customer_id, paddle_subscription_id")
+      .eq("id", session.organization.id)
+      .single();
+    const customerId = org?.paddle_customer_id as string | null;
+    if (!customerId) {
+      return { ok: false, error: "No billing account yet — subscribe first." };
+    }
+    try {
+      const subscriptionId = org?.paddle_subscription_id as string | null;
+      const portalUrl = await createPaddlePortalSession(
+        customerId,
+        subscriptionId ? [subscriptionId] : [],
+      );
+      return { ok: true, data: { portalUrl } };
+    } catch (err) {
+      return {
+        ok: false,
+        error: err instanceof Error ? err.message : "Could not open the portal.",
+      };
+    }
+  }
+
+  if (provider !== "stripe") {
+    return { ok: false, error: "No billing portal for the current provider." };
+  }
+
   const { data: org } = await supabase
     .from("organizations")
     .select("stripe_customer_id")

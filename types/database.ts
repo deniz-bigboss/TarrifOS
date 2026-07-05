@@ -10,6 +10,9 @@ export interface OrganizationRow {
   name: string;
   plan: PlanId;
   stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  paddle_customer_id: string | null;
+  paddle_subscription_id: string | null;
   created_at: string;
 }
 

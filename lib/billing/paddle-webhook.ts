@@ -1,0 +1,143 @@
+import { createHmac, timingSafeEqual } from "crypto";
+import type { PlanId } from "@/types/database";
+
+/**
+ * Pure Paddle-webhook logic — signature verification plus event → plan-change
+ * mapping — extracted from the route so it can be unit-tested offline against
+ * fixture events. All persistence goes through the injected callbacks.
+ *
+ * Signature scheme (`Paddle-Signature` header):
+ *   ts=<unix seconds>;h1=<hex hmac>[;h1=<second hmac during secret rotation>]
+ * where each h1 is HMAC-SHA256(secret, `${ts}:${rawBody}`).
+ */
+
+export function verifyPaddleSignature(
+  rawBody: string,
+  signatureHeader: string | null | undefined,
+  secret: string,
+  opts?: { nowSeconds?: number; toleranceSeconds?: number },
+): boolean {
+  if (!signatureHeader) return false;
+
+  let ts: string | null = null;
+  const hashes: string[] = [];
+  for (const part of signatureHeader.split(";")) {
+    const eq = part.indexOf("=");
+    if (eq < 0) continue;
+    const key = part.slice(0, eq).trim();
+    const value = part.slice(eq + 1).trim();
+    if (!value) continue;
+    if (key === "ts") ts = value;
+    else if (key === "h1") hashes.push(value);
+  }
+  if (!ts || hashes.length === 0) return false;
+
+  // Reject stale timestamps to blunt replay attacks.
+  const tolerance = opts?.toleranceSeconds ?? 300;
+  const now = opts?.nowSeconds ?? Math.floor(Date.now() / 1000);
+  const tsNum = Number(ts);
+  if (!Number.isFinite(tsNum) || Math.abs(now - tsNum) > tolerance) return false;
+
+  const expected = createHmac("sha256", secret)
+    .update(`${ts}:${rawBody}`)
+    .digest();
+  return hashes.some((hex) => {
+    const candidate = Buffer.from(hex, "hex");
+    return (
+      candidate.length === expected.length && timingSafeEqual(candidate, expected)
+    );
+  });
+}
+
+export interface PaddleEvent {
+  event_type?: string;
+  data?: {
+    id?: string; // sub_...
+    status?: string; // active | trialing | past_due | paused | canceled
+    customer_id?: string; // ctm_...
+    custom_data?: { organization_id?: string } | null;
+    items?: Array<{ price?: { id?: string } | null } | null> | null;
+  };
+}
+
+export type PaddleOrgMatch =
+  | { organizationId: string }
+  | { paddleCustomerId: string };
+
+export interface PaddleWebhookDeps {
+  planFromPriceId: (priceId: string | null | undefined) => PlanId | null;
+  updateOrg: (
+    match: PaddleOrgMatch,
+    fields: {
+      plan?: PlanId;
+      paddle_customer_id?: string;
+      paddle_subscription_id?: string | null;
+    },
+  ) => Promise<void>;
+  recordBillingEvent: (
+    organizationId: string | null,
+    plan: PlanId | null,
+    status: string,
+  ) => Promise<void>;
+}
+
+export interface PaddleWebhookResult {
+  received: true;
+  handled: boolean;
+  action?: string;
+}
+
+/** Statuses under which the customer keeps their paid plan. `past_due` keeps
+ * it through the dunning/retry window; Paddle cancels if retries exhaust. */
+const GRANTING_STATUSES = new Set(["active", "trialing", "past_due"]);
+
+export async function applyPaddleEvent(
+  event: PaddleEvent,
+  deps: PaddleWebhookDeps,
+): Promise<PaddleWebhookResult> {
+  const type = event.event_type ?? "";
+  if (!type.startsWith("subscription.")) {
+    return { received: true, handled: false };
+  }
+
+  const sub = event.data ?? {};
+  // The org id travels in custom_data (set at checkout); the customer id
+  // links later lifecycle events that may arrive without custom data.
+  const orgId = sub.custom_data?.organization_id ?? null;
+  const customer = sub.customer_id ?? null;
+  const match: PaddleOrgMatch | null = orgId
+    ? { organizationId: orgId }
+    : customer
+      ? { paddleCustomerId: customer }
+      : null;
+  if (!match) return { received: true, handled: false };
+
+  const status = (sub.status ?? "").toLowerCase();
+
+  // Subscription ended (canceled by the customer or by exhausted payment
+  // retries) or paused: drop the org back to the free plan.
+  if (
+    type === "subscription.canceled" ||
+    status === "canceled" ||
+    status === "paused"
+  ) {
+    await deps.updateOrg(match, { plan: "free", paddle_subscription_id: null });
+    await deps.recordBillingEvent(orgId, "free", type);
+    return { received: true, handled: true, action: "plan → free" };
+  }
+
+  // created / activated / updated with a live status: grant the plan that the
+  // subscription's price maps to.
+  if (!GRANTING_STATUSES.has(status)) return { received: true, handled: false };
+  const priceId = sub.items?.find((item) => item?.price?.id)?.price?.id ?? null;
+  const plan = deps.planFromPriceId(priceId);
+  if (!plan) return { received: true, handled: false };
+
+  await deps.updateOrg(match, {
+    plan,
+    ...(customer ? { paddle_customer_id: customer } : {}),
+    paddle_subscription_id: sub.id ?? null,
+  });
+  await deps.recordBillingEvent(orgId, plan, type);
+  return { received: true, handled: true, action: `plan → ${plan}` };
+}
