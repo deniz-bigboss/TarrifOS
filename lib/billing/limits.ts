@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getPlan } from "./plans";
+import { countUsageThisMonth } from "@/lib/db/usage";
 import type { PlanId } from "@/types/database";
 
 export interface LimitStatus {
@@ -59,5 +60,38 @@ export async function checkClassificationLimit(
     message: allowed
       ? undefined
       : `Monthly limit reached for the ${planDef.name} plan (${used}/${limit}). Upgrade to continue classifying.`,
+  };
+}
+
+/**
+ * Counts machine report-translations used this calendar month and checks them
+ * against the plan's translation limit. Each translation is one AI call, so
+ * this bounds AI cost independently of classifications — a bored user can't
+ * drain the quota by translating old reports.
+ */
+export async function checkTranslationLimit(
+  supabase: SupabaseClient,
+  organizationId: string,
+  plan: PlanId,
+): Promise<LimitStatus> {
+  const planDef = getPlan(plan);
+  const limit = planDef.monthlyTranslationLimit;
+
+  const used = await countUsageThisMonth(supabase, organizationId, "translation");
+
+  if (limit == null) {
+    return { allowed: true, used, limit: null, remaining: null, plan };
+  }
+  const remaining = Math.max(0, limit - used);
+  const allowed = used < limit;
+  return {
+    allowed,
+    used,
+    limit,
+    remaining,
+    plan,
+    message: allowed
+      ? undefined
+      : `Monthly translation limit reached for the ${planDef.name} plan (${used}/${limit}). Translations reset next month, or upgrade for more. The English report is always available.`,
   };
 }

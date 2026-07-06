@@ -9,6 +9,7 @@ import {
   resultRowToClassificationResult,
 } from "@/lib/db/classifications";
 import { computeReadiness } from "@/lib/scoring/readiness";
+import { checkTranslationLimit } from "@/lib/billing/limits";
 import { ResultView } from "@/components/classification/result-view";
 import { ImproveConfidence } from "@/components/classification/improve-confidence";
 import { SaveToLibrary } from "@/components/classification/save-to-library";
@@ -43,6 +44,12 @@ export default async function ClassificationDetailPage({
   const classification = result
     ? resultRowToClassificationResult(result, candidates)
     : null;
+
+  const translationLimit = await checkTranslationLimit(
+    supabase,
+    session.organization.id,
+    session.organization.plan,
+  );
   const readiness = classification
     ? computeReadiness(input, classification)
     : null;
@@ -109,6 +116,7 @@ export default async function ClassificationDetailPage({
               createdAt={formatDateTime(request.created_at)}
               readiness={readiness}
               defaultLocale={locale}
+              translationsRemaining={translationLimit.remaining}
             />
           }
         />

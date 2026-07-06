@@ -8,6 +8,9 @@ export interface Plan {
   cadence: string;
   /** Monthly classification limit. null = unlimited / custom. */
   monthlyLimit: number | null;
+  /** Monthly report-translation limit (each machine translation = 1 AI call).
+   *  null = unlimited / custom. Bounds AI cost independently of classifications. */
+  monthlyTranslationLimit: number | null;
   apiAccess: boolean;
   highlight?: boolean;
   description: string;
@@ -27,6 +30,7 @@ export const PLANS: Record<PlanId, Plan> = {
     priceValue: 0,
     cadence: "/month",
     monthlyLimit: 3,
+    monthlyTranslationLimit: 5,
     apiAccess: false,
     description: "Try Kustaro on your first products.",
     features: [
@@ -44,6 +48,7 @@ export const PLANS: Record<PlanId, Plan> = {
     priceValue: 19,
     cadence: "/month",
     monthlyLimit: 50,
+    monthlyTranslationLimit: 50,
     apiAccess: false,
     description: "For small importers with repeat SKUs.",
     features: [
@@ -61,6 +66,7 @@ export const PLANS: Record<PlanId, Plan> = {
     priceValue: 49,
     cadence: "/month",
     monthlyLimit: 250,
+    monthlyTranslationLimit: 250,
     apiAccess: false,
     highlight: true,
     description: "For growing brands classifying at volume.",
@@ -80,6 +86,7 @@ export const PLANS: Record<PlanId, Plan> = {
     priceValue: 149,
     cadence: "/month",
     monthlyLimit: 1000,
+    monthlyTranslationLimit: 1000,
     apiAccess: true,
     description: "For teams that classify every shipment.",
     features: [
@@ -98,6 +105,7 @@ export const PLANS: Record<PlanId, Plan> = {
     priceValue: null,
     cadence: "/month starting",
     monthlyLimit: null,
+    monthlyTranslationLimit: null,
     apiAccess: true,
     description: "For forwarders and brokers at custom volume.",
     features: [

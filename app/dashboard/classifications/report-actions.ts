@@ -11,6 +11,8 @@ import { computeReadiness } from "@/lib/scoring/readiness";
 import { toMarkdown } from "@/lib/export/report";
 import { REPORT_MESSAGES } from "@/lib/export/report-messages";
 import { translateReportBundle } from "@/lib/export/translate-report";
+import { checkTranslationLimit } from "@/lib/billing/limits";
+import { recordUsageEvent } from "@/lib/db/usage";
 import { LOCALE_NAMES, isLocale, type Locale } from "@/lib/i18n/config";
 import type { ActionResult } from "@/app/dashboard/classifications/actions";
 
@@ -36,7 +38,9 @@ const TRANSLATE_TARGET: Record<Locale, string> = {
 export async function translateReportAction(
   classificationId: string,
   targetLocale: string,
-): Promise<ActionResult<{ markdown: string; machineTranslated: boolean }>> {
+): Promise<
+  ActionResult<{ markdown: string; machineTranslated: boolean; remaining: number | null }>
+> {
   const session = await getSessionContext();
   if (!session) return { ok: false, error: "Not authenticated." };
   if (!isLocale(targetLocale)) return { ok: false, error: "Unsupported language." };
@@ -52,7 +56,7 @@ export async function translateReportAction(
   const readiness = computeReadiness(input, result);
   const createdAt = detail.request.created_at;
 
-  // English needs no AI — render straight from the source data.
+  // English needs no AI — render straight from the source data, no quota.
   if (targetLocale === "en") {
     return {
       ok: true,
@@ -62,8 +66,19 @@ export async function translateReportAction(
           REPORT_MESSAGES.en,
         ),
         machineTranslated: false,
+        remaining: null,
       },
     };
+  }
+
+  // Enforce the monthly translation quota (each translation is one AI call).
+  const limit = await checkTranslationLimit(
+    supabase,
+    session.organization.id,
+    session.organization.plan,
+  );
+  if (!limit.allowed) {
+    return { ok: false, error: limit.message ?? "Monthly translation limit reached." };
   }
 
   const bundle = await translateReportBundle(
@@ -79,6 +94,13 @@ export async function translateReportAction(
     };
   }
 
+  // Count the translation only once it actually succeeded.
+  await recordUsageEvent(supabase, {
+    organizationId: session.organization.id,
+    eventType: "translation",
+    metadata: { classification_id: classificationId, locale: targetLocale },
+  });
+
   const markdown = toMarkdown(
     {
       input,
@@ -90,5 +112,7 @@ export async function translateReportAction(
     REPORT_MESSAGES[targetLocale],
     { machineTranslated: true },
   );
-  return { ok: true, data: { markdown, machineTranslated: true } };
+  const remaining =
+    limit.limit == null ? null : Math.max(0, (limit.remaining ?? 0) - 1);
+  return { ok: true, data: { markdown, machineTranslated: true, remaining } };
 }
