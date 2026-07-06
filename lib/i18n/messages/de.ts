@@ -191,7 +191,7 @@ export const de: Messages = {
         cta: "Business wählen",
         features: [
           "1.000 Klassifizierungen / Monat",
-          "Team-Arbeitsbereich",
+          "Team-Arbeitsbereich (Frühzugang)",
           "API-Zugang",
           "Priorisierte Limits",
           "Bulk-Upload (Beta)",
@@ -202,7 +202,7 @@ export const de: Messages = {
         cta: "Kontakt aufnehmen",
         features: [
           "Individuelles Volumen",
-          "Team-Arbeitsbereich",
+          "Team-Arbeitsbereich (Frühzugang)",
           "API-Zugang",
           "Individuelle Workflows",
           "Onboarding-Support",

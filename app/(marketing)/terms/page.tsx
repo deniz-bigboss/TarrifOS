@@ -3,15 +3,15 @@ import { LegalPage, type LegalSection } from "@/components/marketing/legal-page"
 
 export const metadata: Metadata = { title: "Terms of Service — Kustaro" };
 
-/* Original terms written for Kustaro's actual functionality. Items marked
-   [FILL IN] must be completed by the operator before general availability, and
-   the whole document should be reviewed by counsel. */
+/* Original terms written for Kustaro's actual functionality. Operator
+   details are filled in; the whole document should still be reviewed by
+   counsel before scaling. */
 
 const SECTIONS: LegalSection[] = [
   {
     heading: "1. The service",
     paragraphs: [
-      "Kustaro provides AI-assisted tariff-classification recommendations, duty and landed-cost estimates, document checklists, compliance checkpoints, and shipment execution plans, via the web application and the API. The service is operated by [FILL IN: legal entity name]. By creating an account or using the API you agree to these terms.",
+      "Kustaro provides AI-assisted tariff-classification recommendations, duty and landed-cost estimates, document checklists, compliance checkpoints, and shipment execution plans, via the web application and the API. The service is operated by Mahmut Kartal (Ankara, Türkiye). By creating an account or using the API you agree to these terms.",
     ],
   },
   {
@@ -59,8 +59,8 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "9. Governing law and changes",
     paragraphs: [
-      "These terms are governed by the laws of [FILL IN: governing jurisdiction], and disputes are subject to the courts of that jurisdiction. If we change these terms materially, we will update the date above and notify account holders; continued use after the effective date constitutes acceptance.",
-      "Questions about these terms: deniz@terra-reform.org.",
+      "These terms are governed by the laws of the Republic of Türkiye, and disputes are subject to the courts of Ankara, Türkiye. If we change these terms materially, we will update the date above and notify account holders; continued use after the effective date constitutes acceptance.",
+      "Questions about these terms: support@kustaro.app.",
     ],
   },
 ];

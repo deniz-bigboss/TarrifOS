@@ -193,7 +193,7 @@ export const en = {
         cta: "Choose Business",
         features: [
           "1,000 classifications / month",
-          "Team workspace",
+          "Team workspace (early access)",
           "API access",
           "Priority limits",
           "Bulk upload (beta)",
@@ -204,7 +204,7 @@ export const en = {
         cta: "Talk to us",
         features: [
           "Custom volume",
-          "Team workspace",
+          "Team workspace (early access)",
           "API access",
           "Custom workflows",
           "Onboarding support",

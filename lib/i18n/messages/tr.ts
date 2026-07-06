@@ -191,7 +191,7 @@ export const tr: Messages = {
         cta: "Business'ı seç",
         features: [
           "Ayda 1.000 sınıflandırma",
-          "Ekip çalışma alanı",
+          "Ekip çalışma alanı (erken erişim)",
           "API erişimi",
           "Öncelikli limitler",
           "Toplu yükleme (beta)",
@@ -202,7 +202,7 @@ export const tr: Messages = {
         cta: "Bizimle görüşün",
         features: [
           "Özel hacim",
-          "Ekip çalışma alanı",
+          "Ekip çalışma alanı (erken erişim)",
           "API erişimi",
           "Özel iş akışları",
           "Kurulum desteği",

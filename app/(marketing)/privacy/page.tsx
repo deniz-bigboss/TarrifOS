@@ -3,15 +3,15 @@ import { LegalPage, type LegalSection } from "@/components/marketing/legal-page"
 
 export const metadata: Metadata = { title: "Privacy Policy — Kustaro" };
 
-/* Original policy text written for Kustaro's actual data flows. Items marked
-   [FILL IN] must be completed by the operator before general availability, and
-   the whole document should be reviewed by counsel. */
+/* Original policy text written for Kustaro's actual data flows. Operator
+   details are filled in; the whole document should still be reviewed by
+   counsel before scaling. */
 
 const SECTIONS: LegalSection[] = [
   {
     heading: "1. Who we are",
     paragraphs: [
-      "Kustaro is an AI-assisted workspace that turns product information into HS code recommendations, document checklists, compliance checkpoints, and shipment execution plans. It is operated by [FILL IN: legal entity name and registered address]. For any privacy question or request, contact deniz@terra-reform.org.",
+      "Kustaro is an AI-assisted workspace that turns product information into HS code recommendations, document checklists, compliance checkpoints, and shipment execution plans. It is operated by Mahmut Kartal, Ankara, Türkiye. For any privacy question or request, contact support@kustaro.app.",
     ],
   },
   {

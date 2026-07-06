@@ -84,7 +84,7 @@ export const PLANS: Record<PlanId, Plan> = {
     description: "For teams that classify every shipment.",
     features: [
       "1,000 classifications / month",
-      "Team workspace",
+      "Team workspace (early access)",
       "API access",
       "Priority limits",
       "Bulk upload (beta)",
@@ -102,7 +102,7 @@ export const PLANS: Record<PlanId, Plan> = {
     description: "For forwarders and brokers at custom volume.",
     features: [
       "Custom volume",
-      "Team workspace",
+      "Team workspace (early access)",
       "API access",
       "Custom workflows",
       "Onboarding support",
@@ -125,7 +125,7 @@ export function getPlan(planId: string | null | undefined): Plan {
 
 /** Contact for sales-led plans and manual/invoice payment while self-serve
  * billing is being configured. */
-export const SALES_CONTACT_EMAIL = "deniz@terra-reform.org";
+export const SALES_CONTACT_EMAIL = "support@kustaro.app";
 
 /** Usage-based API pricing placeholder copy (API is waitlist/future). */
 export const API_USAGE_PRICING =

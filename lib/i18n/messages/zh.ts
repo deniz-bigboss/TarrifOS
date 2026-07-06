@@ -178,7 +178,7 @@ export const zh: Messages = {
         cta: "选择 Business",
         features: [
           "每月 1,000 次归类",
-          "团队工作区",
+          "团队工作区（抢先体验）",
           "API 访问",
           "优先额度",
           "批量上传（测试版）",
@@ -187,7 +187,7 @@ export const zh: Messages = {
       forwarder: {
         desc: "适合需要定制额度的货代与报关行。",
         cta: "联系我们",
-        features: ["定制额度", "团队工作区", "API 访问", "定制工作流", "上线支持"],
+        features: ["定制额度", "团队工作区（抢先体验）", "API 访问", "定制工作流", "上线支持"],
       },
     },
   },

@@ -191,7 +191,7 @@ export const es: Messages = {
         cta: "Elegir Business",
         features: [
           "1.000 clasificaciones / mes",
-          "Espacio de trabajo de equipo",
+          "Espacio de trabajo de equipo (acceso anticipado)",
           "Acceso a la API",
           "Límites prioritarios",
           "Carga masiva (beta)",
@@ -202,7 +202,7 @@ export const es: Messages = {
         cta: "Habla con nosotros",
         features: [
           "Volumen a medida",
-          "Espacio de trabajo de equipo",
+          "Espacio de trabajo de equipo (acceso anticipado)",
           "Acceso a la API",
           "Flujos personalizados",
           "Soporte de incorporación",
