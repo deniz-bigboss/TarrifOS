@@ -12,6 +12,7 @@ import { computeReadiness } from "@/lib/scoring/readiness";
 import { ResultView } from "@/components/classification/result-view";
 import { ImproveConfidence } from "@/components/classification/improve-confidence";
 import { SaveToLibrary } from "@/components/classification/save-to-library";
+import { ReportPanel } from "@/components/classification/report-panel";
 import { FeedbackForm } from "@/components/classification/feedback-form";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
@@ -90,7 +91,6 @@ export default async function ClassificationDetailPage({
           classificationId={request.id}
           createdAt={formatDateTime(request.created_at)}
           readiness={readiness}
-          reportLocale={locale}
           improveSlot={
             <ImproveConfidence
               questions={classification.missing_information}
@@ -101,6 +101,16 @@ export default async function ClassificationDetailPage({
             />
           }
           actionsSlot={<SaveToLibrary classificationId={request.id} />}
+          reportSlot={
+            <ReportPanel
+              input={input}
+              result={classification}
+              classificationId={request.id}
+              createdAt={formatDateTime(request.created_at)}
+              readiness={readiness}
+              defaultLocale={locale}
+            />
+          }
         />
       ) : (
         <p className="rounded-md border bg-card p-6 text-sm text-muted-foreground">

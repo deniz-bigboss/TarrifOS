@@ -24,13 +24,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ConfidenceMeter } from "@/components/confidence-meter";
 import { DisclaimerBanner } from "@/components/disclaimer";
-import { ExportButtons } from "./export-buttons";
 import { LaneMap } from "./lane-map";
 import { findDocLink } from "@/lib/documents/doc-links";
 import { countryName, formatCurrency } from "@/lib/utils";
 import { ReadinessCard } from "./readiness-card";
 import type { ReadinessBreakdown } from "@/lib/scoring/readiness";
-import type { Locale } from "@/lib/i18n/config";
 
 interface ResultViewProps {
   input: ProductInput;
@@ -43,10 +41,9 @@ interface ResultViewProps {
   improveSlot?: React.ReactNode;
   /** Save-to-SKU-library / signup CTA slot rendered next to the exports. */
   actionsSlot?: React.ReactNode;
-  /** Guest preview: exporting requires an account. */
-  hideExports?: boolean;
-  /** Default language for exported reports (the visitor's site language). */
-  reportLocale?: Locale;
+  /** The exportable report + language switch (client component slot). Omitted
+   * for the guest preview, where exporting requires an account. */
+  reportSlot?: React.ReactNode;
 }
 
 const PRIORITY_VARIANT: Record<
@@ -71,8 +68,7 @@ export function ResultView({
   readiness,
   improveSlot,
   actionsSlot,
-  hideExports = false,
-  reportLocale = "en",
+  reportSlot,
 }: ResultViewProps) {
   const plan = result.shipment_plan;
 
@@ -102,19 +98,11 @@ export function ResultView({
             </div>
           </CardHeader>
           <CardContent className="space-y-5 p-5">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {!hideExports && (
-                <ExportButtons
-                  input={input}
-                  result={result}
-                  classificationId={classificationId}
-                  createdAt={createdAt}
-                  readiness={readiness}
-                  reportLocale={reportLocale}
-                />
-              )}
-              {actionsSlot}
-            </div>
+            {actionsSlot && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                {actionsSlot}
+              </div>
+            )}
             <ConfidenceMeter
               confidence={result.confidence}
               label={result.confidence_label}
@@ -298,6 +286,7 @@ export function ResultView({
       {/* ------------------------- Customs-readiness score + improvement */}
       {readiness && <ReadinessCard readiness={readiness} />}
       {improveSlot}
+      {reportSlot}
 
       {/* -------------------------------------- Shipment execution plan */}
       {plan && (
