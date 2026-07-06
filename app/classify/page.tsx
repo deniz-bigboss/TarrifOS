@@ -17,6 +17,9 @@ export const metadata = {
 };
 
 export const dynamic = "force-dynamic";
+// Live tariff APIs + a real AI provider can exceed the default function
+// timeout; classifications served from this page get headroom.
+export const maxDuration = 60;
 
 /**
  * The center of the product: guided classification for everyone. Guests get
@@ -36,7 +39,11 @@ export default async function ClassifyPage({
   if (session && searchParams?.product) {
     const row = await getProduct(createClient(), searchParams.product);
     if (row && row.organization_id === session.organization.id) {
-      initialValues = productRowToInput(row) as Partial<ProductInputSchema>;
+      // Drop empty keys: spreading `origin_country: undefined` over the
+      // wizard's defaults would blank required selects.
+      initialValues = Object.fromEntries(
+        Object.entries(productRowToInput(row)).filter(([, v]) => v != null),
+      ) as Partial<ProductInputSchema>;
     }
   }
 

@@ -5,6 +5,8 @@ import { BulkUploadClient } from "@/components/bulk/bulk-upload-client";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Bulk upload — Kustaro" };
+// Each row is classified via a server action served from this segment.
+export const maxDuration = 60;
 
 /** Bulk upload (beta): classify a CSV of up to 10 SKUs in one pass. Each row
  * is a normal saved classification and counts toward the plan limit. */

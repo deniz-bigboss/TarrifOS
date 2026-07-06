@@ -42,6 +42,8 @@ interface ResultViewProps {
   improveSlot?: React.ReactNode;
   /** Save-to-SKU-library / signup CTA slot rendered next to the exports. */
   actionsSlot?: React.ReactNode;
+  /** Guest preview: exporting requires an account. */
+  hideExports?: boolean;
 }
 
 const PRIORITY_VARIANT: Record<
@@ -66,6 +68,7 @@ export function ResultView({
   readiness,
   improveSlot,
   actionsSlot,
+  hideExports = false,
 }: ResultViewProps) {
   const plan = result.shipment_plan;
 
@@ -96,13 +99,15 @@ export function ResultView({
           </CardHeader>
           <CardContent className="space-y-5 p-5">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <ExportButtons
-                input={input}
-                result={result}
-                classificationId={classificationId}
-                createdAt={createdAt}
-                readiness={readiness}
-              />
+              {!hideExports && (
+                <ExportButtons
+                  input={input}
+                  result={result}
+                  classificationId={classificationId}
+                  createdAt={createdAt}
+                  readiness={readiness}
+                />
+              )}
               {actionsSlot}
             </div>
             <ConfidenceMeter

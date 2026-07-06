@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
 
 export const metadata = { title: "Customs-readiness classification — Kustaro" };
+// The improve-confidence action (full pipeline re-run) is served from here.
+export const maxDuration = 60;
 
 export default async function ClassificationDetailPage({
   params,

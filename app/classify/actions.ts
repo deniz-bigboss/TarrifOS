@@ -225,8 +225,16 @@ export async function refineClassificationAction(
   const session = await getSessionContext();
 
   if (!session) {
-    // Guests may refine their single free classification (same session,
-    // no extra cookie charge — it's the same product, better answered).
+    // Guests may refine their free classification, but every refine is a
+    // real AI call — meter it against the same per-IP daily cap.
+    const ipAllowed = await countGuestUseAllowed(clientIpFrom(headers()));
+    if (!ipAllowed) {
+      return {
+        ok: false,
+        error:
+          "The free-classification limit for your network was reached today. Create a free account to keep refining — no credit card required.",
+      };
+    }
     try {
       const output = await runClassification(input);
       keepConfidenceMonotonic(output.result, payload.previousCode, payload.previousConfidence);
@@ -349,86 +357,72 @@ export interface BulkRowResult {
   error?: string;
 }
 
-const BULK_MAX_ROWS = 10;
-
-/** Bulk upload (beta): classify up to 10 CSV rows sequentially, respecting
- * the plan limit per row. Each successful row is a normal saved
- * classification that appears in history. */
-export async function bulkClassifyAction(
-  rows: BulkRowInput[],
-): Promise<ActionResult<BulkRowResult[]>> {
+/**
+ * Bulk upload (beta): ONE row per call. The client drives the loop
+ * sequentially — a single serverless invocation classifying 10 rows would
+ * blow past the function timeout, and per-row calls give live progress.
+ * Each successful row is a normal saved classification in history.
+ */
+export async function bulkClassifyRowAction(
+  row: BulkRowInput,
+  rowNumber: number,
+): Promise<BulkRowResult> {
   const session = await getSessionContext();
-  if (!session) return { ok: false, error: "Sign in to use bulk upload." };
-  if (!Array.isArray(rows) || rows.length === 0) {
-    return { ok: false, error: "No rows to process." };
-  }
+  const base = { row: rowNumber, product_name: row?.product_name ?? "" };
+  if (!session) return { ...base, ok: false, error: "Sign in to use bulk upload." };
 
   const supabase = createClient();
   const orgId = session.organization.id;
-  const results: BulkRowResult[] = [];
 
-  for (const [i, row] of rows.slice(0, BULK_MAX_ROWS).entries()) {
-    const limit = await checkClassificationLimit(
-      supabase,
-      orgId,
-      session.organization.plan,
-    );
-    if (!limit.allowed) {
-      results.push({
-        row: i + 1,
-        product_name: row.product_name ?? "",
-        ok: false,
-        error: limit.message ?? "Monthly limit reached.",
-      });
-      continue;
-    }
-
-    const parsed = productInputSchema.safeParse(row);
-    if (!parsed.success) {
-      results.push({
-        row: i + 1,
-        product_name: row.product_name ?? "",
-        ok: false,
-        error: parsed.error.issues.map((iss) => iss.message).join(" "),
-      });
-      continue;
-    }
-
-    try {
-      const input = parsed.data as ProductInput;
-      const output = await runClassification(input);
-      const { requestId } = await persistClassification(supabase, {
-        organizationId: orgId,
-        createdBy: session.user.id,
-        input,
-        output,
-        source: "web",
-      });
-      await recordUsageEvent(supabase, {
-        organizationId: orgId,
-        eventType: "classification",
-        metadata: { source: "bulk", recommended_code: output.result.recommended_code },
-      });
-      const readiness = computeReadiness(input, output.result);
-      results.push({
-        row: i + 1,
-        product_name: input.product_name,
-        ok: true,
-        id: requestId,
-        recommended_code: output.result.recommended_code,
-        confidence: output.result.confidence,
-        readiness: readiness.score,
-      });
-    } catch (err) {
-      results.push({
-        row: i + 1,
-        product_name: row.product_name ?? "",
-        ok: false,
-        error: err instanceof Error ? err.message : "Classification failed.",
-      });
-    }
+  const limit = await checkClassificationLimit(
+    supabase,
+    orgId,
+    session.organization.plan,
+  );
+  if (!limit.allowed) {
+    return { ...base, ok: false, error: limit.message ?? "Monthly limit reached." };
   }
 
-  revalidatePath("/dashboard/classifications");
-  return { ok: true, data: results };
+  const parsed = productInputSchema.safeParse(row);
+  if (!parsed.success) {
+    return {
+      ...base,
+      ok: false,
+      error: parsed.error.issues.map((iss) => iss.message).join(" "),
+    };
+  }
+
+  try {
+    const input = parsed.data as ProductInput;
+    const output = await runClassification(input);
+    const { requestId } = await persistClassification(supabase, {
+      organizationId: orgId,
+      createdBy: session.user.id,
+      input,
+      output,
+      source: "web",
+    });
+    await recordUsageEvent(supabase, {
+      organizationId: orgId,
+      eventType: "classification",
+      metadata: { source: "bulk", recommended_code: output.result.recommended_code },
+    });
+    const readiness = computeReadiness(input, output.result);
+    revalidatePath("/dashboard/classifications");
+    return {
+      ...base,
+      product_name: input.product_name,
+      ok: true,
+      id: requestId,
+      recommended_code: output.result.recommended_code,
+      confidence: output.result.confidence,
+      readiness: readiness.score,
+    };
+  } catch (err) {
+    return {
+      ...base,
+      ok: false,
+      error: err instanceof Error ? err.message : "Classification failed.",
+    };
+  }
 }

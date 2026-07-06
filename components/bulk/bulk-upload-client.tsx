@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Download, Loader2, Play, Upload } from "lucide-react";
 import {
-  bulkClassifyAction,
+  bulkClassifyRowAction,
   type BulkRowInput,
   type BulkRowResult,
 } from "@/app/classify/actions";
@@ -125,9 +125,24 @@ export function BulkUploadClient() {
   async function run() {
     if (!parsed?.length) return;
     setRunning(true);
-    setResults(null);
-    const res = await bulkClassifyAction(parsed.slice(0, MAX_ROWS));
-    setResults(res.ok ? res.data : [{ row: 0, product_name: "", ok: false, error: res.error }]);
+    setResults([]);
+    // One server call per row: a single invocation classifying 10 rows would
+    // hit the function timeout, and per-row calls stream progress live.
+    const rows = parsed.slice(0, MAX_ROWS);
+    for (const [i, row] of rows.entries()) {
+      let result: BulkRowResult;
+      try {
+        result = await bulkClassifyRowAction(row, i + 1);
+      } catch {
+        result = {
+          row: i + 1,
+          product_name: row.product_name,
+          ok: false,
+          error: "Request failed — try again.",
+        };
+      }
+      setResults((prev) => [...(prev ?? []), result]);
+    }
     setRunning(false);
   }
 
@@ -194,7 +209,7 @@ export function BulkUploadClient() {
         {parseError && <p className="text-sm text-destructive">{parseError}</p>}
       </div>
 
-      {parsed && parsed.length > 0 && !results && (
+      {parsed && parsed.length > 0 && results === null && (
         <div className="space-y-3">
           <div className="overflow-x-auto rounded-md border bg-card">
             <table className="w-full text-xs">
@@ -243,7 +258,9 @@ export function BulkUploadClient() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">
-              {results.filter((r) => r.ok).length}/{results.length} rows classified
+              {running
+                ? `Classifying… ${results.length}/${Math.min(parsed?.length ?? 0, MAX_ROWS)} rows done`
+                : `${results.filter((r) => r.ok).length}/${results.length} rows classified`}
             </p>
             <Button variant="outline" size="sm" onClick={downloadResultsCsv}>
               <Download className="h-3.5 w-3.5" /> Results CSV

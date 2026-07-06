@@ -9,6 +9,7 @@ import { checkClassificationLimit } from "@/lib/billing/limits";
 import type { ProductInput } from "@/types";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
  * POST /api/v1/classify

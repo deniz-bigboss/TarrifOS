@@ -63,6 +63,7 @@ export function ClassifyClient({
           result={guest.result}
           classificationId="guest-preview"
           readiness={guest.readiness}
+          hideExports
           improveSlot={
             <ImproveConfidence
               questions={guest.result.missing_information}
@@ -74,7 +75,8 @@ export function ClassifyClient({
           }
           actionsSlot={
             <span className="text-xs text-muted-foreground">
-              Sign up to save this product to your SKU library.
+              Create a free account to export this report and save the product
+              to your SKU library.
             </span>
           }
         />
