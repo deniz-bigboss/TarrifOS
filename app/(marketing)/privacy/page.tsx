@@ -11,7 +11,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "1. Who we are",
     paragraphs: [
-      "Kustaro is an AI-assisted workspace that turns product information into HS code recommendations, document checklists, compliance checkpoints, and shipment execution plans. It is operated by Mahmut Kartal, Ankara, Türkiye. For any privacy question or request, contact support@kustaro.app.",
+      "Kustaro is an AI-assisted workspace that turns product information into HS code recommendations, document checklists, compliance checkpoints, and shipment execution plans. Kustaro was co-founded by Deniz Yılmaz and Mahmut Kartal. The service is operated solely by Mahmut Kartal (Ankara, Türkiye), who is the data controller and the sole party legally responsible for the service; Deniz Yılmaz is a co-founder only and bears no legal responsibility or liability for the operation of the service or the processing of personal data. For any privacy question or request, contact support@kustaro.app.",
     ],
   },
   {

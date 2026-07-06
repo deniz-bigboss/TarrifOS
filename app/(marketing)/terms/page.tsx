@@ -11,7 +11,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "1. The service",
     paragraphs: [
-      "Kustaro provides AI-assisted tariff-classification recommendations, duty and landed-cost estimates, document checklists, compliance checkpoints, and shipment execution plans, via the web application and the API. The service is operated by Mahmut Kartal (Ankara, Türkiye). By creating an account or using the API you agree to these terms.",
+      "Kustaro provides AI-assisted tariff-classification recommendations, duty and landed-cost estimates, document checklists, compliance checkpoints, and shipment execution plans, via the web application and the API. Kustaro was co-founded by Deniz Yılmaz and Mahmut Kartal. The service is operated solely by Mahmut Kartal (Ankara, Türkiye), who is the sole party legally responsible for the service; Deniz Yılmaz is a co-founder only and is not an operator of the service and bears no legal responsibility or liability arising from it. By creating an account or using the API you agree to these terms.",
     ],
   },
   {

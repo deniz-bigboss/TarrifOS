@@ -45,6 +45,16 @@ export interface ReportMessages {
   strong: string;
   needsAttention: string;
   suggestedNextActions: string;
+  shipmentPlan: string;
+  planReadiness: string;
+  agentNextActions: string;
+  documentChecklist: string;
+  complianceCheckpoints: string;
+  timeline: string;
+  costOptimization: string;
+  dutyByCandidate: string;
+  preferentialPrograms: string;
+  suggestedActions: string;
   confidenceLabels: { low: string; medium: string; high: string };
   disclaimer: string;
   footer: string;
@@ -87,6 +97,16 @@ const en: ReportMessages = {
   strong: "Strong",
   needsAttention: "Needs attention",
   suggestedNextActions: "Suggested next actions",
+  shipmentPlan: "Shipment execution plan",
+  planReadiness: "Readiness",
+  agentNextActions: "Next actions",
+  documentChecklist: "Document checklist",
+  complianceCheckpoints: "Compliance checkpoints",
+  timeline: "Timeline",
+  costOptimization: "Cost optimization",
+  dutyByCandidate: "Duty by candidate code",
+  preferentialPrograms: "Preferential trade programs",
+  suggestedActions: "Suggested actions",
   confidenceLabels: { low: "low", medium: "medium", high: "high" },
   disclaimer:
     "This report is a customs-readiness recommendation generated from available product information and tariff-reference data. It is not legal advice and does not guarantee acceptance by customs authorities. Final classification and customs declarations should be verified before official use.",
@@ -131,6 +151,16 @@ const tr: ReportMessages = {
   strong: "Güçlü yönler",
   needsAttention: "Dikkat gerektirenler",
   suggestedNextActions: "Önerilen sonraki adımlar",
+  shipmentPlan: "Sevkiyat uygulama planı",
+  planReadiness: "Hazırlık",
+  agentNextActions: "Sonraki adımlar",
+  documentChecklist: "Belge kontrol listesi",
+  complianceCheckpoints: "Uyum kontrol noktaları",
+  timeline: "Zaman çizelgesi",
+  costOptimization: "Maliyet optimizasyonu",
+  dutyByCandidate: "Aday koda göre vergi",
+  preferentialPrograms: "Tercihli ticaret programları",
+  suggestedActions: "Önerilen işlemler",
   confidenceLabels: { low: "düşük", medium: "orta", high: "yüksek" },
   disclaimer:
     "Bu rapor, mevcut ürün bilgileri ve tarife referans verilerinden üretilen bir gümrük hazırlık önerisidir. Hukuki tavsiye değildir ve gümrük idarelerince kabul garantisi vermez. Nihai sınıflandırma ve gümrük beyanları resmî kullanım öncesinde doğrulanmalıdır.",
@@ -176,6 +206,16 @@ const es: ReportMessages = {
   strong: "Puntos fuertes",
   needsAttention: "Requiere atención",
   suggestedNextActions: "Próximas acciones sugeridas",
+  shipmentPlan: "Plan de ejecución del envío",
+  planReadiness: "Preparación",
+  agentNextActions: "Próximas acciones",
+  documentChecklist: "Lista de documentos",
+  complianceCheckpoints: "Puntos de control de cumplimiento",
+  timeline: "Cronograma",
+  costOptimization: "Optimización de costes",
+  dutyByCandidate: "Arancel por código candidato",
+  preferentialPrograms: "Programas comerciales preferenciales",
+  suggestedActions: "Acciones sugeridas",
   confidenceLabels: { low: "baja", medium: "media", high: "alta" },
   disclaimer:
     "Este informe es una recomendación de preparación aduanera generada a partir de la información disponible del producto y datos de referencia arancelaria. No es asesoría legal ni garantiza la aceptación por las autoridades aduaneras. La clasificación final y las declaraciones deben verificarse antes de su uso oficial.",
@@ -221,6 +261,16 @@ const fr: ReportMessages = {
   strong: "Points forts",
   needsAttention: "À surveiller",
   suggestedNextActions: "Prochaines actions suggérées",
+  shipmentPlan: "Plan d'exécution de l'expédition",
+  planReadiness: "Préparation",
+  agentNextActions: "Prochaines actions",
+  documentChecklist: "Liste de documents",
+  complianceCheckpoints: "Points de contrôle de conformité",
+  timeline: "Calendrier",
+  costOptimization: "Optimisation des coûts",
+  dutyByCandidate: "Droits par code candidat",
+  preferentialPrograms: "Programmes commerciaux préférentiels",
+  suggestedActions: "Actions suggérées",
   confidenceLabels: { low: "faible", medium: "moyenne", high: "élevée" },
   disclaimer:
     "Ce rapport est une recommandation de préparation douanière générée à partir des informations produit disponibles et de données tarifaires de référence. Il ne constitue pas un avis juridique et ne garantit pas l'acceptation par les autorités douanières. La classification finale et les déclarations doivent être vérifiées avant tout usage officiel.",
@@ -266,6 +316,16 @@ const de: ReportMessages = {
   strong: "Stark",
   needsAttention: "Zu beachten",
   suggestedNextActions: "Vorgeschlagene nächste Schritte",
+  shipmentPlan: "Versand-Ausführungsplan",
+  planReadiness: "Bereitschaft",
+  agentNextActions: "Nächste Schritte",
+  documentChecklist: "Dokumenten-Checkliste",
+  complianceCheckpoints: "Compliance-Prüfpunkte",
+  timeline: "Zeitplan",
+  costOptimization: "Kostenoptimierung",
+  dutyByCandidate: "Zoll nach Kandidatencode",
+  preferentialPrograms: "Präferenzielle Handelsprogramme",
+  suggestedActions: "Vorgeschlagene Maßnahmen",
   confidenceLabels: { low: "niedrig", medium: "mittel", high: "hoch" },
   disclaimer:
     "Dieser Bericht ist eine Zollbereitschafts-Empfehlung, die aus verfügbaren Produktinformationen und Tarif-Referenzdaten erstellt wurde. Er ist keine Rechtsberatung und garantiert keine Anerkennung durch Zollbehörden. Endgültige Klassifizierung und Zollanmeldungen sind vor amtlicher Verwendung zu prüfen.",
@@ -311,6 +371,16 @@ const zh: ReportMessages = {
   strong: "优势",
   needsAttention: "需注意",
   suggestedNextActions: "建议的后续行动",
+  shipmentPlan: "运输执行计划",
+  planReadiness: "就绪度",
+  agentNextActions: "后续行动",
+  documentChecklist: "单证清单",
+  complianceCheckpoints: "合规检查点",
+  timeline: "时间线",
+  costOptimization: "成本优化",
+  dutyByCandidate: "各候选编码关税",
+  preferentialPrograms: "优惠贸易计划",
+  suggestedActions: "建议措施",
   confidenceLabels: { low: "低", medium: "中", high: "高" },
   disclaimer:
     "本报告是基于现有产品信息和关税参考数据生成的清关就绪建议，不构成法律意见，也不保证海关当局的认可。正式使用前，请核实最终归类和报关内容。",
@@ -355,6 +425,16 @@ const ar: ReportMessages = {
   strong: "نقاط القوة",
   needsAttention: "بحاجة إلى انتباه",
   suggestedNextActions: "الإجراءات التالية المقترحة",
+  shipmentPlan: "خطة تنفيذ الشحنة",
+  planReadiness: "الجاهزية",
+  agentNextActions: "الإجراءات التالية",
+  documentChecklist: "قائمة المستندات",
+  complianceCheckpoints: "نقاط التحقق من الامتثال",
+  timeline: "الجدول الزمني",
+  costOptimization: "تحسين التكلفة",
+  dutyByCandidate: "الرسوم حسب الرمز المرشّح",
+  preferentialPrograms: "برامج تجارية تفضيلية",
+  suggestedActions: "الإجراءات المقترحة",
   confidenceLabels: { low: "منخفضة", medium: "متوسطة", high: "عالية" },
   disclaimer:
     "هذا التقرير توصية جاهزية جمركية مولّدة من معلومات المنتج المتاحة وبيانات التعرفة المرجعية. ليست استشارة قانونية ولا تضمن قبول السلطات الجمركية. يجب التحقق من التصنيف النهائي والتصاريح الجمركية قبل الاستخدام الرسمي.",
@@ -399,6 +479,16 @@ const pt: ReportMessages = {
   strong: "Pontos fortes",
   needsAttention: "Requer atenção",
   suggestedNextActions: "Próximas ações sugeridas",
+  shipmentPlan: "Plano de execução do envio",
+  planReadiness: "Prontidão",
+  agentNextActions: "Próximas ações",
+  documentChecklist: "Lista de documentos",
+  complianceCheckpoints: "Pontos de verificação de conformidade",
+  timeline: "Cronograma",
+  costOptimization: "Otimização de custos",
+  dutyByCandidate: "Imposto por código candidato",
+  preferentialPrograms: "Programas comerciais preferenciais",
+  suggestedActions: "Ações sugeridas",
   confidenceLabels: { low: "baixa", medium: "média", high: "alta" },
   disclaimer:
     "Este relatório é uma recomendação de prontidão aduaneira gerada a partir das informações disponíveis do produto e de dados tarifários de referência. Não é aconselhamento jurídico e não garante aceitação pelas autoridades aduaneiras. A classificação final e as declarações devem ser verificadas antes do uso oficial.",

@@ -108,6 +108,70 @@ export function toMarkdown(
     lines.push("");
   }
 
+  if (result.shipment_plan) {
+    const plan = result.shipment_plan;
+    lines.push(`## ${m.shipmentPlan}`);
+    lines.push(plan.summary);
+    lines.push(
+      `**${m.planReadiness}:** ${plan.readiness_score}% (${plan.readiness_label})`,
+    );
+    if (plan.actions.length) {
+      lines.push(`**${m.agentNextActions}:**`);
+      for (const a of plan.actions) {
+        lines.push(
+          `- [${a.priority.toUpperCase()}] ${a.title} — ${a.owner}; ${a.timing}. ${a.context} ${a.impact}`,
+        );
+      }
+    }
+    if (plan.documents.length) {
+      lines.push(`**${m.documentChecklist}:**`);
+      for (const d of plan.documents) {
+        lines.push(`- ${d.name} — ${d.owner} (${d.status}). ${d.reason}`);
+      }
+    }
+    if (plan.checkpoints.length) {
+      lines.push(`**${m.complianceCheckpoints}:**`);
+      for (const c of plan.checkpoints) {
+        lines.push(`- [${c.severity.toUpperCase()}] ${c.title}: ${c.status_note} ${c.instruction}`);
+      }
+    }
+    if (plan.timeline.length) {
+      lines.push(`**${m.timeline}:**`);
+      for (const s of plan.timeline) {
+        lines.push(`- ${s.stage}: ${s.tasks.join(" ")}`);
+      }
+    }
+    lines.push(`> ${plan.disclaimer}`);
+    lines.push("");
+  }
+
+  if (result.cost_optimization) {
+    const opt = result.cost_optimization;
+    lines.push(`## ${m.costOptimization}`);
+    if (opt.duty_comparison.length) {
+      lines.push(`**${m.dutyByCandidate}:**`);
+      for (const d of opt.duty_comparison) {
+        lines.push(
+          `- \`${d.code}\`${d.is_recommended ? " (recommended)" : ""} — ${d.title}: ${d.duty_rate_placeholder}${d.estimated_duty_value != null ? ` (~${d.estimated_duty_value} ${input.currency ?? ""})` : ""}`,
+        );
+      }
+    }
+    if (opt.trade_programs.length) {
+      lines.push(`**${m.preferentialPrograms}:**`);
+      for (const p of opt.trade_programs) {
+        lines.push(
+          `- ${p.name} (${p.may_apply ? "may apply" : "no program found"}): ${p.potential_duty_rate}. ${p.notes}`,
+        );
+      }
+    }
+    if (opt.recommendations.length) {
+      lines.push(`**${m.suggestedActions}:**`);
+      opt.recommendations.forEach((r) => lines.push(`- ${r}`));
+    }
+    lines.push(`> ${opt.disclaimer}`);
+    lines.push("");
+  }
+
   if (result.required_documents.length) {
     lines.push(`## ${m.requiredDocuments}`);
     result.required_documents.forEach((d) => lines.push(`- ${d}`));
