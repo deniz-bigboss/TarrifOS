@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/db/supabase/server";
 import { getSessionContext } from "@/lib/auth/session";
@@ -16,6 +16,7 @@ import { recordUsageEvent } from "@/lib/db/usage";
 import { checkClassificationLimit } from "@/lib/billing/limits";
 import { computeReadiness } from "@/lib/scoring/readiness";
 import { confidenceLabel } from "@/lib/classification/confidence";
+import { clientIpFrom, countGuestUseAllowed } from "@/lib/db/guest-usage";
 import { saveProduct } from "@/lib/db/products";
 import type { ClassificationResult, ProductInput } from "@/types";
 import type { ActionResult } from "@/app/dashboard/classifications/actions";
@@ -66,6 +67,17 @@ export async function classifyAction(
           "You've used your free classification. Create a free account to keep classifying, save products, and export reports — no credit card required.",
       };
     }
+    // Per-IP daily backstop: the cookie resets in a private window, but each
+    // guest run costs real AI quota.
+    const ipAllowed = await countGuestUseAllowed(clientIpFrom(headers()));
+    if (!ipAllowed) {
+      return {
+        ok: false,
+        error:
+          "The free-classification limit for your network was reached today. Create a free account to keep classifying — no credit card required.",
+      };
+    }
+
     try {
       const output = await runClassification(input);
       jar.set(GUEST_COOKIE, "1", {
