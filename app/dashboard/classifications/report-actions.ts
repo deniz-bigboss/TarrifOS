@@ -88,6 +88,7 @@ export async function translateReportAction(
       readiness: bundle.readiness,
     },
     REPORT_MESSAGES[targetLocale],
+    { machineTranslated: true },
   );
   return { ok: true, data: { markdown, machineTranslated: true } };
 }

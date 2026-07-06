@@ -36,6 +36,7 @@ export interface ReportContext {
 export function toMarkdown(
   ctx: ReportContext,
   m: ReportMessages = REPORT_MESSAGES.en,
+  opts: { machineTranslated?: boolean } = {},
 ): string {
   const { input, result } = ctx;
   const lines: string[] = [];
@@ -221,6 +222,17 @@ export function toMarkdown(
   lines.push("");
   lines.push(`_${m.footer}_`);
 
+  // Machine-translated reports carry the English legal text verbatim as the
+  // authoritative version, so the binding wording is always present in the
+  // file regardless of the display language.
+  if (opts.machineTranslated && m.machineTranslatedNotice) {
+    lines.push("");
+    lines.push(`> ${m.machineTranslatedNotice}`);
+    lines.push("");
+    lines.push(`**Authoritative version (English):**`);
+    lines.push(`> ${REPORT_MESSAGES.en.disclaimer}`);
+  }
+
   return lines.join("\n");
 }
 
@@ -228,8 +240,9 @@ export function toMarkdown(
 export function toPlainText(
   ctx: ReportContext,
   m: ReportMessages = REPORT_MESSAGES.en,
+  opts: { machineTranslated?: boolean } = {},
 ): string {
-  return toMarkdown(ctx, m)
+  return toMarkdown(ctx, m, opts)
     .replace(/^#+\s/gm, "")
     .replace(/\*\*/g, "")
     .replace(/`/g, "");
