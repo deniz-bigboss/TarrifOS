@@ -15,6 +15,7 @@ import { SaveToLibrary } from "@/components/classification/save-to-library";
 import { FeedbackForm } from "@/components/classification/feedback-form";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
+import { getI18n } from "@/lib/i18n/server";
 
 export const metadata = { title: "Customs-readiness classification — Kustaro" };
 // The improve-confidence action (full pipeline re-run) is served from here.
@@ -29,6 +30,7 @@ export default async function ClassificationDetailPage({
 }) {
   const session = await getSessionContext();
   if (!session) return null;
+  const { locale } = getI18n();
 
   const supabase = createClient();
   const detail = await getClassificationDetail(supabase, params.id);
@@ -88,6 +90,7 @@ export default async function ClassificationDetailPage({
           classificationId={request.id}
           createdAt={formatDateTime(request.created_at)}
           readiness={readiness}
+          reportLocale={locale}
           improveSlot={
             <ImproveConfidence
               questions={classification.missing_information}

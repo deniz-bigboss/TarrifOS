@@ -30,6 +30,7 @@ import { findDocLink } from "@/lib/documents/doc-links";
 import { countryName, formatCurrency } from "@/lib/utils";
 import { ReadinessCard } from "./readiness-card";
 import type { ReadinessBreakdown } from "@/lib/scoring/readiness";
+import type { Locale } from "@/lib/i18n/config";
 
 interface ResultViewProps {
   input: ProductInput;
@@ -44,6 +45,8 @@ interface ResultViewProps {
   actionsSlot?: React.ReactNode;
   /** Guest preview: exporting requires an account. */
   hideExports?: boolean;
+  /** Default language for exported reports (the visitor's site language). */
+  reportLocale?: Locale;
 }
 
 const PRIORITY_VARIANT: Record<
@@ -69,6 +72,7 @@ export function ResultView({
   improveSlot,
   actionsSlot,
   hideExports = false,
+  reportLocale = "en",
 }: ResultViewProps) {
   const plan = result.shipment_plan;
 
@@ -106,6 +110,7 @@ export function ResultView({
                   classificationId={classificationId}
                   createdAt={createdAt}
                   readiness={readiness}
+                  reportLocale={reportLocale}
                 />
               )}
               {actionsSlot}

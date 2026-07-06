@@ -32,7 +32,7 @@ export default async function ClassifyPage({
   searchParams?: { product?: string };
 }) {
   const session = await getSessionContext();
-  const { t } = getI18n();
+  const { t, locale } = getI18n();
 
   // Reclassify from the SKU library (?product=<id>, authed only).
   let initialValues: Partial<ProductInputSchema> | undefined;
@@ -88,6 +88,7 @@ export default async function ClassifyPage({
           t={t.app.wizard}
           mode={session ? "authed" : "guest"}
           initialValues={initialValues}
+          reportLocale={locale}
         />
 
         <DisclaimerBanner text={LEGAL_DISCLAIMER} />

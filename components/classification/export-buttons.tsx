@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Download, FileText } from "lucide-react";
+import { Check, Copy, Download, FileText, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ClassificationResult, ProductInput } from "@/types";
 import { toMarkdown, toPlainText, type ReportContext } from "@/lib/export/report";
-
+import { REPORT_MESSAGES } from "@/lib/export/report-messages";
+import { LOCALES, LOCALE_NAMES, type Locale } from "@/lib/i18n/config";
 import type { ReadinessBreakdown } from "@/lib/scoring/readiness";
 
 interface ExportButtonsProps {
@@ -14,6 +15,8 @@ interface ExportButtonsProps {
   classificationId: string;
   createdAt?: string;
   readiness?: ReadinessBreakdown;
+  /** Default report language — the visitor's site language. */
+  reportLocale?: Locale;
 }
 
 export function ExportButtons({
@@ -22,10 +25,13 @@ export function ExportButtons({
   classificationId,
   createdAt,
   readiness,
+  reportLocale = "en",
 }: ExportButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const [lang, setLang] = useState<Locale>(reportLocale);
 
   const ctx: ReportContext = { input, result, classificationId, createdAt, readiness };
+  const messages = REPORT_MESSAGES[lang];
 
   function download(filename: string, content: string, type: string) {
     const blob = new Blob([content], { type });
@@ -38,13 +44,30 @@ export function ExportButtons({
   }
 
   async function copyReport() {
-    await navigator.clipboard.writeText(toPlainText(ctx));
+    await navigator.clipboard.writeText(toPlainText(ctx, messages));
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
+      <label className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-2 text-sm">
+        <Languages className="h-4 w-4 text-muted-foreground" />
+        <span className="sr-only">Report language</span>
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value as Locale)}
+          className="h-9 bg-transparent pr-1 text-sm focus:outline-none"
+          aria-label="Report language"
+        >
+          {LOCALES.map((l) => (
+            <option key={l} value={l}>
+              {LOCALE_NAMES[l]}
+            </option>
+          ))}
+        </select>
+      </label>
+
       <Button variant="outline" size="sm" onClick={copyReport}>
         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
         {copied ? "Copied" : "Copy report"}
@@ -54,8 +77,8 @@ export function ExportButtons({
         size="sm"
         onClick={() =>
           download(
-            `kustaro-${classificationId}.md`,
-            toMarkdown(ctx),
+            `kustaro-${classificationId}-${lang}.md`,
+            toMarkdown(ctx, messages),
             "text/markdown",
           )
         }
@@ -68,7 +91,17 @@ export function ExportButtons({
         onClick={() =>
           download(
             `kustaro-${classificationId}.json`,
-            JSON.stringify({ classification_id: classificationId, input, result, customs_readiness: readiness ?? null }, null, 2),
+            JSON.stringify(
+              {
+                classification_id: classificationId,
+                report_language: lang,
+                input,
+                result,
+                customs_readiness: readiness ?? null,
+              },
+              null,
+              2,
+            ),
             "application/json",
           )
         }

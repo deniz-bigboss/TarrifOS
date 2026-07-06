@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import type { GuestClassification } from "@/app/classify/actions";
 import type { ProductInputSchema } from "@/lib/validation/schemas";
 import type { Messages } from "@/lib/i18n/messages";
+import type { Locale } from "@/lib/i18n/config";
 
 /**
  * The /classify client shell. Guests get one free classification rendered
@@ -20,10 +21,12 @@ export function ClassifyClient({
   t,
   mode,
   initialValues,
+  reportLocale = "en",
 }: {
   t: Messages["app"]["wizard"];
   mode: "guest" | "authed";
   initialValues?: Partial<ProductInputSchema>;
+  reportLocale?: Locale;
 }) {
   const [guest, setGuest] = useState<GuestClassification | null>(null);
 
@@ -63,6 +66,7 @@ export function ClassifyClient({
           result={guest.result}
           classificationId="guest-preview"
           readiness={guest.readiness}
+          reportLocale={reportLocale}
           hideExports
           improveSlot={
             <ImproveConfidence
