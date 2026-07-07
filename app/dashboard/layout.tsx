@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/db/supabase/server";
 import { getSessionContext } from "@/lib/auth/session";
+import { isAdminEmail } from "@/lib/auth/admins";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
 import { SetupRequired } from "@/components/setup-required";
@@ -26,7 +27,10 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-muted/20">
-      <DashboardSidebar messages={t.app.sidebar} />
+      <DashboardSidebar
+        messages={t.app.sidebar}
+        isAdmin={isAdminEmail(session.user.email)}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardTopbar
           orgName={session.organization.name}

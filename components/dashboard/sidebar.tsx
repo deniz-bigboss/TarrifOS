@@ -7,6 +7,7 @@ import {
   CreditCard,
   KeyRound,
   LayoutDashboard,
+  MessageSquarePlus,
   PackageSearch,
   Plus,
   UploadCloud,
@@ -18,7 +19,13 @@ import type { Messages } from "@/lib/i18n/messages";
 
 type SidebarMessages = Messages["app"]["sidebar"];
 
-export function DashboardSidebar({ messages }: { messages: SidebarMessages }) {
+export function DashboardSidebar({
+  messages,
+  isAdmin = false,
+}: {
+  messages: SidebarMessages;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
 
   const nav = [
@@ -28,6 +35,10 @@ export function DashboardSidebar({ messages }: { messages: SidebarMessages }) {
     { href: "/dashboard/bulk-upload", label: messages.nav.bulkUpload, icon: UploadCloud },
     { href: "/dashboard/api-keys", label: messages.nav.apiKeys, icon: KeyRound },
     { href: "/dashboard/billing", label: messages.nav.billing, icon: CreditCard },
+    // Operator-only — appended when the signed-in user is on the admin list.
+    ...(isAdmin
+      ? [{ href: "/dashboard/admin/feedback", label: "Feedback", icon: MessageSquarePlus }]
+      : []),
   ];
 
   return (

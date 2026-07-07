@@ -14,6 +14,7 @@ import {
 } from "@/lib/db/classifications";
 import { recordUsageEvent } from "@/lib/db/usage";
 import { saveFeedback } from "@/lib/db/feedback";
+import { sendFeedbackNotification } from "@/lib/email/notifications";
 import { checkClassificationLimit } from "@/lib/billing/limits";
 import { getAIProvider } from "@/lib/ai";
 import type { ProductLookupResult } from "@/lib/ai/types";
@@ -153,6 +154,24 @@ export async function submitFeedbackAction(
       eventType: "feedback",
       metadata: { request_id: requestId },
     });
+
+    // Notify the operators. Best-effort: a mail failure must not fail the save.
+    try {
+      await sendFeedbackNotification({
+        requestId,
+        productName: detail.request.product_name,
+        orgName: session.organization.name,
+        recommendedCode: detail.result.recommended_code,
+        wasCorrect: parsed.data.was_correct ?? null,
+        actualCode: parsed.data.actual_code ?? null,
+        shipmentCleared: parsed.data.shipment_cleared ?? null,
+        delayOccurred: parsed.data.delay_occurred ?? null,
+        penaltyOccurred: parsed.data.penalty_occurred ?? null,
+        brokerNotes: parsed.data.broker_notes ?? null,
+      });
+    } catch (mailErr) {
+      console.error("[submitFeedbackAction] notification failed:", mailErr);
+    }
 
     revalidatePath(`/dashboard/classifications/${requestId}`);
     return { ok: true, data: { id } };
