@@ -63,6 +63,64 @@ function renderMarkdown(md: string) {
   return out;
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Escape text, then apply the two inline markers (**bold**, `code`). */
+function inlineToHtml(t: string): string {
+  return escapeHtml(t)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+/** Deterministic Markdown → sanitized HTML string for the print document. */
+function markdownToHtml(md: string): string {
+  const lines = md.split("\n");
+  let html = "";
+  let inList = false;
+  const closeList = () => {
+    if (inList) {
+      html += "</ul>";
+      inList = false;
+    }
+  };
+  for (const line of lines) {
+    if (line.startsWith("# ")) {
+      closeList();
+      html += `<h1>${inlineToHtml(line.slice(2))}</h1>`;
+    } else if (line.startsWith("## ")) {
+      closeList();
+      html += `<h2>${inlineToHtml(line.slice(3))}</h2>`;
+    } else if (line.startsWith("### ")) {
+      closeList();
+      html += `<h3>${inlineToHtml(line.slice(4))}</h3>`;
+    } else if (line.startsWith("- ")) {
+      if (!inList) {
+        html += "<ul>";
+        inList = true;
+      }
+      html += `<li>${inlineToHtml(line.slice(2))}</li>`;
+    } else if (line.startsWith("> ")) {
+      closeList();
+      html += `<blockquote>${inlineToHtml(line.slice(2))}</blockquote>`;
+    } else if (line.trim() === "---") {
+      closeList();
+      html += "<hr>";
+    } else if (line.trim() === "") {
+      closeList();
+    } else {
+      closeList();
+      html += `<p>${inlineToHtml(line)}</p>`;
+    }
+  }
+  closeList();
+  return html;
+}
+
 /**
  * The exportable report with a language switch. English renders instantly and
  * free. A translation is produced ONLY when the user clicks "Generate
@@ -127,6 +185,55 @@ export function ReportPanel({
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  /**
+   * Print / save-as-PDF a clean, self-contained document of ONLY the report —
+   * opened in a fresh window so the dashboard chrome (sidebar, nav, other
+   * cards) never bleeds into the output. RTL-aware for translated reports.
+   */
+  function printReport() {
+    const dir = showingLocale !== "en" && isRtl(showingLocale) ? "rtl" : "ltr";
+    const body = markdownToHtml(shownMd);
+    const meta = [createdAt, `ID: ${classificationId}`]
+      .filter(Boolean)
+      .map((s) => escapeHtml(String(s)))
+      .join(" &middot; ");
+    const doc = `<!doctype html><html dir="${dir}" lang="${showingLocale}"><head><meta charset="utf-8"><title>Kustaro Customs-Readiness Report</title><style>
+      @page { margin: 18mm; }
+      * { box-sizing: border-box; }
+      body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.55; font-size: 12.5px; margin: 0; }
+      .brand { font-size: 20px; font-weight: 700; color: #0f766e; letter-spacing: -0.02em; }
+      .sub { font-size: 11px; color: #64748b; margin: 2px 0 14px; }
+      h1 { font-size: 18px; margin: 16px 0 8px; }
+      h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin: 16px 0 6px; }
+      h3 { font-size: 13px; margin: 10px 0 4px; }
+      p { margin: 5px 0; }
+      ul { margin: 5px 0; padding-inline-start: 20px; }
+      li { margin: 2px 0; }
+      code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+      blockquote { margin: 6px 0; padding-inline-start: 12px; border-inline-start: 2px solid #cbd5e1; color: #475569; font-style: italic; font-size: 11px; }
+      hr { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; }
+      header { border-bottom: 2px solid #0d9488; padding-bottom: 10px; margin-bottom: 8px; }
+    </style></head><body>
+      <header><div class="brand">Kustaro</div><div class="sub">Customs-Readiness Report${meta ? ` &middot; ${meta}` : ""}</div></header>
+      ${body}
+    </body></html>`;
+
+    const w = window.open("", "_blank", "width=820,height=1000");
+    if (!w) {
+      // Popup blocked — fall back to printing the page as-is.
+      window.print();
+      return;
+    }
+    w.document.open();
+    w.document.write(doc);
+    w.document.close();
+    // Give the new document a tick to lay out before invoking print.
+    setTimeout(() => {
+      w.focus();
+      w.print();
+    }, 300);
   }
 
   return (
@@ -208,7 +315,7 @@ export function ReportPanel({
           >
             <Download className="h-4 w-4" /> JSON
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
+          <Button variant="outline" size="sm" onClick={printReport}>
             <FileText className="h-4 w-4" /> PDF
           </Button>
 
