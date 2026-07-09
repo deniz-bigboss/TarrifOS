@@ -111,6 +111,7 @@ export const pt: Messages = {
   legal: {
     privacy: "Política de Privacidade",
     terms: "Termos de Serviço",
+    refunds: "Política de reembolso",
     lastUpdated: "Última atualização",
     authoritativeNote:
       "Este documento é fornecido em inglês. A versão em inglês é o texto vinculante; as traduções da interface não o modificam.",

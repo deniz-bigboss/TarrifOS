@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSessionContext } from "@/lib/auth/session";
 import { createClient } from "@/lib/db/supabase/server";
 import { checkClassificationLimit } from "@/lib/billing/limits";
@@ -101,6 +102,19 @@ export default async function BillingPage({
 
       <p className="text-sm text-muted-foreground">
         Usage-based API pricing: {API_USAGE_PRICING}
+      </p>
+
+      <p className="text-sm text-muted-foreground">
+        Cancel anytime — your plan stays active until the end of the paid period.
+        See our{" "}
+        <Link href="/refunds" className="font-medium text-primary hover:underline">
+          Refund &amp; Cancellation Policy
+        </Link>{" "}
+        or email{" "}
+        <a href="mailto:support@kustaro.app" className="font-medium text-primary hover:underline">
+          support@kustaro.app
+        </a>{" "}
+        for billing help.
       </p>
     </div>
   );

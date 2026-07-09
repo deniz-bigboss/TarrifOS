@@ -113,6 +113,7 @@ export const en = {
   legal: {
     privacy: "Privacy Policy",
     terms: "Terms of Service",
+    refunds: "Refund Policy",
     lastUpdated: "Last updated",
     authoritativeNote:
       "This document is provided in English. The English version is the authoritative text; translations of the interface do not modify it.",

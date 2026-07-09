@@ -111,6 +111,7 @@ export const de: Messages = {
   legal: {
     privacy: "Datenschutzerklärung",
     terms: "Nutzungsbedingungen",
+    refunds: "Rückerstattungsrichtlinie",
     lastUpdated: "Zuletzt aktualisiert",
     authoritativeNote:
       "Dieses Dokument liegt auf Englisch vor. Die englische Fassung ist maßgeblich; Übersetzungen der Oberfläche ändern sie nicht.",

@@ -109,6 +109,7 @@ export const zh: Messages = {
   legal: {
     privacy: "隐私政策",
     terms: "服务条款",
+    refunds: "退款政策",
     lastUpdated: "最近更新",
     authoritativeNote:
       "本文件以英文提供。英文版本为具有约束力的文本；界面翻译不改变其内容。",

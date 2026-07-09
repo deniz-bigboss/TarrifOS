@@ -52,9 +52,11 @@ export function verifyPaddleSignature(
 export interface PaddleEvent {
   event_type?: string;
   data?: {
-    id?: string; // sub_...
+    id?: string; // sub_... (subscription) or adj_... (adjustment)
     status?: string; // active | trialing | past_due | paused | canceled
+    action?: string; // adjustment action: refund | credit | chargeback | ...
     customer_id?: string; // ctm_...
+    subscription_id?: string; // sub_... (present on adjustments)
     custom_data?: { organization_id?: string } | null;
     items?: Array<{ price?: { id?: string } | null } | null> | null;
   };
@@ -79,6 +81,9 @@ export interface PaddleWebhookDeps {
     plan: PlanId | null,
     status: string,
   ) => Promise<void>;
+  /** Resolve an org id from a Paddle customer id. Used for adjustment (refund)
+   * events, which carry a customer but usually no checkout custom_data. */
+  resolveOrgIdByCustomer?: (customerId: string) => Promise<string | null>;
 }
 
 export interface PaddleWebhookResult {
@@ -96,6 +101,24 @@ export async function applyPaddleEvent(
   deps: PaddleWebhookDeps,
 ): Promise<PaddleWebhookResult> {
   const type = event.event_type ?? "";
+
+  // Adjustment events (refunds, credits, chargebacks) — record them for the
+  // billing audit trail. Plan changes are NOT made here: a refund that also
+  // ends the subscription arrives separately as subscription.canceled, and a
+  // partial refund should not revoke access. The org is resolved from the
+  // customer id since adjustments rarely carry checkout custom_data.
+  if (type.startsWith("adjustment.")) {
+    const adj = event.data ?? {};
+    let orgId = adj.custom_data?.organization_id ?? null;
+    if (!orgId && adj.customer_id && deps.resolveOrgIdByCustomer) {
+      orgId = await deps.resolveOrgIdByCustomer(adj.customer_id);
+    }
+    if (!orgId) return { received: true, handled: false };
+    const action = adj.action ?? "adjustment";
+    await deps.recordBillingEvent(orgId, null, `${type}:${action}`);
+    return { received: true, handled: true, action: `${action} recorded` };
+  }
+
   if (!type.startsWith("subscription.")) {
     return { received: true, handled: false };
   }

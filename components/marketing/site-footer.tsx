@@ -20,6 +20,7 @@ export function SiteFooter() {
           <Link href="/pricing" className="hover:text-foreground">{t.footer.pricing}</Link>
           <Link href="/privacy" className="hover:text-foreground">{t.legal.privacy}</Link>
           <Link href="/terms" className="hover:text-foreground">{t.legal.terms}</Link>
+          <Link href="/refunds" className="hover:text-foreground">{t.legal.refunds}</Link>
           <Link href="/login" className="hover:text-foreground">{t.footer.login}</Link>
           <Link href="/signup" className="hover:text-foreground">{t.footer.signup}</Link>
         </div>

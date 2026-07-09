@@ -111,6 +111,7 @@ export const tr: Messages = {
   legal: {
     privacy: "Gizlilik Politikası",
     terms: "Hizmet Şartları",
+    refunds: "İade Politikası",
     lastUpdated: "Son güncelleme",
     authoritativeNote:
       "Bu belge İngilizce olarak sunulmaktadır. Bağlayıcı metin İngilizce sürümdür; arayüz çevirileri bu metni değiştirmez.",

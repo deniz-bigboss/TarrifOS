@@ -111,6 +111,7 @@ export const ar: Messages = {
   legal: {
     privacy: "سياسة الخصوصية",
     terms: "شروط الخدمة",
+    refunds: "سياسة الاسترداد",
     lastUpdated: "آخر تحديث",
     authoritativeNote:
       "هذه الوثيقة متاحة بالإنجليزية. النسخة الإنجليزية هي النص المُلزم؛ ترجمات الواجهة لا تعدّلها.",

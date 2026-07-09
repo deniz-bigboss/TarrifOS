@@ -4,7 +4,7 @@ import { SEO_PAGES } from "@/lib/seo/pages";
 const BASE = "https://kustaro.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const core = ["", "/classify", "/pricing", "/privacy", "/terms"].map((p) => ({
+  const core = ["", "/classify", "/pricing", "/privacy", "/terms", "/refunds"].map((p) => ({
     url: `${BASE}${p}`,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : 0.8,

@@ -29,7 +29,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "4. Plans, limits, and billing",
     paragraphs: [
-      "Each plan includes a monthly classification allowance and feature set as described on the pricing page. Paid billing is processed by our payment provider when enabled; plan limits are enforced per workspace. We may change plan pricing with notice effective from your next billing cycle.",
+      "Each plan includes a monthly classification allowance and feature set as described on the pricing page. Paid plans are prepaid, auto-renewing monthly subscriptions processed by Paddle, our merchant of record; plan limits are enforced per workspace. We may change plan pricing with notice effective from your next billing cycle. Refunds and cancellations are governed by our Refund & Cancellation Policy (/refunds), which forms part of these terms.",
     ],
   },
   {

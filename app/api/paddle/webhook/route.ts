@@ -61,6 +61,14 @@ export async function POST(request: Request) {
         status,
       });
     },
+    resolveOrgIdByCustomer: async (customerId) => {
+      const { data } = await admin
+        .from("organizations")
+        .select("id")
+        .eq("paddle_customer_id", customerId)
+        .maybeSingle();
+      return (data?.id as string) ?? null;
+    },
   });
 
   return NextResponse.json(result);
