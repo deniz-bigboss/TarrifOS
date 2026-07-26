@@ -122,14 +122,20 @@ dual-use…) always carry a review warning. See `/terms` and `/privacy`.
 
 ## 9. Deployment to Kustaro.app
 
-1. Vercel project `tariffos` currently serves production from this repo's
-   working branch; attach **kustaro.app** in Project → Settings → Domains
-   once the domain is purchased.
-2. Update `NEXT_PUBLIC_SITE_URL=https://kustaro.app` and redeploy.
-3. Update Supabase Auth site URL + redirect list to kustaro.app.
-4. Point the Paddle webhook at `https://kustaro.app/api/paddle/webhook`.
-5. Canonical URLs, Open Graph, sitemap, robots, and the web manifest already
-   point at `https://kustaro.app`.
+Live. Vercel project **kustaro** serves production from this repo's working
+branch, with **kustaro.app** attached (and `www.` redirecting to the apex).
+Already wired:
+
+- `NEXT_PUBLIC_SITE_URL`, canonical URLs, Open Graph, sitemap, robots and the
+  web manifest all point at `https://kustaro.app`.
+- Supabase Auth site URL and redirect allow-list point at kustaro.app, with
+  transactional mail sent through Resend SMTP from `no-reply@kustaro.app`.
+- The Paddle webhook destination points at
+  `https://kustaro.app/api/paddle/webhook`, and Paddle's Default Payment Link
+  points at `https://kustaro.app/pay`.
+
+Both are per-account settings in Paddle, so the sandbox and live accounts each
+need their own webhook destination, Default Payment Link and approved domain.
 
 ---
 
