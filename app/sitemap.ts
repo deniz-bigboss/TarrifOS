@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SEO_PAGES } from "@/lib/seo/pages";
+import { allCodePages } from "@/lib/seo/code-pages";
 
 const BASE = "https://kustaro.app";
 
@@ -14,5 +15,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
-  return [...core, ...seo];
+  // One reference page per HS code in the dataset.
+  const codes = allCodePages().map((page) => ({
+    url: `${BASE}/hs-code/${page.slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+  return [...core, ...seo, ...codes];
 }
