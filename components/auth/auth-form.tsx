@@ -87,7 +87,10 @@ export function AuthForm({
             password,
             options: {
               data: { full_name: fullName },
-              emailRedirectTo: `${window.location.origin}/auth/callback`,
+              // Carry the destination through confirmation too, otherwise
+              // anyone who signs up on their way somewhere lands on the
+              // dashboard instead and loses the thread.
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
             },
           });
           if (error) throw error;

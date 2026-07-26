@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, UserPlus } from "lucide-react";
 import { ClassificationWizard } from "@/components/classification/wizard";
@@ -8,6 +8,11 @@ import { ResultView } from "@/components/classification/result-view";
 import { ImproveConfidence } from "@/components/classification/improve-confidence";
 import { Button } from "@/components/ui/button";
 import type { GuestClassification } from "@/app/classify/actions";
+import {
+  clearPendingClassification,
+  readPendingClassification,
+  savePendingClassification,
+} from "@/lib/classify/handoff";
 import type { ProductInputSchema } from "@/lib/validation/schemas";
 import type { Messages } from "@/lib/i18n/messages";
 
@@ -26,6 +31,20 @@ export function ClassifyClient({
   initialValues?: Partial<ProductInputSchema>;
 }) {
   const [guest, setGuest] = useState<GuestClassification | null>(null);
+  // undefined = not looked yet (first render is server-side, no localStorage)
+  const [handoff, setHandoff] = useState<Partial<ProductInputSchema> | null | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    if (mode !== "authed") {
+      setHandoff(null);
+      return;
+    }
+    const pending = readPendingClassification();
+    if (pending) clearPendingClassification();
+    setHandoff(pending);
+  }, [mode]);
 
   if (mode === "guest" && guest) {
     const pct = (v: number) => Math.round(v * 100);
@@ -51,7 +70,10 @@ export function ClassifyClient({
               </p>
             </div>
             <Button asChild>
-              <Link href="/signup">
+              <Link
+                href="/signup?redirect=/classify"
+                onClick={() => savePendingClassification(guest.input as Partial<ProductInputSchema>)}
+              >
                 <UserPlus className="h-4 w-4" /> Create free account
               </Link>
             </Button>
@@ -83,12 +105,25 @@ export function ClassifyClient({
     );
   }
 
+  const values = handoff ? { ...initialValues, ...handoff } : initialValues;
+
   return (
-    <ClassificationWizard
-      t={t}
-      mode={mode}
-      initialValues={initialValues}
-      onGuestResult={setGuest}
-    />
+    <div className="space-y-4">
+      {handoff && (
+        <p className="rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+          Picked up where you left off — the product you tried before signing up
+          is filled in below. Run it and this time it&apos;s saved.
+        </p>
+      )}
+      <ClassificationWizard
+        // Remount once the stored details arrive so they become the form's
+        // defaults rather than being ignored by the already-initialised form.
+        key={handoff ? "handoff" : "fresh"}
+        t={t}
+        mode={mode}
+        initialValues={values}
+        onGuestResult={setGuest}
+      />
+    </div>
   );
 }
