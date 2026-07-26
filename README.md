@@ -145,6 +145,21 @@ by `PAYMENT_PROVIDER`:
 - **Unconfigured.** Pricing still shows; upgrades open a contact dialog and
   the founder sets plans manually in the `organizations` table.
 
+### Paddle webhook events
+
+Subscribe the notification destination (`/api/paddle/webhook`) to both groups:
+
+- `subscription.created` · `activated` · `updated` · `canceled` · `paused` ·
+  `resumed` — these drive the plan on the organization.
+- `adjustment.created` · `adjustment.updated` — refunds and credits. These are
+  recorded to `billing_events` as an audit trail and deliberately do **not**
+  change the plan: a refund that also ends the subscription arrives separately
+  as `subscription.canceled`, and a partial refund must not revoke access.
+
+The environment (sandbox vs. production) is auto-detected from the client
+token prefix (`test_` → sandbox), so `PADDLE_ENV` only needs setting to
+override. Refund terms are published at `/refunds`.
+
 Plans: Free $0 (3/mo) · Starter $19 (50/mo) · Pro $49 (250/mo) · Business
 $149 (1,000/mo) · Forwarder from $499 (custom). Limits reset monthly; at the
 limit no AI calls are made and old classifications stay viewable.
