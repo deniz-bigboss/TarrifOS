@@ -88,3 +88,72 @@ export async function sendFeedbackNotification(
     html,
   });
 }
+
+function billingEmail(heading: string, lead: string, rows: Array<[string, string]>): string {
+  const url = siteUrl();
+  const table = rows
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 12px 6px 0;color:#64748b;font-size:13px;white-space:nowrap">${k}</td><td style="padding:6px 0;color:#0f172a;font-size:13px;font-weight:600">${v}</td></tr>`,
+    )
+    .join("");
+  return `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1e293b">
+  <div style="font-size:20px;font-weight:700;color:#0f766e;margin-bottom:16px">Kustaro</div>
+  <h1 style="font-size:17px;margin:0 0 6px;color:#0f172a">${heading}</h1>
+  <p style="font-size:13px;line-height:1.6;color:#475569;margin:0 0 16px">${lead}</p>
+  <table style="border-collapse:collapse;width:100%">${table}</table>
+  <p style="margin:22px 0 0">
+    <a href="${url}/dashboard/admin/revenue" style="display:inline-block;background:#0d9488;color:#fff;text-decoration:none;font-weight:600;font-size:13px;padding:10px 18px;border-radius:8px">Open revenue console</a>
+  </p>
+  <hr style="border:none;border-top:1px solid #e2e8f0;margin:22px 0">
+  <p style="font-size:12px;color:#94a3b8;margin:0">Kustaro operator notification &middot; sent to every founder on the admin list. Paddle remains the source of truth for payouts.</p>
+</div>`;
+}
+
+/** Notify the founders that a new paid subscription started. Best-effort. */
+export async function sendPurchaseNotification(n: {
+  planName: string;
+  planPrice: string;
+  organizationName: string | null;
+  subscriptionId: string | null;
+}): Promise<void> {
+  const html = billingEmail(
+    "New paid subscription 🎉",
+    "A customer just subscribed. Amounts, fees and refunds are always reconciled in the revenue console.",
+    [
+      ["Plan", esc(n.planName)],
+      ["Price", esc(n.planPrice) + " / month"],
+      ["Workspace", esc(n.organizationName ?? "—")],
+      ["Subscription", esc(n.subscriptionId ?? "—")],
+    ],
+  );
+  await sendEmail({
+    to: getAdminEmails(),
+    subject: `New ${n.planName} subscription — Kustaro`,
+    html,
+  });
+}
+
+/** Notify the founders that a refund or credit was issued. Best-effort. */
+export async function sendRefundNotification(n: {
+  action: string;
+  amount: string | null;
+  organizationName: string | null;
+  transactionId: string | null;
+}): Promise<void> {
+  const html = billingEmail(
+    `Refund issued (${esc(n.action)})`,
+    "Money was returned to a customer. This does not change their plan on its own — a cancellation arrives as a separate event.",
+    [
+      ["Type", esc(n.action)],
+      ["Amount", esc(n.amount ?? "see Paddle")],
+      ["Workspace", esc(n.organizationName ?? "—")],
+      ["Transaction", esc(n.transactionId ?? "—")],
+    ],
+  );
+  await sendEmail({
+    to: getAdminEmails(),
+    subject: `Refund issued — Kustaro`,
+    html,
+  });
+}

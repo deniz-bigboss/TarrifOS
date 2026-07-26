@@ -6,6 +6,12 @@ import {
   type PaddleEvent,
 } from "@/lib/billing/paddle-webhook";
 import { createAdminClient, isAdminConfigured } from "@/lib/db/supabase/admin";
+import { getPlan } from "@/lib/billing/plans";
+import {
+  sendPurchaseNotification,
+  sendRefundNotification,
+} from "@/lib/email/notifications";
+import type { PlanId } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -71,5 +77,73 @@ export async function POST(request: Request) {
     },
   });
 
+  // Tell the founders about money moving. Best-effort and after the plan work:
+  // a mail failure must never make Paddle retry an event we already applied.
+  if (result.handled) {
+    try {
+      await notifyFounders(event, result.action, admin);
+    } catch (err) {
+      console.error("[paddle/webhook] notification failed:", err);
+    }
+  }
+
   return NextResponse.json(result);
+}
+
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+async function orgName(
+  admin: AdminClient,
+  event: PaddleEvent,
+): Promise<string | null> {
+  const orgId = event.data?.custom_data?.organization_id;
+  const customerId = event.data?.customer_id;
+  const query = admin.from("organizations").select("name");
+  const { data } = orgId
+    ? await query.eq("id", orgId).maybeSingle()
+    : customerId
+      ? await query.eq("paddle_customer_id", customerId).maybeSingle()
+      : { data: null };
+  return (data?.name as string) ?? null;
+}
+
+/**
+ * Emails the operator allowlist when a subscription starts or money is
+ * refunded. Renewals are intentionally quiet — they would arrive on every
+ * billing cycle, and the revenue console already reports them.
+ */
+async function notifyFounders(
+  event: PaddleEvent,
+  action: string | undefined,
+  admin: AdminClient,
+): Promise<void> {
+  const type = event.event_type ?? "";
+
+  if (type === "subscription.created") {
+    // `action` is "plan → <id>" from applyPaddleEvent.
+    const planId = action?.split("→").pop()?.trim() as PlanId | undefined;
+    if (!planId) return;
+    const plan = getPlan(planId);
+    await sendPurchaseNotification({
+      planName: plan.name,
+      planPrice: plan.price,
+      organizationName: await orgName(admin, event),
+      subscriptionId: event.data?.id ?? null,
+    });
+    return;
+  }
+
+  if (type.startsWith("adjustment.") && type !== "adjustment.updated") {
+    const totals = event.data?.totals;
+    const amount =
+      totals?.total != null
+        ? `${totals.total} ${totals.currency_code ?? ""}`.trim()
+        : null;
+    await sendRefundNotification({
+      action: event.data?.action ?? "refund",
+      amount,
+      organizationName: await orgName(admin, event),
+      transactionId: event.data?.transaction_id ?? null,
+    });
+  }
 }

@@ -11,6 +11,7 @@ import {
   PackageSearch,
   Plus,
   UploadCloud,
+  Wallet,
 } from "lucide-react";
 import { KustaroMark } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,10 @@ export function DashboardSidebar({
     { href: "/dashboard/billing", label: messages.nav.billing, icon: CreditCard },
     // Operator-only — appended when the signed-in user is on the admin list.
     ...(isAdmin
-      ? [{ href: "/dashboard/admin/feedback", label: "Feedback", icon: MessageSquarePlus }]
+      ? [
+          { href: "/dashboard/admin/revenue", label: "Revenue", icon: Wallet },
+          { href: "/dashboard/admin/feedback", label: "Feedback", icon: MessageSquarePlus },
+        ]
       : []),
   ];
 

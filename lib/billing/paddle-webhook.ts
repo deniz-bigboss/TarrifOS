@@ -57,8 +57,11 @@ export interface PaddleEvent {
     action?: string; // adjustment action: refund | credit | chargeback | ...
     customer_id?: string; // ctm_...
     subscription_id?: string; // sub_... (present on adjustments)
+    transaction_id?: string; // txn_... (present on adjustments)
     custom_data?: { organization_id?: string } | null;
     items?: Array<{ price?: { id?: string } | null } | null> | null;
+    /** Adjustment amounts, in the currency's minor unit. */
+    totals?: { total?: string; currency_code?: string } | null;
   };
 }
 

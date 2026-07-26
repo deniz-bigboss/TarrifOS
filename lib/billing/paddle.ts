@@ -92,6 +92,38 @@ export async function paddleFetch<T = unknown>(
   return (json?.data ?? json) as T;
 }
 
+/**
+ * Fetches one page of a Paddle list endpoint, returning the rows plus the URL
+ * of the next page (Paddle returns an absolute URL in `meta.pagination.next`,
+ * and `has_more` tells us whether it is worth following).
+ */
+export async function paddleFetchPage<T = unknown>(
+  pathOrUrl: string,
+): Promise<{ data: T[]; next: string | null }> {
+  const key = process.env.PADDLE_API_KEY;
+  if (!key) throw new Error("PADDLE_API_KEY is not configured.");
+  const url = pathOrUrl.startsWith("http")
+    ? pathOrUrl
+    : `${API_BASE[paddleEnvironment()]}${pathOrUrl}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${key}` },
+    cache: "no-store",
+  });
+  const json = (await res.json().catch(() => null)) as {
+    data?: T[];
+    meta?: { pagination?: { next?: string; has_more?: boolean } };
+    error?: { detail?: string };
+  } | null;
+  if (!res.ok) {
+    throw new Error(json?.error?.detail || `Paddle API error (HTTP ${res.status}).`);
+  }
+  const pagination = json?.meta?.pagination;
+  return {
+    data: json?.data ?? [],
+    next: pagination?.has_more ? (pagination.next ?? null) : null,
+  };
+}
+
 /** Cancels a subscription immediately (used for downgrade to Free). */
 export async function cancelPaddleSubscription(
   subscriptionId: string,
