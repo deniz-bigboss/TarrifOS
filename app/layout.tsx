@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://kustaro.app"),
   alternates: { canonical: "/" },
   applicationName: "Kustaro",
+  // Google Search Console site ownership. Next renders this into <head> on
+  // every page, which also satisfies the "must be on the homepage" check.
+  verification: { google: "0NmKEddQiE8m5v6Kg0gJlMN_HDIaRrk4g9OK4fXuxWU" },
   openGraph: {
     title: "Kustaro — Classify products for customs before they ship",
     description:
