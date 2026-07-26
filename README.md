@@ -160,6 +160,25 @@ The environment (sandbox vs. production) is auto-detected from the client
 token prefix (`test_` → sandbox), so `PADDLE_ENV` only needs setting to
 override. Refund terms are published at `/refunds`.
 
+### Default Payment Link → `/pay`
+
+Paddle requires a **Default Payment Link** under Checkout settings before it
+will create any checkout — with it unset, the overlay fails with a generic
+"Something went wrong". Point it at:
+
+```
+https://kustaro.app/pay
+```
+
+Paddle appends `?_ptxn=<transaction id>` to that link when it emails a customer
+to complete or retry a payment (invoices, card-retry dunning). `/pay` is public
+by design — the recipient may have no session — and resumes the transaction in
+the Paddle overlay. The domain also has to be added to Paddle's approved
+domains, or Paddle.js refuses to open on it.
+
+Note that changing any `PADDLE_*` environment variable needs a redeploy before
+it takes effect; the running deployment keeps the values it was built with.
+
 Plans: Free $0 (3/mo) · Starter $19 (50/mo) · Pro $49 (250/mo) · Business
 $149 (1,000/mo) · Forwarder from $499 (custom). Limits reset monthly; at the
 limit no AI calls are made and old classifications stay viewable.
