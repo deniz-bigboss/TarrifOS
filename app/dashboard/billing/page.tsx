@@ -5,6 +5,7 @@ import { checkClassificationLimit } from "@/lib/billing/limits";
 import { getPlan, API_USAGE_PRICING } from "@/lib/billing/plans";
 import { getPaymentProvider } from "@/lib/billing/payment";
 import { PlanSelector } from "@/components/billing/plan-selector";
+import { CheckoutSuccess } from "@/components/billing/checkout-success";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlanId } from "@/types/database";
 
@@ -37,13 +38,16 @@ export default async function BillingPage({
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("stripe_customer_id, paddle_customer_id")
+    .select("stripe_customer_id, paddle_customer_id, paddle_subscription_id")
     .eq("id", session.organization.id)
     .single();
   const hasBillingAccount =
     provider === "paddle"
       ? Boolean(org?.paddle_customer_id)
       : Boolean(org?.stripe_customer_id);
+  // A stored subscription id means the provider's webhook has landed and the
+  // plan is granted — the signal the post-checkout banner waits on.
+  const subscriptionConfirmed = Boolean(org?.paddle_subscription_id);
 
   return (
     <div className="space-y-6">
@@ -53,10 +57,7 @@ export default async function BillingPage({
       </div>
 
       {searchParams?.checkout === "success" && (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
-          Payment received — your plan updates as soon as the provider confirms
-          the subscription. Refresh if you don&apos;t see it yet.
-        </p>
+        <CheckoutSuccess planName={plan.name} confirmed={subscriptionConfirmed} />
       )}
       {(searchParams?.checkout === "cancelled" ||
         searchParams?.checkout === "failed" ||
