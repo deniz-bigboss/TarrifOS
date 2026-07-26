@@ -54,13 +54,12 @@ export class SeedTariffDataProvider implements TariffDataProvider {
       code,
       originCountry,
       destinationCountry,
-      dutyRatePlaceholder: record.dutyRatePlaceholder,
+      dutyRatePlaceholder: seedRateLabel(
+        record.dutyRatePlaceholder,
+        destinationCountry,
+      ),
       vatRatePlaceholder: estimateVatPlaceholder(destinationCountry),
-      notes: [
-        "Duty and VAT figures are placeholders from seed data.",
-        "Preferential rates may apply under EU–Turkey Customs Union, EU–UK TCA, GSP, etc.",
-        "Confirm actual measures with an official tariff source before declaration.",
-      ],
+      notes: seedDutyNotes(destinationCountry),
       isPlaceholder: true,
     };
   }
@@ -88,6 +87,39 @@ export class SeedTariffDataProvider implements TariffDataProvider {
       severity: record.riskLevel === "high" ? "critical" : "warning",
     }));
   }
+}
+
+/**
+ * The seed dataset is EU-referenced, so its rate labels say "EU MFN". Repeating
+ * that for, say, a US import is actively misleading — the number is a generic
+ * reference, not that destination's tariff. Relabel it outside the EU/UK.
+ */
+const EU_UK = new Set([
+  "DE", "FR", "NL", "IT", "ES", "PL", "BE", "AT", "SE", "DK", "FI", "IE", "PT",
+  "CZ", "RO", "GR", "HU", "SK", "BG", "HR", "SI", "LT", "LV", "EE", "LU", "CY",
+  "MT", "GB",
+]);
+
+export function seedRateLabel(label: string, destination: string): string {
+  const dest = (destination ?? "").toUpperCase();
+  if (!dest || EU_UK.has(dest)) return label;
+  return label.replace(
+    /\(EU MFN, placeholder\)/i,
+    `(reference rate, placeholder — not specific to ${dest})`,
+  );
+}
+
+/** Destination-aware notes: don't cite EU preferences to a non-EU importer. */
+export function seedDutyNotes(destination: string): string[] {
+  const dest = (destination ?? "").toUpperCase();
+  const euLike = !dest || EU_UK.has(dest);
+  return [
+    "Duty and VAT figures are placeholders from seed data.",
+    euLike
+      ? "Preferential rates may apply under EU–Turkey Customs Union, EU–UK TCA, GSP, etc."
+      : `This figure is a cross-jurisdiction reference, not ${dest}'s own tariff — a live rate for this destination was unavailable. Preferential or free-trade-agreement rates may also apply.`,
+    "Confirm actual measures with an official tariff source before declaration.",
+  ];
 }
 
 /** Very rough VAT placeholder by destination — clearly marked as non-authoritative. */

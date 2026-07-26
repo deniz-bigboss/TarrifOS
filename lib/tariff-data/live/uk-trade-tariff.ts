@@ -112,14 +112,31 @@ export function parseUkCommodity(doc: JsonApiDoc, origin: string): ParsedUk {
   return { mfnDuty, vat, restrictions };
 }
 
+/**
+ * Fetches the tariff document for a code.
+ *
+ * Zero-padding a 6-digit heading to a 10-digit commodity only sometimes lands
+ * on a real commodity (6109.10 → 6109100000 is a 404, for instance), so when
+ * that misses we fall back to the heading document, which carries the same
+ * third-country duty and VAT measures for the heading as a whole.
+ */
 async function fetchCommodity(code: string): Promise<JsonApiDoc | null> {
   const key = `uk:commodity:${code}`;
   const cached = cacheGet<JsonApiDoc>(key);
   if (cached) return cached;
-  const doc = await fetchJson<JsonApiDoc>(
+
+  let doc = await fetchJson<JsonApiDoc>(
     `${BASE}/commodities/${toUkCommodityCode(code)}`,
     { timeoutMs: 6000 },
   );
+  if (!doc) {
+    const heading = code.replace(/\D/g, "").slice(0, 4);
+    if (heading.length === 4) {
+      doc = await fetchJson<JsonApiDoc>(`${BASE}/headings/${heading}`, {
+        timeoutMs: 6000,
+      });
+    }
+  }
   if (doc) cacheSet(key, doc);
   return doc;
 }
