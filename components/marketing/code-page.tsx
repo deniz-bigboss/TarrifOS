@@ -174,7 +174,7 @@ export function CodePageView({ page, duty }: Props) {
               will ask for, and what is still missing from your file.
             </p>
             <Button asChild className="mt-4">
-              <Link href="/classify">Classify your product free</Link>
+              <Link href={`/classify?code=${page.slug}`}>Classify your product free</Link>
             </Button>
             <p className="mt-3 text-xs text-muted-foreground">
               No account needed for the first one.
