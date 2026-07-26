@@ -12,7 +12,8 @@ interface PaddleJs {
   Initialize: (opts: { token: string }) => void;
   Checkout: {
     open: (opts: {
-      items: Array<{ priceId: string; quantity: number }>;
+      items?: Array<{ priceId: string; quantity: number }>;
+      transactionId?: string;
       customData?: Record<string, string>;
       customer?: { email?: string };
       settings?: { displayMode?: string; successUrl?: string };
@@ -69,6 +70,21 @@ function loadPaddle(): Promise<PaddleJs> {
     });
   }
   return ready;
+}
+
+/**
+ * Opens the checkout for an existing Paddle transaction. Paddle appends
+ * `?_ptxn=<id>` to our default payment link when it emails a customer to
+ * complete or retry a payment, so the landing page needs to be able to resume
+ * that transaction — no login required, since the recipient may not have a
+ * session (or any account) yet.
+ */
+export async function openPaddleTransaction(transactionId: string): Promise<void> {
+  const paddle = await loadPaddle();
+  paddle.Checkout.open({
+    transactionId,
+    settings: { displayMode: "overlay" },
+  });
 }
 
 export async function openPaddleCheckout(opts: {
