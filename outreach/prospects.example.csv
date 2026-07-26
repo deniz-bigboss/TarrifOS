@@ -1,0 +1,4 @@
+company,contact_name,contact_email,product_name,product_description,material,intended_use,origin,destination,declared_value,currency,quantity,lang
+EXAMPLE Apparel Co,Ayse,,Mens cotton crew-neck t-shirt,Short sleeve knitted t-shirt 180gsm combed cotton jersey,100% cotton,Everyday casual wear,TR,GB,6.00,GBP,1000,tr
+EXAMPLE Home Goods,Buyer name,,Stainless steel insulated bottle 750ml,Double-walled vacuum insulated drinking bottle with plastic screw lid,Stainless steel body polypropylene lid,Carrying hot or cold beverages,CN,US,12.50,USD,500,en
+EXAMPLE Leather Ltd,,,Full-grain leather bifold wallet,Hand-stitched bifold wallet with card slots,Full-grain cowhide leather,Personal accessory,TR,US,14.00,USD,300,en

@@ -116,29 +116,33 @@ export function toMarkdown(
     lines.push(
       `**${m.planReadiness}:** ${plan.readiness_score}% (${plan.readiness_label})`,
     );
-    if (plan.actions.length) {
+    const planActions = plan.actions ?? [];
+    if (planActions.length) {
       lines.push(`**${m.agentNextActions}:**`);
-      for (const a of plan.actions) {
+      for (const a of planActions) {
         lines.push(
           `- [${a.priority.toUpperCase()}] ${a.title} — ${a.owner}; ${a.timing}. ${a.context} ${a.impact}`,
         );
       }
     }
-    if (plan.documents.length) {
+    const planDocuments = plan.documents ?? [];
+    if (planDocuments.length) {
       lines.push(`**${m.documentChecklist}:**`);
-      for (const d of plan.documents) {
+      for (const d of planDocuments) {
         lines.push(`- ${d.name} — ${d.owner} (${d.status}). ${d.reason}`);
       }
     }
-    if (plan.checkpoints.length) {
+    const planCheckpoints = plan.checkpoints ?? [];
+    if (planCheckpoints.length) {
       lines.push(`**${m.complianceCheckpoints}:**`);
-      for (const c of plan.checkpoints) {
+      for (const c of planCheckpoints) {
         lines.push(`- [${c.severity.toUpperCase()}] ${c.title}: ${c.status_note} ${c.instruction}`);
       }
     }
-    if (plan.timeline.length) {
+    const planTimeline = plan.timeline ?? [];
+    if (planTimeline.length) {
       lines.push(`**${m.timeline}:**`);
-      for (const s of plan.timeline) {
+      for (const s of planTimeline) {
         lines.push(`- ${s.stage}: ${s.tasks.join(" ")}`);
       }
     }
@@ -149,25 +153,28 @@ export function toMarkdown(
   if (result.cost_optimization) {
     const opt = result.cost_optimization;
     lines.push(`## ${m.costOptimization}`);
-    if (opt.duty_comparison.length) {
+    const optDuty = opt.duty_comparison ?? [];
+    if (optDuty.length) {
       lines.push(`**${m.dutyByCandidate}:**`);
-      for (const d of opt.duty_comparison) {
+      for (const d of optDuty) {
         lines.push(
           `- \`${d.code}\`${d.is_recommended ? " (recommended)" : ""} — ${d.title}: ${d.duty_rate_placeholder}${d.estimated_duty_value != null ? ` (~${d.estimated_duty_value} ${input.currency ?? ""})` : ""}`,
         );
       }
     }
-    if (opt.trade_programs.length) {
+    const optPrograms = opt.trade_programs ?? [];
+    if (optPrograms.length) {
       lines.push(`**${m.preferentialPrograms}:**`);
-      for (const p of opt.trade_programs) {
+      for (const p of optPrograms) {
         lines.push(
           `- ${p.name} (${p.may_apply ? "may apply" : "no program found"}): ${p.potential_duty_rate}. ${p.notes}`,
         );
       }
     }
-    if (opt.recommendations.length) {
+    const optRecs = opt.recommendations ?? [];
+    if (optRecs.length) {
       lines.push(`**${m.suggestedActions}:**`);
-      opt.recommendations.forEach((r) => lines.push(`- ${r}`));
+      optRecs.forEach((r) => lines.push(`- ${r}`));
     }
     lines.push(`> ${opt.disclaimer}`);
     lines.push("");

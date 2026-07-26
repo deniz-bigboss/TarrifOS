@@ -29,3 +29,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Outreach working files (prospect lists and generated reports stay local)
+outreach/prospects.csv
+outreach/reports/
+outreach/drafts/
+outreach/tracking.csv
