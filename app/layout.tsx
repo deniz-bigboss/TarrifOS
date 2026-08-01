@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { cn } from "@/lib/utils";
 import { getLocale } from "@/lib/i18n/server";
 import { isRtl } from "@/lib/i18n/config";
+import { isPublicAccessSuspended } from "@/lib/site/access";
 import "./globals.css";
 
 // Inter everywhere — headings included — for one uniform voice across the site.
@@ -27,6 +28,12 @@ export const metadata: Metadata = {
   // Google Search Console site ownership. Next renders this into <head> on
   // every page, which also satisfies the "must be on the homepage" check.
   verification: { google: "0NmKEddQiE8m5v6Kg0gJlMN_HDIaRrk4g9OK4fXuxWU" },
+  // Belt and braces alongside robots.txt: while public access is suspended,
+  // every page carries an explicit noindex so nothing already crawled sticks
+  // around in the index.
+  ...(isPublicAccessSuspended()
+    ? { robots: { index: false, follow: false } }
+    : {}),
   openGraph: {
     title: "Kustaro — Classify products for customs before they ship",
     description:

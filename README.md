@@ -63,6 +63,38 @@ See `.env.example` for the full annotated list. The short version:
 - **Optional billing:** Paddle (`NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`,
   `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_*`) or Stripe
   (`STRIPE_*`) behind `PAYMENT_PROVIDER`.
+- **Public access:** `SITE_PUBLIC=1` opens the site; anything else keeps it
+  closed. See below.
+
+### Public-access gate
+
+The site ships **closed to the public**. Anonymous visitors get the holding
+page at `/unavailable`, crawlers are told to index nothing, and
+`changePlanAction` refuses to start a new subscription. This is deliberate: the
+gate should only ever come down as an explicit act, never because a config
+value went missing.
+
+While the gate is up:
+
+| Still works | Blocked |
+| --- | --- |
+| `/api/paddle/webhook`, `/api/cron/*` (existing billing must not break) | every marketing, product and dashboard page |
+| `/login` and `/auth/*` (so operators can get in) | `/signup` — no new accounts |
+| `/robots.txt`, `/sitemap.xml` (so they can say "index nothing") | new subscriptions, on any plan |
+| downgrade / cancel — nobody gets trapped in a paid plan | |
+
+Two ways past it:
+
+- **Operators.** Anyone on the admin allowlist (`lib/auth/admins.ts`, or
+  `ADMIN_EMAILS`) passes automatically once signed in. No setup needed.
+- **A shared preview link.** Set `SITE_PREVIEW_KEY` to a long random string,
+  then send `https://kustaro.app/?preview=<key>`. That swaps the key for a
+  7-day cookie and strips it from the URL, so a lawyer or advisor can browse
+  the whole site without an account.
+
+**To reopen:** set `SITE_PUBLIC=1` in Vercel and redeploy. Also restore the
+lifecycle cron in `vercel.json` (removed while closed — see §9) if you want
+onboarding email running again.
 
 ## 3. Free-first development
 
@@ -136,6 +168,13 @@ Already wired:
 
 Both are per-account settings in Paddle, so the sandbox and live accounts each
 need their own webhook destination, Default Payment Link and approved domain.
+
+**Current status: closed to the public** pending legal review — see the
+public-access gate in §2. `vercel.json` runs two crons while closed
+(`refresh-tariffs`, `digest`); the lifecycle onboarding cron is deliberately
+unscheduled, because emailing people back to a site they can't open helps
+nobody. The route still exists and refuses to send while the gate is up, so
+re-enabling it is a one-line change to `vercel.json`.
 
 ---
 

@@ -8,6 +8,7 @@ import {
   type LifecycleEmail,
   type WorkspaceState,
 } from "@/lib/email/lifecycle";
+import { isPublicAccessSuspended } from "@/lib/site/access";
 import type { PlanId } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,12 @@ export async function GET(request: Request) {
   }
   if (!isEmailConfigured()) {
     return NextResponse.json({ error: "email not configured" }, { status: 503 });
+  }
+  // Nudging people back to a site they cannot reach would be both useless and
+  // rude. The schedule is removed from vercel.json while access is suspended;
+  // this stops a manual run from doing it anyway.
+  if (isPublicAccessSuspended()) {
+    return NextResponse.json({ skipped: "public access suspended", sent: 0 });
   }
 
   const dryRun = new URL(request.url).searchParams.get("dry") === "1";

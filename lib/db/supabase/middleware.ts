@@ -7,13 +7,20 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
  * Refreshes the Supabase auth session on every request and guards the
  * /dashboard area. If Supabase isn't configured we no-op so the marketing
  * site still renders.
+ *
+ * Returns the signed-in user alongside the response so the caller can make
+ * identity-based decisions (the public-access gate needs to know whether the
+ * visitor is an operator) without paying for a second `getUser()` round trip.
  */
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest): Promise<{
+  response: NextResponse;
+  email: string | null;
+}> {
   let response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anon) return response;
+  if (!url || !anon) return { response, email: null };
 
   const supabase = createServerClient(url, anon, {
     cookies: {
@@ -36,6 +43,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const email = user?.email ?? null;
   const path = request.nextUrl.pathname;
   const isProtected = path.startsWith("/dashboard");
 
@@ -43,8 +51,8 @@ export async function updateSession(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("redirect", path);
-    return NextResponse.redirect(redirectUrl);
+    return { response: NextResponse.redirect(redirectUrl), email };
   }
 
-  return response;
+  return { response, email };
 }

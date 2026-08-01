@@ -12,6 +12,7 @@ import {
   createPaddlePortalSession,
   paddlePriceIdForPlan,
 } from "@/lib/billing/paddle";
+import { isPublicAccessSuspended } from "@/lib/site/access";
 import type { PlanId } from "@/types/database";
 import type { ActionResult } from "@/app/dashboard/classifications/actions";
 
@@ -43,6 +44,17 @@ export async function changePlanAction(
   const session = await getSessionContext();
   if (!session) return { ok: false, error: "Not authenticated." };
   if (!PLANS[planId]) return { ok: false, error: "Unknown plan." };
+
+  // No money changes hands while public access is suspended. Operators can
+  // still reach this page through the access gate, so the block belongs here
+  // too and not only in middleware. Downgrades and cancellations stay open —
+  // never trap someone in a paid plan.
+  if (isPublicAccessSuspended() && planId !== "free") {
+    return {
+      ok: false,
+      error: "Kustaro isn't accepting new subscriptions at the moment.",
+    };
+  }
 
   const provider = getPaymentProvider();
 
