@@ -29,7 +29,21 @@ export const HOLDING_PATH = "/unavailable";
 /** How long a preview grant lasts before the visitor needs the link again. */
 const PREVIEW_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
+/**
+ * Hard closure, overriding SITE_PUBLIC.
+ *
+ * The site was reopened briefly to check the production build and then needed
+ * to go dark again, without waiting on a dashboard round trip. While this is
+ * true the gate stays up no matter what SITE_PUBLIC says — closing must not
+ * depend on config that only one person can reach.
+ *
+ * To reopen: set this to false. SITE_PUBLIC then governs again, so the site
+ * comes back only if that is also set to "1".
+ */
+const FORCE_CLOSED = true;
+
 export function isPublicAccessSuspended(): boolean {
+  if (FORCE_CLOSED) return true;
   return process.env.SITE_PUBLIC !== "1";
 }
 

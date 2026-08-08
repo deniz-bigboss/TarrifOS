@@ -92,9 +92,15 @@ Two ways past it:
   7-day cookie and strips it from the URL, so a lawyer or advisor can browse
   the whole site without an account.
 
-**To reopen:** set `SITE_PUBLIC=1` in Vercel and redeploy. Also restore the
-lifecycle cron in `vercel.json` (removed while closed — see §9) if you want
-onboarding email running again.
+**Currently hard-closed.** `FORCE_CLOSED` in `lib/site/access.ts` is `true`,
+which overrides `SITE_PUBLIC` entirely — so a stale `SITE_PUBLIC=1` sitting in
+Vercel does nothing. Closing the site should never depend on a dashboard only
+one person can reach.
+
+**To reopen:** set `FORCE_CLOSED = false`, and set `SITE_PUBLIC=1` in Vercel
+(both are required — the env var governs again once the override is off). Also
+restore the lifecycle cron in `vercel.json` (removed while closed — see §9) if
+you want onboarding email running again.
 
 ## 3. Free-first development
 
