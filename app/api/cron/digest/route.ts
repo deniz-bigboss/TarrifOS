@@ -4,6 +4,7 @@ import { getAdminEmails } from "@/lib/auth/admins";
 import { sendEmail, isEmailConfigured } from "@/lib/email/resend";
 import { isPaddleConfigured } from "@/lib/billing/paddle";
 import { loadRevenueSummary, formatMoney } from "@/lib/billing/revenue";
+import { isPublicAccessSuspended } from "@/lib/site/access";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -26,6 +27,14 @@ export async function GET(request: Request) {
   }
   if (!isAdminConfigured()) {
     return NextResponse.json({ error: "supabase admin not configured" }, { status: 503 });
+  }
+  // A closed site has no funnel to report on, so the daily mail is just noise.
+  // The schedule is removed from vercel.json too; this stops a stray run from
+  // sending anyway. `?force=1` still works — silencing the daily digest should
+  // not take away the ability to pull the numbers on demand.
+  const force = new URL(request.url).searchParams.get("force") === "1";
+  if (isPublicAccessSuspended() && !force) {
+    return NextResponse.json({ skipped: "public access suspended", sent: 0 });
   }
 
   const now = new Date();

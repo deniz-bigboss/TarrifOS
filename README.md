@@ -176,11 +176,16 @@ Both are per-account settings in Paddle, so the sandbox and live accounts each
 need their own webhook destination, Default Payment Link and approved domain.
 
 **Current status: closed to the public** pending legal review — see the
-public-access gate in §2. `vercel.json` runs two crons while closed
-(`refresh-tariffs`, `digest`); the lifecycle onboarding cron is deliberately
-unscheduled, because emailing people back to a site they can't open helps
-nobody. The route still exists and refuses to send while the gate is up, so
-re-enabling it is a one-line change to `vercel.json`.
+public-access gate in §2.
+
+While closed, `vercel.json` schedules only `refresh-tariffs`, which sends no
+mail. Both email crons are deliberately unscheduled: the lifecycle onboarding
+run, because nudging people back to a site they can't open helps nobody, and
+the founder digest, because a closed site has no funnel to report on. Both
+routes still exist and refuse to send while the gate is up, so re-enabling
+them is a one-line change to `vercel.json` each. The digest additionally
+accepts `?force=1` for an on-demand run — silencing the daily mail should not
+take away the ability to pull the numbers.
 
 ---
 
