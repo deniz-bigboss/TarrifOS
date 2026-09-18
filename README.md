@@ -3,7 +3,9 @@
 **Self-serve customs-readiness workspace for product classification, HS-code
 candidates, document checklists, risk flags, and exportable reports.**
 
-Live: **https://kustaro.app** (also served at tariff-os.vercel.app)
+Live: **https://kustaro.app** — currently **closed to the public** pending
+legal review. See [`CLAUDE.md`](./CLAUDE.md) for the project's current posture,
+open defects, and working notes before making changes.
 
 Kustaro helps importers, exporters, e-commerce brands, and freight teams
 classify products for customs **before they ship**: a guided wizard turns
@@ -99,8 +101,8 @@ one person can reach.
 
 **To reopen:** set `FORCE_CLOSED = false`, and set `SITE_PUBLIC=1` in Vercel
 (both are required — the env var governs again once the override is off). Also
-restore the lifecycle cron in `vercel.json` (removed while closed — see §9) if
-you want onboarding email running again.
+restore the two email crons in `vercel.json` (both removed while closed — see
+§9) if you want onboarding email and the founder digest running again.
 
 ## 3. Free-first development
 
