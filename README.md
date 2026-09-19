@@ -4,8 +4,9 @@
 candidates, document checklists, risk flags, and exportable reports.**
 
 Live: **https://kustaro.app** — currently **closed to the public** pending
-legal review. See [`CLAUDE.md`](./CLAUDE.md) for the project's current posture,
-open defects, and working notes before making changes.
+legal review. See [`AGENTS.md`](./AGENTS.md) for the project's current posture,
+open defects, and working notes before making changes. It is the brief for any
+AI assistant working here; `CLAUDE.md` is a stub pointing at it.
 
 Kustaro helps importers, exporters, e-commerce brands, and freight teams
 classify products for customs **before they ship**: a guided wizard turns
