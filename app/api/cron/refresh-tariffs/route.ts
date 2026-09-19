@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { cacheClear } from "@/lib/tariff-data/live/cache";
+import { DUTY_CACHE_TAG } from "@/lib/tariff-data/cached-duty";
 import { resetTariffDataProvider } from "@/lib/tariff-data";
 import { refreshTradeRemedyOverrides } from "@/lib/tariff-data/trade-remedies";
 
@@ -28,6 +30,10 @@ export async function GET(request: Request) {
 
   const cleared = cacheClear();
   resetTariffDataProvider();
+  // The /hs-code reference pages read duty through a day-long data cache of
+  // their own. Flushing the per-instance cache without this would leave those
+  // pages serving yesterday's figures for up to another day.
+  revalidateTag(DUTY_CACHE_TAG);
   // Pull the latest trade-remedy overrides (US trade-war rates) if configured.
   const overrides = await refreshTradeRemedyOverrides();
 
@@ -36,6 +42,6 @@ export async function GET(request: Request) {
     cleared,
     tradeRemedyOverrides: overrides,
     refreshedAt: new Date().toISOString(),
-    note: "Live tariff cache flushed and trade-remedy overrides refreshed; next classifications use current rates.",
+    note: "Live tariff cache flushed, reference-page duty cache invalidated, and trade-remedy overrides refreshed; next requests use current rates.",
   });
 }

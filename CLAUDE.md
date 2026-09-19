@@ -130,22 +130,21 @@ purchase, and refund notifications only fire when something real happens.
 
 ## 6. Known open defects
 
-Found by a production audit on 2026-08-04. None are fixed. None block the
-closed site, but the first should be fixed before reopening.
+Found by a production audit on 2026-08-04. (1) and (2) are fixed; (3) and the
+notes below are still open. None block the closed site.
 
-1. **ISR is dead site-wide.** The root layout calls `getLocale()` →
-   `cookies()`, which forces every route into dynamic rendering. Evidence:
-   `x-vercel-cache: MISS` on repeated requests with and without a locale
-   cookie, plus `cache-control: private, no-cache, no-store`. Consequence:
-   `revalidate = 86400` on the 105 code pages never applies, so **every visit
-   fires two live government API calls** — exactly what the code comment says
-   it wanted to avoid. Suggested fix: keep i18n, but wrap the tariff lookups
-   in `unstable_cache` so the expensive part is cached even though the page
-   renders per request.
+1. ~~**ISR is dead site-wide.**~~ **Fixed 2026-09-19** (`lib/tariff-data/cached-duty.ts`).
+   Page-level caching still cannot engage — the root layout calls `getLocale()`
+   → `cookies()`, which opts every route into dynamic rendering, and that is
+   left alone because the multi-language support depends on it. Instead the
+   *data* is cached: duty lookups go through `unstable_cache` with a 24h
+   window, so pages still render per request but stop calling the government
+   APIs on every view. Verified locally — four requests to one page produced
+   one provider call per destination instead of four. The refresh cron clears
+   the `tariff-duty` tag so figures can't go stale beyond a day.
 
-2. **Cold renders can exceed 45s.** `/hs-code/8714-91` timed out on first
-   render, then served in under a second. With no caching, every request is
-   exposed to upstream latency. Fixing (1) fixes this.
+2. ~~**Cold renders can exceed 45s.**~~ Addressed by the same change: only the
+   first request after a cache miss pays upstream latency.
 
 3. **Doubled brand in `<title>`.** `Pricing — Kustaro | Kustaro`,
    `HS code 6109.10 — … | Kustaro | Kustaro`. The root layout's
